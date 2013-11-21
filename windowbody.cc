@@ -5,6 +5,7 @@
 #include <gtkmm/styleprovider.h>
 
 #include "windowbody.hh"
+#include "leftpaneview.hh"
 
 void addCss (Gtk::Widget* widget, std::string cssClass, std::string css) {
 	Glib::RefPtr<Gtk::StyleContext> context;
@@ -18,7 +19,6 @@ void addCss (Gtk::Widget* widget, std::string cssClass, std::string css) {
 }
 
 
-
 WindowBody::WindowBody (bool homogeneous, int spacing, Gtk::PackOptions options, int padding) {
 
 	set_orientation (Gtk::ORIENTATION_VERTICAL);
@@ -30,10 +30,9 @@ WindowBody::WindowBody (bool homogeneous, int spacing, Gtk::PackOptions options,
     Gtk::Paned* paneOne = Gtk::manage (new Gtk::Paned (Gtk::ORIENTATION_HORIZONTAL));
     addCss (paneOne, "paneOne", ".paneOne{ -GtkPaned-handle-size: 1px;}");
 
-    Gtk::EventBox* leftPaneEventBox = Gtk::manage (new Gtk::EventBox ());
-    leftPaneEventBox->set_size_request (200, -1);
-    paneOne->pack1 (*leftPaneEventBox, false, false);
-    addCss (leftPaneEventBox, "leftPaneEventBox", ".leftPaneEventBox { background-color: #34393D;}");
+    LeftPaneView* lpv = new LeftPaneView (false, 0, Gtk::PACK_SHRINK,0);
+    paneOne->pack1 (*lpv, false, false);
+//    addCss (leftPaneEventBox, "leftPaneEventBox", ".leftPaneEventBox { background-color: #34393D;}");
 
     Gtk::Box* rightFrameOfPaneOne = Gtk::manage (new Gtk::Box (Gtk::ORIENTATION_HORIZONTAL, 0));
     Gtk::Paned* paneTwo = Gtk::manage (new Gtk::Paned (Gtk::ORIENTATION_HORIZONTAL));

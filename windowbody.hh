@@ -5,6 +5,8 @@
 
 #include "maintoolbar.hh"
 
+void addCss (Gtk::Widget* widget, std::string cssClass, std::string css);
+
 class WindowBody : public Gtk::Box {
 private:
     int a;
