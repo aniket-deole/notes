@@ -39,6 +39,7 @@ LeftPaneView::LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
   m_refTreeModel = Gtk::TreeStore::create(m_Columns);
   m_TreeView.set_model(m_refTreeModel);
   m_TreeView.set_headers_visible (false);
+  m_TreeView.set_show_expanders (false);
   //All the items to be reordered with drag-and-drop:
   m_TreeView.set_reorderable(false);
 
@@ -60,7 +61,6 @@ LeftPaneView::LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
   row[m_Columns.m_col_name] = "Tags";
 
   //Add the TreeView's view columns:
-  m_TreeView.append_column("ID", m_Columns.m_col_id);
   m_TreeView.append_column("Name", m_Columns.m_col_name);
 
   //Connect signal:
