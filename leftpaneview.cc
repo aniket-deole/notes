@@ -41,7 +41,7 @@ LeftPaneView::LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
   m_refTreeModel = Gtk::TreeStore::create(m_Columns);
   m_TreeView.set_model(m_refTreeModel);
   m_TreeView.set_headers_visible (false);
-  m_TreeView.set_show_expanders (true);
+  m_TreeView.set_show_expanders (false);
   //All the items to be reordered with drag-and-drop:
   m_TreeView.set_reorderable(false);
 
@@ -52,11 +52,11 @@ LeftPaneView::LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 
   Gtk::TreeModel::Row childrow = *(m_refTreeModel->append(row.children()));
   childrow[m_Columns.m_col_id] = 11;
-  childrow[m_Columns.m_col_name] = "Literature";
+  childrow[m_Columns.m_col_name] = "\tLiterature";
 
   childrow = *(m_refTreeModel->append(row.children()));
   childrow[m_Columns.m_col_id] = 12;
-  childrow[m_Columns.m_col_name] = "HowTos";
+  childrow[m_Columns.m_col_name] = "\tHowTos";
 
   row = *(m_refTreeModel->append());
   row[m_Columns.m_col_id] = 2;
@@ -64,11 +64,11 @@ LeftPaneView::LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 
   childrow = *(m_refTreeModel->append(row.children()));
   childrow[m_Columns.m_col_id] = 13;
-  childrow[m_Columns.m_col_name] = "Tag1";
+  childrow[m_Columns.m_col_name] = "\tTag1";
 
   childrow = *(m_refTreeModel->append(row.children()));
   childrow[m_Columns.m_col_id] = 14;
-  childrow[m_Columns.m_col_name] = "Tag2";
+  childrow[m_Columns.m_col_name] = "\tTag2";
 
 
   //Add the TreeView's view columns:
@@ -106,6 +106,12 @@ void LeftPaneView::on_treeview_row_changed () {
     Gtk::TreeModel::Path path = tm->get_path (iter);
     if (path.size () == 1) {
       ts->unselect_all ();
+      /* Expand tree */
+      if (m_TreeView.row_expanded (path))
+        m_TreeView.collapse_row (path);
+      else {
+        m_TreeView.expand_to_path (path);
+      }
     } else {
       std::cout << "Tree Child Clicked." << std::endl;
     }
