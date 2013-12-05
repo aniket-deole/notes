@@ -23,7 +23,7 @@ class NoteCellRenderer : public Gtk::CellRenderer {
     Gtk::CellRenderer(), 
     property_id_(*this, "id"),
     property_note_(*this, "note") {
-    set_fixed_size (-1, 85);
+    set_fixed_size (-1, 65);
   }
 
   Pango::Rectangle* renderNote (const ::Cairo::RefPtr< ::Cairo::Context >& cr, Gtk::Widget& widget, const Gdk::Rectangle& background_area, const Gdk::Rectangle& cell_area, Pango::Rectangle* pr, int id) {
@@ -33,29 +33,27 @@ class NoteCellRenderer : public Gtk::CellRenderer {
     layout_from->set_font_description (font_from);
     layout_from->set_markup ("<span foreground='black'>" + property_note_.get_value ().getTitle () + "</span>");
     layout_from->set_width(210 * Pango::SCALE);
-    cr->move_to (10, 10 + cell_area.get_y ());
+    cr->move_to (10, 5 + cell_area.get_y ());
     layout_from->show_in_cairo_context (cr);
 
     font_from.set_size (8 * Pango::SCALE);
     layout_from = widget.create_pango_layout ("");
     layout_from->set_font_description (font_from);
     layout_from->set_alignment(Pango::ALIGN_RIGHT);
-    layout_from->set_markup ("<span foreground='#AAA'>12 Days Ago</span>");
+    layout_from->set_markup ("<span foreground='#AAA'>" + property_note_.get_value ().getRemaining () + "</span>");
     layout_from->set_width(90* Pango::SCALE);
-    cr->move_to (cell_area.get_width () - 90, 15 + cell_area.get_y ());
+    cr->move_to (cell_area.get_width () - 90, 10 + cell_area.get_y ());
     layout_from->show_in_cairo_context (cr);
 
     font_from.set_size (10 * Pango::SCALE);
     layout_from = widget.create_pango_layout ("");
     layout_from->set_font_description (font_from);
     layout_from->set_alignment(Pango::ALIGN_LEFT);
-    layout_from->set_markup ("<span foreground='#555'>This is is the first thing in the morning that I'm not able to understand.</span>");
+    layout_from->set_markup ("<span foreground='#555'>" + property_note_.get_value ().getSummary () + "</span>");
     layout_from->set_width((cell_area.get_width () - 10) * Pango::SCALE);
-    cr->move_to (10, 40 + cell_area.get_y ());
+    cr->move_to (10, 27 + cell_area.get_y ());
 
     layout_from->show_in_cairo_context (cr);
-    std::cout << "renderNote: " << id<< " cell_area.get_y(): " << cell_area.get_y () << std::endl;
-
     return pr;
   }
 
@@ -64,7 +62,6 @@ class NoteCellRenderer : public Gtk::CellRenderer {
   
   protected:
    virtual void render_vfunc (const ::Cairo::RefPtr< ::Cairo::Context >& cr, Gtk::Widget& widget, const Gdk::Rectangle& background_area, const Gdk::Rectangle& cell_area, Gtk::CellRendererState flags) {
-    std::cout << "render_vfunc: " << property_id() << std::endl;
     Pango::Rectangle* pr = new Pango::Rectangle ();
     renderNote (cr, widget, background_area, cell_area, pr, property_id_);
   }
@@ -123,26 +120,26 @@ NoteListPaneView::NoteListPaneView (bool homogeneous, int spacing, Gtk::PackOpti
   Gtk::TreeModel::Row row = *(m_refTreeModel->append());
   row[m_Columns.m_col_id] = 1;
   row[m_Columns.m_col_name] = "id";
-  NoteData n1 ("First", "2", "Summary");
+  NoteData n1 ("First", "14:53", "Summary");
   row[m_Columns.m_note_data] = n1;
 
 
   row = *(m_refTreeModel->append());
   row[m_Columns.m_col_id] = 2;
   row[m_Columns.m_col_name] = "Tags";
-  NoteData n2 ("Second", "2", "Summary");
+  NoteData n2 ("Second", "11:09", "Summary");
   row[m_Columns.m_note_data] = n2;
   
   row = *(m_refTreeModel->append());
   row[m_Columns.m_col_id] = 3;
   row[m_Columns.m_col_name] = "NTags";
-  NoteData n3 ("Third", "2", "Summary");
+  NoteData n3 ("Third", "Yesterday", "Summary");
   row[m_Columns.m_note_data] = n3;
 
   row = *(m_refTreeModel->append());
   row[m_Columns.m_col_id] = 4;
   row[m_Columns.m_col_name] = "NTagsa";
-  NoteData n4("Fourth", "2", "Summary");
+  NoteData n4("Fourth", "4 Days Ago", "Summary");
   row[m_Columns.m_note_data] = n4;  
 
 //  Gtk::TreeView::Column m_treeviewcolumn_validated;
