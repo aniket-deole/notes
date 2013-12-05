@@ -142,24 +142,13 @@ NoteListPaneView::NoteListPaneView (bool homogeneous, int spacing, Gtk::PackOpti
   NoteData n4("Fourth", "4 Days Ago", "Summary");
   row[m_Columns.m_note_data] = n4;  
 
-//  Gtk::TreeView::Column m_treeviewcolumn_validated;
-
-  //  Gtk::CellRendererText m_cellrenderer_validated;
-
-//  m_treeviewcolumn_validated.set_title("validated (<10)");
-//  m_treeviewcolumn_validated.pack_start(*ncr);
-  
-  //Add the TreeView's view columns:
-//  m_TreeView.append_column("Name", m_Columns.m_col_name);
-//  m_TreeView.append_column("Id", m_Columns.m_col_id);
-
   m_TreeView.append_column(*create_column (m_Columns.m_col_id, m_Columns.m_note_data));
 
   show_all ();
 }
 void NoteListPaneView::treeviewcolumn_validated_on_cell_data(
-        Gtk::CellRenderer* ,
-        const Gtk::TreeModel::iterator& iter)
+  Gtk::CellRenderer* ,
+  const Gtk::TreeModel::iterator& iter)
 {
   std::cout << "render" << std::endl;
 }

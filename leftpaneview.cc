@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include <gtkmm/box.h>
 #include <gtkmm/widget.h>
 
@@ -39,7 +41,7 @@ LeftPaneView::LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
   m_refTreeModel = Gtk::TreeStore::create(m_Columns);
   m_TreeView.set_model(m_refTreeModel);
   m_TreeView.set_headers_visible (false);
-  m_TreeView.set_show_expanders (false);
+  m_TreeView.set_show_expanders (true);
   //All the items to be reordered with drag-and-drop:
   m_TreeView.set_reorderable(false);
 
@@ -60,14 +62,54 @@ LeftPaneView::LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
   row[m_Columns.m_col_id] = 2;
   row[m_Columns.m_col_name] = "Tags";
 
+  childrow = *(m_refTreeModel->append(row.children()));
+  childrow[m_Columns.m_col_id] = 13;
+  childrow[m_Columns.m_col_name] = "Tag1";
+
+  childrow = *(m_refTreeModel->append(row.children()));
+  childrow[m_Columns.m_col_id] = 14;
+  childrow[m_Columns.m_col_name] = "Tag2";
+
+
   //Add the TreeView's view columns:
   m_TreeView.append_column("Name", m_Columns.m_col_name);
 
   //Connect signal:
-//  m_TreeView.signal_row_activated().connect(sigc::mem_fun(*this,
-//              &ExampleWindow::on_treeview_row_activated) );
+  m_TreeView.signal_row_expanded().connect(sigc::mem_fun(*this,
+              &LeftPaneView::on_treeview_row_expanded) );
+
+  m_TreeView.signal_row_activated().connect(sigc::mem_fun(*this,
+              &LeftPaneView::on_treeview_row_activated) );
+
+  Glib::RefPtr<Gtk::TreeSelection> ts = m_TreeView.get_selection ();
+
+  ts->signal_changed().connect(sigc::mem_fun(*this,
+              &LeftPaneView::on_treeview_row_changed) );
 
   show_all ();
+}
+
+void LeftPaneView::on_treeview_row_expanded (const Gtk::TreeModel::iterator& iter, Gtk::TreeModel::Path path){
+  std::cout << "TreeView Row Expanded" << std::endl;
+}
+
+void LeftPaneView::on_treeview_row_activated (const Gtk::TreePath& tp, Gtk::TreeViewColumn* const& tvc){
+  std::cout << "TreeView Row Activated" << std::endl;
+}
+
+void LeftPaneView::on_treeview_row_changed () {
+  Glib::RefPtr<Gtk::TreeSelection> ts = m_TreeView.get_selection ();
+  Gtk::TreeModel::iterator iter = ts->get_selected ();
+  Glib::RefPtr<Gtk::TreeModel> tm = ts->get_model ();
+
+  if (iter) {
+    Gtk::TreeModel::Path path = tm->get_path (iter);
+    if (path.size () == 1) {
+      ts->unselect_all ();
+    } else {
+      std::cout << "Tree Child Clicked." << std::endl;
+    }
+  }
 }
 
 LeftPaneView::~LeftPaneView () {

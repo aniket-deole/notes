@@ -6,8 +6,11 @@
 class LeftPaneView : public Gtk::Box {
 private:
 	int a;
+  Gtk::TreeView* treeView;
+  void on_treeview_row_expanded (const Gtk::TreeModel::iterator& iter, Gtk::TreeModel::Path path);
+  void on_treeview_row_activated (const Gtk::TreePath&, Gtk::TreeViewColumn* const&);
+  void on_treeview_row_changed ();
 
-	Gtk::TreeView* treeView;
 
 public:
     LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding = 0);
