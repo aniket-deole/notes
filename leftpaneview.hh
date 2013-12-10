@@ -11,6 +11,8 @@ private:
   void on_treeview_row_activated (const Gtk::TreePath&, Gtk::TreeViewColumn* const&);
   void on_treeview_row_changed ();
 
+  std::string selectedPath;
+  bool notebookListSelected;
 
 public:
     LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding = 0);

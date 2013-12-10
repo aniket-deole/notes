@@ -52,7 +52,7 @@ LeftPaneView::LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 
   Gtk::TreeModel::Row childrow = *(m_refTreeModel->append(row.children()));
   childrow[m_Columns.m_col_id] = 11;
-  childrow[m_Columns.m_col_name] = "\tLiterature";
+  childrow[m_Columns.m_col_name] = "\tAll Notes";
 
   childrow = *(m_refTreeModel->append(row.children()));
   childrow[m_Columns.m_col_id] = 12;
@@ -86,6 +86,12 @@ LeftPaneView::LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
   ts->signal_changed().connect(sigc::mem_fun(*this,
               &LeftPaneView::on_treeview_row_changed) );
 
+  /* Select the All Notes item by default */ 
+  m_TreeView.expand_all ();
+  ts->select (Gtk::TreeModel::Path ("0:0"));
+  selectedPath = "0:0";
+  notebookListSelected = true;
+
   show_all ();
 }
 
@@ -105,16 +111,27 @@ void LeftPaneView::on_treeview_row_changed () {
   if (iter) {
     Gtk::TreeModel::Path path = tm->get_path (iter);
     if (path.size () == 1) {
-      ts->unselect_all ();
+      if (notebookListSelected && path[0] == 0)
+        ts->unselect_all ();
+      else
+        ts->select (Gtk::TreeModel::Path (selectedPath));
       /* Expand tree */
-      if (m_TreeView.row_expanded (path))
+      if (m_TreeView.row_expanded (path)) {
         m_TreeView.collapse_row (path);
+      }
       else {
         m_TreeView.expand_to_path (path);
+        ts->select (Gtk::TreeModel::Path (selectedPath));
       }
     } else {
       std::cout << "Tree Child Clicked." << std::endl;
+      selectedPath = tm->get_string (iter);
+      if (path[0] == 1)
+        notebookListSelected = false;
+      else
+        notebookListSelected = true;
     }
+    std::cout << "LeftPaneView::on_treeview_row_changed getString (): " << tm->get_string (iter)  << std::endl;
   }
 }
 
