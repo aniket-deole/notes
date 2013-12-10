@@ -7,6 +7,7 @@
 #include "windowbody.hh"
 #include "leftpaneview.hh"
 #include "notelistpaneview.hh"
+#include "noteview.hh"
 
 void addCss (Gtk::Widget* widget, std::string cssClass, std::string css) {
 	Glib::RefPtr<Gtk::StyleContext> context;
@@ -33,20 +34,16 @@ WindowBody::WindowBody (bool homogeneous, int spacing, Gtk::PackOptions options,
 
     LeftPaneView* lpv = new LeftPaneView (false, 0, Gtk::PACK_SHRINK,0);
     paneOne->pack1 (*lpv, false, false);
-//    addCss (leftPaneEventBox, "leftPaneEventBox", ".leftPaneEventBox { background-color: #34393D;}");
 
     Gtk::Box* rightFrameOfPaneOne = Gtk::manage (new Gtk::Box (Gtk::ORIENTATION_HORIZONTAL, 0));
     Gtk::Paned* paneTwo = Gtk::manage (new Gtk::Paned (Gtk::ORIENTATION_HORIZONTAL));
 
     NoteListPaneView* noteListPaneView = new NoteListPaneView (false, 0, Gtk::PACK_SHRINK, 0);
-//    Gtk::EventBox* middlePaneEventBox = Gtk::manage (new Gtk::EventBox ());
-//    middlePaneEventBox->set_size_request (300, -1);
     paneTwo->pack1 (*noteListPaneView, false, false);
- //   addCss (middlePaneEventBox, "middlePaneEventBox", ".middlePaneEventBox { background-color: white;}");
 
-    Gtk::EventBox* rightPaneEventBox = Gtk::manage (new Gtk::EventBox ());
-    paneTwo->pack2 (*rightPaneEventBox, true, false);
-    addCss (rightPaneEventBox, "rightPaneEventBox", ".rightPaneEventBox { background-color: #DDD;}");
+    NoteView* noteView = new NoteView (false, 0, Gtk::PACK_SHRINK, 0);
+    paneTwo->pack2 (*noteView, true, false);
+    addCss (noteView, "noteView", ".NoteView { background-color: #DDD;}");
 
     rightFrameOfPaneOne->pack_start (*paneTwo, true, true, 0);
 
