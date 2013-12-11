@@ -5,7 +5,7 @@
 #include <webkit/webkit.h>
 #include "notedata.hh"
 
-class NoteView : public Gtk::Box {
+class NotePaneView : public Gtk::Box {
 private:
 	int a;
   WebKitWebView* webview;

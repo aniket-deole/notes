@@ -7,7 +7,7 @@
 #include "windowbody.hh"
 #include "leftpaneview.hh"
 #include "notelistpaneview.hh"
-#include "noteview.hh"
+#include "notepaneview.hh"
 
 void addCss (Gtk::Widget* widget, std::string cssClass, std::string css) {
 	Glib::RefPtr<Gtk::StyleContext> context;
@@ -19,7 +19,6 @@ void addCss (Gtk::Widget* widget, std::string cssClass, std::string css) {
 	context->add_provider (provider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 	context->add_class (cssClass);
 }
-
 
 WindowBody::WindowBody (bool homogeneous, int spacing, Gtk::PackOptions options, int padding) {
 
@@ -41,9 +40,9 @@ WindowBody::WindowBody (bool homogeneous, int spacing, Gtk::PackOptions options,
     NoteListPaneView* noteListPaneView = new NoteListPaneView (false, 0, Gtk::PACK_SHRINK, 0);
     paneTwo->pack1 (*noteListPaneView, false, false);
 
-    NoteView* noteView = new NoteView (false, 0, Gtk::PACK_SHRINK, 0);
-    paneTwo->pack2 (*noteView, true, false);
-    addCss (noteView, "noteView", ".NoteView { background-color: #DDD;}");
+    NotePaneView* notePaneView = new NotePaneView (false, 0, Gtk::PACK_SHRINK, 0);
+    paneTwo->pack2 (*notePaneView, true, false);
+    addCss (notePaneView, "notePaneView", ".NotePaneView { background-color: #DDD;}");
 
     rightFrameOfPaneOne->pack_start (*paneTwo, true, true, 0);
 

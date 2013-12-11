@@ -1,10 +1,10 @@
-#include "noteview.hh"
+#include "notepaneview.hh"
 /*
- * This files contains C Code as there is no C++ gtkmm equivalent wrapper for
- * webkit
+ * This files contains C Code as I was not able to find a good C++ gtkmm e
+ * equivalent wrapper for webkit. Open to suggestions :)
  */
 
-NoteView::NoteView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding) {
+NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding) {
 	set_orientation (Gtk::ORIENTATION_VERTICAL);
 
 	webviewWrapper = Gtk::manage (new Gtk::ScrolledWindow ());
@@ -23,4 +23,4 @@ NoteView::NoteView (bool homogeneous, int spacing, Gtk::PackOptions options, int
 	show_all ();
 }
 
-NoteView::~NoteView () {}
+NotePaneView::~NotePaneView () {}

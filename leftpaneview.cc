@@ -115,11 +115,11 @@ void LeftPaneView::on_treeview_row_changed () {
         ts->unselect_all ();
       else
         ts->select (Gtk::TreeModel::Path (selectedPath));
+      
       /* Expand tree */
       if (m_TreeView.row_expanded (path)) {
         m_TreeView.collapse_row (path);
-      }
-      else {
+      } else {
         m_TreeView.expand_to_path (path);
         ts->select (Gtk::TreeModel::Path (selectedPath));
       }
