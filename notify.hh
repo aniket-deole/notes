@@ -5,6 +5,9 @@
 #include <gtkmm/window.h>
 
 #include "windowbody.hh"
+#include "leftpaneview.hh"
+#include "notelistpaneview.hh"
+#include "notepaneview.hh"
 
 class Notify : public Gtk::Window {
 public:
@@ -13,7 +16,7 @@ public:
 
 	LeftPaneView* lfp;
 	NoteListPaneView* nlpv;
-	NoteView
+	NotePaneView* nv;
 
 protected:
 	void on_button_clicked();

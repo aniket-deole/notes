@@ -13,7 +13,7 @@ private:
   Gtk::ScrolledWindow* webviewWrapper;
 
 public:
-    NoteView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding = 0);
-    ~NoteView ();
+    NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding = 0);
+    ~NotePaneView ();
 };
 #endif
