@@ -3,20 +3,26 @@
 
 #include <gtkmm/button.h>
 #include <gtkmm/window.h>
+#include <sqlite3.h>
 
 #include "windowbody.hh"
 #include "leftpaneview.hh"
 #include "notelistpaneview.hh"
 #include "notepaneview.hh"
 
+class WindowBody;
+
 class Notify : public Gtk::Window {
 public:
 	Notify ();
 	virtual ~Notify ();
 
-	LeftPaneView* lfp;
+	LeftPaneView* lpv;
 	NoteListPaneView* nlpv;
-	NotePaneView* nv;
+	NotePaneView* npv;
+
+	sqlite3 *db;
+
 
 protected:
 	void on_button_clicked();
@@ -24,6 +30,7 @@ protected:
 
 private:
     WindowBody* windowBody;
+    void setupDatabase ();
 };
 
 #endif
