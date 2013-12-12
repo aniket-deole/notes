@@ -29,3 +29,7 @@ NotePaneView::~NotePaneView () {}
 void NotePaneView::setDatabaseManager (DatabaseManager* d) {
     dbm = d;
 }
+
+void NotePaneView::setWebViewContent (std::string content) {
+	webkit_web_view_load_string (webview, content.c_str (), "text/html", NULL, NULL);
+}

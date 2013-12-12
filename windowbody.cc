@@ -60,6 +60,7 @@ void WindowBody::setApp (Notify* a) {
     app = a;
     app->lpv = lpv;
     app->nlpv = nlpv;
+    nlpv->setApp (app);
     app->npv = npv;
 }
 

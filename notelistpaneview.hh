@@ -4,7 +4,9 @@
 #include <gtkmm.h>
 #include "notedata.hh"
 #include "databasemanager.hh"
+#include "notify.hh"
 
+class Notify;
 class DatabaseManager;
 
 class NoteListPaneView : public Gtk::Box {
@@ -13,6 +15,7 @@ private:
 
 	Gtk::TreeView* treeView;
   DatabaseManager* dbm;
+  Notify* app;
 
 public:
     NoteListPaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding = 0);
@@ -44,6 +47,12 @@ public:
 
   void setDatabaseManager (DatabaseManager* d);
   static int fillNotesCallback (void*,int,char**,char**);
+
+  void on_treeview_row_activated (const Gtk::TreePath&, Gtk::TreeViewColumn* const&);
+  void on_treeview_row_changed ();
+
+  void setApp (Notify* a) { app = a; }
+
 };
 
 #endif

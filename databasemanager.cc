@@ -29,7 +29,7 @@ DatabaseManager::DatabaseManager (Notify* a) {
 	    sqlite3_exec (db, "INSERT INTO notes values (5,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
 	    sqlite3_exec (db, "INSERT INTO notes values (6,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
 	    sqlite3_exec (db, "INSERT INTO notes values (7,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
-	    sqlite3_exec (db, "INSERT INTO notes values (8,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
+	    sqlite3_exec (db, "INSERT INTO notes values (8,'Third Note', 'Who has been strangely quite for the past few days as her public profile.Who has been strangely quite for the past few days as her public profile.Who has been strangely quite for the past few days as her public profile.Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
 	    sqlite3_exec (db, "INSERT INTO notes values (9,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
 	    sqlite3_exec (db, "INSERT INTO notes values (10,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
 	    sqlite3_exec (db, "INSERT INTO notes values (11,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);

@@ -23,5 +23,6 @@ public:
 	~NotePaneView ();
 
 	void setDatabaseManager (DatabaseManager* d);
+	void setWebViewContent (std::string);
 };
 #endif

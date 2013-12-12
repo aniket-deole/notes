@@ -154,7 +154,6 @@ int LeftPaneView::fillNotebooksCallback (void* lpv, int argc, char **argv, char 
   return 0;
 }
 
-
 int LeftPaneView::fillTagsCallback (void* lpv, int argc, char **argv, char **azColName) {
   std::cout << "LeftPaneView::fillTagsCallback" << std::endl;
   LeftPaneView* p = (LeftPaneView*) lpv;

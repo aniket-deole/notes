@@ -109,6 +109,15 @@ NoteListPaneView::NoteListPaneView (bool homogeneous, int spacing, Gtk::PackOpti
   m_TreeView.set_reorderable(false);
   m_TreeView.append_column(*create_column (m_Columns.m_col_id, m_Columns.m_note_data));
 
+
+  Glib::RefPtr<Gtk::TreeSelection> ts = m_TreeView.get_selection ();
+
+  ts->signal_changed().connect(sigc::mem_fun(*this,
+              &NoteListPaneView::on_treeview_row_changed) );
+
+  m_TreeView.signal_row_activated().connect(sigc::mem_fun(*this,
+              &NoteListPaneView::on_treeview_row_activated) );
+
   show_all ();
 }
 void NoteListPaneView::treeviewcolumn_validated_on_cell_data(
@@ -128,7 +137,6 @@ void NoteListPaneView::setDatabaseManager (DatabaseManager* d) {
 
 
 int NoteListPaneView::fillNotesCallback (void* nlpv, int argc, char **argv, char **azColName) {
-  std::cout << "NoteListPaneView::fillNotesCallback" << std::endl;
   NoteListPaneView* p = (NoteListPaneView*) nlpv;
 
   std::string tagName = "\t";
@@ -137,8 +145,30 @@ int NoteListPaneView::fillNotesCallback (void* nlpv, int argc, char **argv, char
   Gtk::TreeModel::Row row = *(p->m_refTreeModel->append());
   row[p->m_Columns.m_col_id] = 1;
   row[p->m_Columns.m_col_name] = "id";
-  NoteData n1 (argv[1], "14:53", argv[2]);
+  NoteData n1 (atoi(argv[0]), argv[1], "14:53", argv[2]);
   row[p->m_Columns.m_note_data] = n1;
-
+  
+  std::cout << "NoteListPaneView::fillNotesCallback PKey: " << atoi(argv[0]) << std::endl;
+  
   return 0;
 }
+
+void NoteListPaneView::on_treeview_row_activated (const Gtk::TreePath& tp, Gtk::TreeViewColumn* const& tvc){
+  std::cout << "TreeView Row Activated" << std::endl;
+}
+
+void NoteListPaneView::on_treeview_row_changed () {
+  Glib::RefPtr<Gtk::TreeSelection> ts = m_TreeView.get_selection ();
+  Gtk::TreeModel::iterator iter = ts->get_selected ();
+  Glib::RefPtr<Gtk::TreeModel> tm = ts->get_model ();
+
+  if (iter) {
+    Gtk::TreeModel::Path path = tm->get_path (iter);
+    Gtk::TreeModel::Row row = *iter;
+    NoteData n = row[m_Columns.m_note_data];
+    std::cout << "NoteListPaneView::on_treeview_row_changed, Note, Title: " << n.getTitle () << ", PrimaryKey: " << n.getPrimaryKey () << std::endl;
+    app->npv->setWebViewContent (n.getSummary ());
+  }
+}
+
+
