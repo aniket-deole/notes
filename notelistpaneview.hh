@@ -43,6 +43,7 @@ public:
         const Gtk::TreeModel::iterator& iter);
 
   void setDatabaseManager (DatabaseManager* d);
+  static int fillNotesCallback (void*,int,char**,char**);
 };
 
 #endif

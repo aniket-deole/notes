@@ -22,6 +22,27 @@ DatabaseManager::DatabaseManager (Notify* a) {
 
 	    sqlite3_exec (db, "INSERT INTO notebooks values (0,'All Notebooks', 0)", NULL, 0, NULL);
 	    sqlite3_exec (db, "INSERT INTO tags values (0,'All Tags')", NULL, 0, NULL);
+	    sqlite3_exec (db, "INSERT INTO notes values (42,'First Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
+	    sqlite3_exec (db, "INSERT INTO notes values (2,'Second Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
+	    sqlite3_exec (db, "INSERT INTO notes values (3,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
+	    sqlite3_exec (db, "INSERT INTO notes values (4,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
+	    sqlite3_exec (db, "INSERT INTO notes values (5,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
+	    sqlite3_exec (db, "INSERT INTO notes values (6,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
+	    sqlite3_exec (db, "INSERT INTO notes values (7,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
+	    sqlite3_exec (db, "INSERT INTO notes values (8,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
+	    sqlite3_exec (db, "INSERT INTO notes values (9,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
+	    sqlite3_exec (db, "INSERT INTO notes values (10,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
+	    sqlite3_exec (db, "INSERT INTO notes values (11,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
+	    sqlite3_exec (db, "INSERT INTO notes values (12,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
+	    sqlite3_exec (db, "INSERT INTO notes values (13,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
+	    sqlite3_exec (db, "INSERT INTO notes values (14,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
+	    sqlite3_exec (db, "INSERT INTO notes values (15,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
+	    sqlite3_exec (db, "INSERT INTO notes values (16,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
+	    sqlite3_exec (db, "INSERT INTO notes values (17,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
+	    sqlite3_exec (db, "INSERT INTO notes values (18,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
+	    sqlite3_exec (db, "INSERT INTO notes values (19,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
+	    sqlite3_exec (db, "INSERT INTO notes values (20,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
+	    sqlite3_exec (db, "INSERT INTO notes values (21,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
 	    sqlite3_exec (db, "COMMIT", NULL, NULL, NULL);
 	}
 }

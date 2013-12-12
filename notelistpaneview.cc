@@ -28,15 +28,17 @@ class NoteCellRenderer : public Gtk::CellRenderer {
 
   Pango::Rectangle* renderNote (const ::Cairo::RefPtr< ::Cairo::Context >& cr, Gtk::Widget& widget, const Gdk::Rectangle& background_area, const Gdk::Rectangle& cell_area, Pango::Rectangle* pr, int id) {
     Pango::FontDescription font_from;
-    font_from.set_size (12 * Pango::SCALE);
+    font_from.set_size (10 * Pango::SCALE);
+    font_from.set_weight (Pango::WEIGHT_SEMIBOLD);
     Glib::RefPtr <Pango::Layout> layout_from = widget.create_pango_layout ("");
     layout_from->set_font_description (font_from);
-    layout_from->set_markup ("<span foreground='black'>" + property_note_.get_value ().getTitle () + "</span>");
+    layout_from->set_markup ("<span foreground='#555'>" + property_note_.get_value ().getTitle () + "</span>");
     layout_from->set_width(210 * Pango::SCALE);
     cr->move_to (10, 5 + cell_area.get_y ());
     layout_from->show_in_cairo_context (cr);
 
     font_from.set_size (8 * Pango::SCALE);
+    font_from.set_weight (Pango::WEIGHT_NORMAL);
     layout_from = widget.create_pango_layout ("");
     layout_from->set_font_description (font_from);
     layout_from->set_alignment(Pango::ALIGN_RIGHT);
@@ -46,6 +48,7 @@ class NoteCellRenderer : public Gtk::CellRenderer {
     layout_from->show_in_cairo_context (cr);
 
     font_from.set_size (10 * Pango::SCALE);
+    font_from.set_weight (Pango::WEIGHT_LIGHT);
     layout_from = widget.create_pango_layout ("");
     layout_from->set_font_description (font_from);
     layout_from->set_alignment(Pango::ALIGN_LEFT);
@@ -85,21 +88,10 @@ NoteListPaneView::NoteListPaneView (bool homogeneous, int spacing, Gtk::PackOpti
 
   //Add the TreeView, inside a ScrolledWindow, with the button underneath:
   m_ScrolledWindow.add(m_TreeView);
-  std::string cssProperties = ".m_TreeView { background-color: white;     border-radius: 0;     color: white; } "
-" .m_TreeView:selected, .m_TreeView:prelight:selected, .m_TreeView.category-expander:hover {      color: white;     border-style: solid;     border-width: 1px 0 1px 0; "
-"     -unico-inner-stroke-width: 1px 0 1px 0; background-image: -gtk-gradient (linear, left top, left bottom, from (alpha (#000, 0.11)), to (alpha (#000, 0.07)));     " 
-"   -unico-border-gradient: -gtk-gradient (linear,                     left top, left bottom,                     "
-"     from (alpha (#fff, 0.070)), "
-"   to (alpha (#fff, 0.10)));      -unico-inner-stroke-gradient: -gtk-gradient (linear,                     left top, left bottom, "
-"   from (alpha (#000, 0.03)),                     to (alpha (#000, 0.10))); }  "
-" .m_TreeView:selected:backdrop, .m_TreeView:prelight:selected:backdrop {     background-image: -gtk-gradient (linear,"
-"   left top,                     left bottom,                     from (alpha (#000, 0.08)),                     to (alpha (#000, 0.04)));      -unico-border-gradient: -gtk-gradient (linear,       "
-"   left top, left bottom,                     from (alpha (#000, 0.19)),                     to (alpha (#fff, 0.25)));      "
-"   -unico-inner-stroke-gradient: -gtk-gradient (linear,                     left top, left bottom,                     from (alpha (#000, 0.03)),                     to (alpha (#000, 0.10)));  } "
-" .m_TreeView:prelight { background-color: shade (@bg_color, 1.10); }"
-" .m_TreeView:hover { color: white; border-style: solid; border-width: 1px 0 1px 0; -unico-inner-stroke-width: 1px 0 1px 0; "
-"   background-image: -gtk-gradient (linear, left top, left bottom, from (alpha (#FFF, 0.2)), to (alpha (#FFF, 0.2))); "
-"   -unico-border-gradient: -gtk-gradient (linear, left top, left bottom, from (alpha (#fff, 0.3)), to (alpha (#fff, 0.30)));}";
+  std::string cssProperties = ".m_TreeView { background-color: white; border-radius: 0; border-color: #CCC; border-style: solid; border-width: 0px 0 1px 0; } "
+  " .m_TreeView:selected, .m_TreeView:prelight:selected {      background-color: #EEE; }"
+  " .m_TreeView:prelight { background-color: shade (@bg_color, 1.10); }"
+  ;
 
   addCss (&m_TreeView, "m_TreeView", cssProperties);
 
@@ -115,33 +107,6 @@ NoteListPaneView::NoteListPaneView (bool homogeneous, int spacing, Gtk::PackOpti
   m_TreeView.set_show_expanders (false);
   //All the items to be reordered with drag-and-drop:
   m_TreeView.set_reorderable(false);
-
-  //Fill the TreeView's model
-  Gtk::TreeModel::Row row = *(m_refTreeModel->append());
-  row[m_Columns.m_col_id] = 1;
-  row[m_Columns.m_col_name] = "id";
-  NoteData n1 ("First", "14:53", "Summary");
-  row[m_Columns.m_note_data] = n1;
-
-
-  row = *(m_refTreeModel->append());
-  row[m_Columns.m_col_id] = 2;
-  row[m_Columns.m_col_name] = "Tags";
-  NoteData n2 ("Second", "11:09", "Summary");
-  row[m_Columns.m_note_data] = n2;
-  
-  row = *(m_refTreeModel->append());
-  row[m_Columns.m_col_id] = 3;
-  row[m_Columns.m_col_name] = "NTags";
-  NoteData n3 ("Third", "Yesterday", "Summary");
-  row[m_Columns.m_note_data] = n3;
-
-  row = *(m_refTreeModel->append());
-  row[m_Columns.m_col_id] = 4;
-  row[m_Columns.m_col_name] = "NTagsa";
-  NoteData n4("Fourth", "4 Days Ago", "Summary");
-  row[m_Columns.m_note_data] = n4;  
-
   m_TreeView.append_column(*create_column (m_Columns.m_col_id, m_Columns.m_note_data));
 
   show_all ();
@@ -157,5 +122,23 @@ NoteListPaneView::~NoteListPaneView () {
 }
 
 void NoteListPaneView::setDatabaseManager (DatabaseManager* d) {
-    dbm = d;
+  dbm = d;
+  dbm->exec ("select * from notes", &fillNotesCallback,this);
+}
+
+
+int NoteListPaneView::fillNotesCallback (void* nlpv, int argc, char **argv, char **azColName) {
+  std::cout << "NoteListPaneView::fillNotesCallback" << std::endl;
+  NoteListPaneView* p = (NoteListPaneView*) nlpv;
+
+  std::string tagName = "\t";
+  tagName += argv[1];
+
+  Gtk::TreeModel::Row row = *(p->m_refTreeModel->append());
+  row[p->m_Columns.m_col_id] = 1;
+  row[p->m_Columns.m_col_name] = "id";
+  NoteData n1 (argv[1], "14:53", argv[2]);
+  row[p->m_Columns.m_note_data] = n1;
+
+  return 0;
 }
