@@ -155,3 +155,7 @@ void NoteListPaneView::treeviewcolumn_validated_on_cell_data(
 NoteListPaneView::~NoteListPaneView () {
 
 }
+
+void NoteListPaneView::setDatabaseManager (DatabaseManager* d) {
+    dbm = d;
+}

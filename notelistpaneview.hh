@@ -3,12 +3,16 @@
 
 #include <gtkmm.h>
 #include "notedata.hh"
+#include "databasemanager.hh"
+
+class DatabaseManager;
 
 class NoteListPaneView : public Gtk::Box {
 private:
 	int a;
 
 	Gtk::TreeView* treeView;
+  DatabaseManager* dbm;
 
 public:
     NoteListPaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding = 0);
@@ -34,9 +38,11 @@ public:
   Gtk::ScrolledWindow m_ScrolledWindow;
   Gtk::TreeView m_TreeView;
   Glib::RefPtr<Gtk::TreeStore> m_refTreeModel;
-void treeviewcolumn_validated_on_cell_data(
+  void treeviewcolumn_validated_on_cell_data(
         Gtk::CellRenderer* /* renderer */,
         const Gtk::TreeModel::iterator& iter);
+
+  void setDatabaseManager (DatabaseManager* d);
 };
 
 #endif

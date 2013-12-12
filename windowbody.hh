@@ -10,6 +10,8 @@
 #include "notepaneview.hh"
 
 class Notify;
+class NoteListPaneView;
+class NotePaneView;
 
 void addCss (Gtk::Widget* widget, std::string cssClass, std::string css);
 
@@ -22,11 +24,14 @@ private:
     LeftPaneView* lpv;
     NoteListPaneView* nlpv;
     NotePaneView* npv;
+
+    DatabaseManager* dbm;
 public:
     WindowBody (bool homogeneous, int spacing, Gtk::PackOptions options, int padding = 0);
     ~WindowBody ();
 
     void setApp (Notify* a);
+    void setDatabaseManager (DatabaseManager* d);
 };
 
 #endif

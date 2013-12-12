@@ -4,6 +4,10 @@
 #include <gtkmm.h>
 #include <webkit/webkit.h>
 #include "notedata.hh"
+#include "databasemanager.hh"
+
+class DatabaseManager;
+class LeftPaneView;
 
 class NotePaneView : public Gtk::Box {
 private:
@@ -12,8 +16,12 @@ private:
 
   Gtk::ScrolledWindow* webviewWrapper;
 
+  DatabaseManager* dbm;
+
 public:
-    NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding = 0);
-    ~NotePaneView ();
+	NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding = 0);
+	~NotePaneView ();
+
+	void setDatabaseManager (DatabaseManager* d);
 };
 #endif

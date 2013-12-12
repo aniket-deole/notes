@@ -16,11 +16,16 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 
 	webkit_web_view_set_editable(webview, true);
     
-//	webkit_web_view_load_string (webview, "<html><body>Hel<b>lo</b><a href=\"http://www.google.com\">asdasd</a></body></html>", "text/html", NULL, NULL);
-	webkit_web_view_load_uri (webview, "http://news.google.com");
+	webkit_web_view_load_string (webview, "<html><body>Hel<b>lo</b><a href=\"http://www.google.com\">asdasd</a></body></html>", "text/html", NULL, NULL);
+//	webkit_web_view_load_uri (webview, "http://news.google.com");
 
 	pack_start (*webviewWrapper);
 	show_all ();
 }
 
 NotePaneView::~NotePaneView () {}
+
+
+void NotePaneView::setDatabaseManager (DatabaseManager* d) {
+    dbm = d;
+}

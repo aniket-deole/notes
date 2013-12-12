@@ -3,14 +3,15 @@
 
 #include <gtkmm/button.h>
 #include <gtkmm/window.h>
-#include <sqlite3.h>
 
 #include "windowbody.hh"
 #include "leftpaneview.hh"
 #include "notelistpaneview.hh"
 #include "notepaneview.hh"
+#include "databasemanager.hh"
 
 class WindowBody;
+class DatabaseManager;
 
 class Notify : public Gtk::Window {
 public:
@@ -21,7 +22,7 @@ public:
 	NoteListPaneView* nlpv;
 	NotePaneView* npv;
 
-	sqlite3 *db;
+	DatabaseManager* dbm;
 
 
 protected:

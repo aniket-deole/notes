@@ -46,22 +46,15 @@ LeftPaneView::LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
   m_TreeView.set_reorderable(false);
 
   //Fill the TreeView's model
-  Gtk::TreeModel::Row row = *(m_refTreeModel->append());
-  row[m_Columns.m_col_id] = 1;
-  row[m_Columns.m_col_name] = "Notebooks";
+  notebooksRow = *(m_refTreeModel->append());
+  notebooksRow[m_Columns.m_col_id] = 0;
+  notebooksRow[m_Columns.m_col_name] = "Notebooks";
 
-  Gtk::TreeModel::Row childrow = *(m_refTreeModel->append(row.children()));
-  childrow[m_Columns.m_col_id] = 11;
-  childrow[m_Columns.m_col_name] = "\tAll Notes";
 
-  childrow = *(m_refTreeModel->append(row.children()));
-  childrow[m_Columns.m_col_id] = 12;
-  childrow[m_Columns.m_col_name] = "\tHowTos";
-
-  row = *(m_refTreeModel->append());
-  row[m_Columns.m_col_id] = 2;
-  row[m_Columns.m_col_name] = "Tags";
-
+  tagsRow = *(m_refTreeModel->append());
+  tagsRow[m_Columns.m_col_id] = 2;
+  tagsRow[m_Columns.m_col_name] = "Tags";
+/*
   childrow = *(m_refTreeModel->append(row.children()));
   childrow[m_Columns.m_col_id] = 13;
   childrow[m_Columns.m_col_name] = "\tTag1";
@@ -69,7 +62,7 @@ LeftPaneView::LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
   childrow = *(m_refTreeModel->append(row.children()));
   childrow[m_Columns.m_col_id] = 14;
   childrow[m_Columns.m_col_name] = "\tTag2";
-
+*/
 
   //Add the TreeView's view columns:
   m_TreeView.append_column("Name", m_Columns.m_col_name);
@@ -87,11 +80,7 @@ LeftPaneView::LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
               &LeftPaneView::on_treeview_row_changed) );
 
   /* Select the All Notes item by default */ 
-  m_TreeView.expand_all ();
-  ts->select (Gtk::TreeModel::Path ("0:0"));
-  selectedPath = "0:0";
-  notebookListSelected = true;
-
+  
   show_all ();
 }
 
@@ -130,6 +119,8 @@ void LeftPaneView::on_treeview_row_changed () {
         notebookListSelected = false;
       else
         notebookListSelected = true;
+
+      /* Callback to fill up the notelistpane. */
     }
     std::cout << "LeftPaneView::on_treeview_row_changed getString (): " << tm->get_string (iter)  << std::endl;
   }
@@ -137,4 +128,43 @@ void LeftPaneView::on_treeview_row_changed () {
 
 LeftPaneView::~LeftPaneView () {
 
+}
+
+void LeftPaneView::setDatabaseManager (DatabaseManager* d) {
+  dbm = d;
+  dbm->exec ("select * from notebooks", &fillNotebooksCallback,this);
+  dbm->exec ("select * from tags", &fillTagsCallback,this);
+  m_TreeView.expand_all ();
+  m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0:0"));
+  selectedPath = "0:0";
+  notebookListSelected = true;
+}
+
+int LeftPaneView::fillNotebooksCallback (void* lpv, int argc, char **argv, char **azColName) {
+  std::cout << "LeftPaneView::fillNotebooksCallback" << std::endl;
+  LeftPaneView* p = (LeftPaneView*) lpv;
+
+  std::string notebookName = "\t";
+  notebookName += argv[1];
+
+  Gtk::TreeModel::Row childrow = *(p->m_refTreeModel->append(p->notebooksRow.children()));
+  childrow[p->m_Columns.m_col_id] = 11;
+  childrow[p->m_Columns.m_col_name] = notebookName;
+  
+  return 0;
+}
+
+
+int LeftPaneView::fillTagsCallback (void* lpv, int argc, char **argv, char **azColName) {
+  std::cout << "LeftPaneView::fillTagsCallback" << std::endl;
+  LeftPaneView* p = (LeftPaneView*) lpv;
+
+  std::string tagName = "\t";
+  tagName += argv[1];
+
+  Gtk::TreeModel::Row childrow = *(p->m_refTreeModel->append(p->tagsRow.children()));
+  childrow[p->m_Columns.m_col_id] = 4;
+  childrow[p->m_Columns.m_col_name] = tagName;
+  
+  return 0;
 }
