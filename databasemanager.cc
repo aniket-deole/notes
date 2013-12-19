@@ -8,7 +8,7 @@ DatabaseManager::DatabaseManager (Notify* a) {
 	db = 0;
     if (sqlite3_open ("notify.db", &db) != SQLITE_OK) {
 	    /* Report ERROR */
-	    std::cout << "Debug.5: Error Opening db." << std::endl;
+	    std::cout << "Debug.5: Cannot Create Database." << std::endl;
 	    exit (-1);
 	}
 
@@ -21,7 +21,12 @@ DatabaseManager::DatabaseManager (Notify* a) {
 	    sqlite3_exec (db, "CREATE TABLE tags (id int primary key, title text);", NULL, 0, NULL);
 
 	    sqlite3_exec (db, "INSERT INTO notebooks values (0,'All Notebooks', 0)", NULL, 0, NULL);
-	    sqlite3_exec (db, "INSERT INTO tags values (0,'All Tags')", NULL, 0, NULL);
+		sqlite3_exec (db, "INSERT INTO tags values (0,'All Tags')", NULL, 0, NULL);
+	    
+	    sqlite3_exec (db, "INSERT INTO notebooks values (1, 'Literature', 0)", NULL, 0, NULL);
+	    sqlite3_exec (db, "INSERT INTO notebooks values (2, 'Culture', 0)", NULL, 0, NULL);
+	    sqlite3_exec (db, "INSERT INTO notebooks values (3, 'Linux', 0)", NULL, 0, NULL);
+
 	    sqlite3_exec (db, "INSERT INTO notes values (42,'First Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
 	    sqlite3_exec (db, "INSERT INTO notes values (2,'Second Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
 	    sqlite3_exec (db, "INSERT INTO notes values (3,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
@@ -43,6 +48,10 @@ DatabaseManager::DatabaseManager (Notify* a) {
 	    sqlite3_exec (db, "INSERT INTO notes values (19,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
 	    sqlite3_exec (db, "INSERT INTO notes values (20,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
 	    sqlite3_exec (db, "INSERT INTO notes values (21,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
+
+	    sqlite3_exec (db, "INSERT INTO notes values (22,'First Note', 'ABCD EFG How I wonder what you are.', 2, 0, 0)", NULL, 0, NULL);
+	    sqlite3_exec (db, "INSERT INTO notes values (23,'Second Note', 'ABCD EFG How I wonder what you are.', 2, 0, 0)", NULL, 0, NULL);
+	    sqlite3_exec (db, "INSERT INTO notes values (24,'Third Note', 'ABCD EFG How I wonder what you are.ABCD EFG How I wonder what you are.ABCD EFG How I wonder what you are.ABCD EFG How I wonder what you are. My English Horrible ? That''s unpossible !', 2, 0, 0)", NULL, 0, NULL);
 	    sqlite3_exec (db, "COMMIT", NULL, NULL, NULL);
 	}
 }
@@ -51,7 +60,7 @@ int DatabaseManager::exec (std::string statement, int (*callback)(void*,int,char
 	char* errMsg = 0;
 	int r = sqlite3_exec (db, statement.c_str (), callback, classPointer,  &errMsg);
 	if (r != SQLITE_OK)
-		std::cout << "Debug.7: Error Fetching Data From db: " << errMsg << ", returnValue: " << r << std::endl;
+		std::cout << "Debug.7: Error Fetching Data From db: returnValue: " << r << ", statement: " << statement << std::endl;
 	return r;
 }
 

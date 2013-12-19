@@ -60,8 +60,9 @@ void WindowBody::setApp (Notify* a) {
     app = a;
     app->lpv = lpv;
     app->nlpv = nlpv;
-    nlpv->setApp (app);
     app->npv = npv;
+    nlpv->setApp (app);
+    lpv->setApp (app);
 }
 
 void  WindowBody::setDatabaseManager (DatabaseManager* d) {
@@ -69,4 +70,5 @@ void  WindowBody::setDatabaseManager (DatabaseManager* d) {
     lpv->setDatabaseManager (d);
     nlpv->setDatabaseManager (d);
     npv->setDatabaseManager (d);
+    lpv->dbInitialized = true;
 }

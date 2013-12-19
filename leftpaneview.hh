@@ -5,6 +5,7 @@
 #include "databasemanager.hh"
 
 class DatabaseManager;
+class Notify;
 
 class LeftPaneView : public Gtk::Box {
 private:
@@ -17,16 +18,18 @@ private:
   void on_treeview_row_changed ();
 
 
-
   std::string selectedPath;
   bool notebookListSelected;
 
+  Notify* app;
   DatabaseManager* dbm;
 
 public:
     LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding = 0);
     ~LeftPaneView ();
 
+
+  bool dbInitialized;
 
   //Tree model columns:
   class ModelColumns : public Gtk::TreeModel::ColumnRecord
@@ -47,6 +50,7 @@ public:
   Glib::RefPtr<Gtk::TreeStore> m_refTreeModel;
 
   void setDatabaseManager (DatabaseManager* d);
+  void setApp (Notify* a);
   static int fillNotebooksCallback (void*,int,char**,char**);
   static int fillTagsCallback (void*,int,char**,char**);
 };

@@ -170,5 +170,38 @@ void NoteListPaneView::on_treeview_row_changed () {
     app->npv->setWebViewContent (n.getSummary ());
   }
 }
+template <typename T>
+std::string NumberToString(T pNumber)
+{
+ std::ostringstream oOStrStream;
+ oOStrStream << pNumber;
+ return oOStrStream.str();
+}
 
+void NoteListPaneView::fetchNotesForNotebook (int primaryKey) {
+  m_refTreeModel->clear ();
+ 
+  std::string query;
+  if (primaryKey == 0)
+    query = "select * from notes order by id";
+  else
+    query = "select * from notes where notebook_id = " + ::NumberToString(primaryKey) + " order by id";
+  std::cout << query << std::endl;
+  if (dbm)
+    dbm->exec (query, & fillNotesCallback, this);
+  
+  m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0"));
+  Glib::RefPtr<Gtk::TreeSelection> ts = m_TreeView.get_selection ();
+  Gtk::TreeModel::iterator iter = ts->get_selected ();
+  if (iter) {
+    Gtk::TreeModel::Row row = *iter;
 
+    NoteData n = row[m_Columns.m_note_data];
+    app->npv->setWebViewContent (n.getSummary ());
+  } else {
+    if (app && primaryKey != 0)
+      if (app->npv) {
+        app->npv->setWebViewContent ("No Notes :(");
+      }
+  }
+}

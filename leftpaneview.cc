@@ -7,7 +7,7 @@
 #include "windowbody.hh"
 
 LeftPaneView::LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding) {
-
+  dbInitialized = false;
   set_orientation (Gtk::ORIENTATION_VERTICAL);
 
   set_size_request (200, -1);
@@ -28,7 +28,8 @@ LeftPaneView::LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 "	.m_TreeView:prelight { background-color: shade (@bg_color, 1.10); }"
 "	.m_TreeView:hover { color: white; border-style: solid; border-width: 1px 0 1px 0; -unico-inner-stroke-width: 1px 0 1px 0; "
 "		background-image: -gtk-gradient (linear, left top, left bottom, from (alpha (#FFF, 0.2)), to (alpha (#FFF, 0.2))); "
-"		-unico-border-gradient: -gtk-gradient (linear, left top, left bottom, from (alpha (#fff, 0.3)), to (alpha (#fff, 0.30)));}";
+"		-unico-border-gradient: -gtk-gradient (linear, left top, left bottom, from (alpha (#fff, 0.3)), to (alpha (#fff, 0.30)));}"
+"  .m_TreeView row:nth-child(odd) { color : red; } row:nth-child(even) { color : green; }";
 
   addCss (&m_TreeView, "m_TreeView", cssProperties);
 
@@ -50,7 +51,6 @@ LeftPaneView::LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
   notebooksRow[m_Columns.m_col_id] = 0;
   notebooksRow[m_Columns.m_col_name] = "Notebooks";
 
-
   tagsRow = *(m_refTreeModel->append());
   tagsRow[m_Columns.m_col_id] = 2;
   tagsRow[m_Columns.m_col_name] = "Tags";
@@ -66,6 +66,7 @@ LeftPaneView::LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 
   //Add the TreeView's view columns:
   m_TreeView.append_column("Name", m_Columns.m_col_name);
+
 
   //Connect signal:
   m_TreeView.signal_row_expanded().connect(sigc::mem_fun(*this,
@@ -93,6 +94,9 @@ void LeftPaneView::on_treeview_row_activated (const Gtk::TreePath& tp, Gtk::Tree
 }
 
 void LeftPaneView::on_treeview_row_changed () {
+  if (!dbInitialized)
+    return;
+
   Glib::RefPtr<Gtk::TreeSelection> ts = m_TreeView.get_selection ();
   Gtk::TreeModel::iterator iter = ts->get_selected ();
   Glib::RefPtr<Gtk::TreeModel> tm = ts->get_model ();
@@ -121,8 +125,11 @@ void LeftPaneView::on_treeview_row_changed () {
         notebookListSelected = true;
 
       /* Callback to fill up the notelistpane. */
+      Gtk::TreeModel::Row row = *iter;
+  //  app->npv->setWebViewContent (n.getSummary ());
+      app->nlpv->fetchNotesForNotebook (row[m_Columns.m_col_id]);
+      std::cout << "LeftPaneView::on_treeview_row_changed Name: " << row[m_Columns.m_col_id] << ", PKey: " << row[m_Columns.m_col_name] << std::endl;
     }
-    std::cout << "LeftPaneView::on_treeview_row_changed getString (): " << tm->get_string (iter)  << std::endl;
   }
 }
 
@@ -145,10 +152,11 @@ int LeftPaneView::fillNotebooksCallback (void* lpv, int argc, char **argv, char 
   LeftPaneView* p = (LeftPaneView*) lpv;
 
   std::string notebookName = "\t";
+  int notebookId = atoi (argv[0]);
   notebookName += argv[1];
 
   Gtk::TreeModel::Row childrow = *(p->m_refTreeModel->append(p->notebooksRow.children()));
-  childrow[p->m_Columns.m_col_id] = 11;
+  childrow[p->m_Columns.m_col_id] = notebookId;
   childrow[p->m_Columns.m_col_name] = notebookName;
   
   return 0;
@@ -166,4 +174,8 @@ int LeftPaneView::fillTagsCallback (void* lpv, int argc, char **argv, char **azC
   childrow[p->m_Columns.m_col_name] = tagName;
   
   return 0;
+}
+
+void LeftPaneView::setApp (Notify* a) {
+  app = a;
 }

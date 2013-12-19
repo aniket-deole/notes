@@ -24,6 +24,7 @@ public:
 
 	DatabaseManager* dbm;
 
+	Glib::Dispatcher m_Dispatcher;
 
 protected:
 	void on_button_clicked();

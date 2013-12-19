@@ -47,7 +47,7 @@ public:
 
   void setDatabaseManager (DatabaseManager* d);
   static int fillNotesCallback (void*,int,char**,char**);
-
+  void fetchNotesForNotebook (int primaryKey);
   void on_treeview_row_activated (const Gtk::TreePath&, Gtk::TreeViewColumn* const&);
   void on_treeview_row_changed ();
 
