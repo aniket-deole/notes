@@ -36,7 +36,9 @@ WindowBody::WindowBody (bool homogeneous, int spacing, Gtk::PackOptions options,
 
 	set_orientation (Gtk::ORIENTATION_VERTICAL);
 
-	add (mainToolbar);
+    mainToolbar = new MainToolbar ();
+
+	add (*mainToolbar);
 
     Gtk::Box* body = Gtk::manage (new Gtk::Box (Gtk::ORIENTATION_HORIZONTAL, 0));
 
@@ -78,6 +80,7 @@ void WindowBody::setApp (Notify* a) {
     app->npv = npv;
     nlpv->setApp (app);
     lpv->setApp (app);
+    mainToolbar->setApp (app);
 }
 
 void  WindowBody::setDatabaseManager (DatabaseManager* d) {

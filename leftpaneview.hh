@@ -18,9 +18,11 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <gtkmm.h>
 #include "databasemanager.hh"
+#include "notebookdata.hh"
 
 class DatabaseManager;
 class Notify;
+
 
 class LeftPaneView : public Gtk::Box {
 private:
@@ -52,13 +54,14 @@ public:
   public:
 
     ModelColumns()
-    { add(m_col_id); add(m_col_name); }
+    { add(m_col_id); add(m_col_name); add (m_notebook_data); }
 
     Gtk::TreeModelColumn<int> m_col_id;
     Gtk::TreeModelColumn<Glib::ustring> m_col_name;
+    Gtk::TreeModelColumn<NotebookData> m_notebook_data;
   };
 
-   ModelColumns m_Columns;
+  ModelColumns m_Columns;
 
   Gtk::ScrolledWindow m_ScrolledWindow;
   Gtk::TreeView m_TreeView;

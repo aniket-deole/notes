@@ -15,11 +15,68 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 
-#include <gtkmm/box.h>
-#include <gtkmm/widget.h>
+#include <gtkmm.h>
 
 #include "leftpaneview.hh"
 #include "windowbody.hh"
+
+#include "notebookdata.hh"
+
+class NotebookCellRenderer : public Gtk::CellRenderer {
+  public:
+  Glib::PropertyProxy< int > property_id()
+  {
+    return property_id_.get_proxy();
+  }
+  
+  Glib::PropertyProxy<NotebookData> property_note()
+  {
+    return property_notebook_.get_proxy();
+  }
+
+  NotebookCellRenderer () :
+    Glib::ObjectBase( typeid(NotebookCellRenderer) ),
+    Gtk::CellRenderer(), 
+    property_id_(*this, "id"),
+    property_notebook_(*this, "notebook") {
+    set_fixed_size (-1, 20);
+  }
+
+  Pango::Rectangle* renderNotebook (const ::Cairo::RefPtr< ::Cairo::Context >& cr, Gtk::Widget& widget, const Gdk::Rectangle& background_area, const Gdk::Rectangle& cell_area, Pango::Rectangle* pr, int id) {
+    Pango::FontDescription font_from;
+    font_from.set_size (10 * Pango::SCALE);
+    if (property_notebook_.get_value ().getPrimaryKey () < 0) {
+      font_from.set_weight (Pango::WEIGHT_SEMIBOLD);
+      cr->move_to (10, cell_area.get_y () + 3);
+    } else {
+      font_from.set_weight (Pango::WEIGHT_NORMAL);
+      cr->move_to (25, cell_area.get_y () + 3);
+    }
+    Glib::RefPtr <Pango::Layout> layout_from = widget.create_pango_layout ("");
+    layout_from->set_font_description (font_from);
+    layout_from->set_markup ("<span foreground='#FFF'>" + property_notebook_.get_value ().getTitle () + "</span>");
+    layout_from->set_width(210 * Pango::SCALE);
+    layout_from->show_in_cairo_context (cr);
+    return pr;
+  }
+
+  Glib::Property< int > property_id_;
+  Glib::Property< NotebookData > property_notebook_;
+  
+  protected:
+   virtual void render_vfunc (const ::Cairo::RefPtr< ::Cairo::Context >& cr, Gtk::Widget& widget, const Gdk::Rectangle& background_area, const Gdk::Rectangle& cell_area, Gtk::CellRendererState flags) {
+    Pango::Rectangle* pr = new Pango::Rectangle ();
+    renderNotebook (cr, widget, background_area, cell_area, pr, property_id_);
+  }
+};
+
+static Gtk::TreeViewColumn* create_column (Gtk::TreeModelColumn<int> tmc, Gtk::TreeModelColumn<NotebookData> n) {
+  NotebookCellRenderer* ncr = new NotebookCellRenderer ();
+  Gtk::TreeViewColumn* c = Gtk::manage (new Gtk::TreeViewColumn ("Notebooks", *ncr));
+  c->add_attribute(*ncr, "id", tmc);
+  c->add_attribute(*ncr, "notebook", n);
+  return c;
+}
 
 LeftPaneView::LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding) {
   dbInitialized = false;
@@ -65,10 +122,14 @@ LeftPaneView::LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
   notebooksRow = *(m_refTreeModel->append());
   notebooksRow[m_Columns.m_col_id] = 0;
   notebooksRow[m_Columns.m_col_name] = "Notebooks";
+  NotebookData* nbd = new NotebookData (-1, "Notebooks");
+  notebooksRow[m_Columns.m_notebook_data] = *nbd;
 
   tagsRow = *(m_refTreeModel->append());
   tagsRow[m_Columns.m_col_id] = 2;
   tagsRow[m_Columns.m_col_name] = "Tags";
+  nbd = new NotebookData (-1, "Tags");
+  tagsRow[m_Columns.m_notebook_data] = *nbd;
 /*
   childrow = *(m_refTreeModel->append(row.children()));
   childrow[m_Columns.m_col_id] = 13;
@@ -80,8 +141,9 @@ LeftPaneView::LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 */
 
   //Add the TreeView's view columns:
-  m_TreeView.append_column("Name", m_Columns.m_col_name);
+//  m_TreeView.append_column("Name", m_Columns.m_col_name);
 
+  m_TreeView.append_column(*create_column (m_Columns.m_col_id, m_Columns.m_notebook_data));
 
   //Connect signal:
   m_TreeView.signal_row_expanded().connect(sigc::mem_fun(*this,
@@ -166,13 +228,16 @@ int LeftPaneView::fillNotebooksCallback (void* lpv, int argc, char **argv, char 
   std::cout << "LeftPaneView::fillNotebooksCallback" << std::endl;
   LeftPaneView* p = (LeftPaneView*) lpv;
 
-  std::string notebookName = "\t";
+  std::string notebookName = "";
   int notebookId = atoi (argv[0]);
   notebookName += argv[1];
+
+  NotebookData* nbd = new NotebookData (notebookId, notebookName);
 
   Gtk::TreeModel::Row childrow = *(p->m_refTreeModel->append(p->notebooksRow.children()));
   childrow[p->m_Columns.m_col_id] = notebookId;
   childrow[p->m_Columns.m_col_name] = notebookName;
+  childrow[p->m_Columns.m_notebook_data] = *nbd;
   
   return 0;
 }
@@ -181,12 +246,16 @@ int LeftPaneView::fillTagsCallback (void* lpv, int argc, char **argv, char **azC
   std::cout << "LeftPaneView::fillTagsCallback" << std::endl;
   LeftPaneView* p = (LeftPaneView*) lpv;
 
-  std::string tagName = "\t";
+  int tagId = atoi (argv[0]);
+
+  std::string tagName = "";
   tagName += argv[1];
+  NotebookData* nbd = new NotebookData (tagId, tagName);
 
   Gtk::TreeModel::Row childrow = *(p->m_refTreeModel->append(p->tagsRow.children()));
   childrow[p->m_Columns.m_col_id] = 4;
   childrow[p->m_Columns.m_col_name] = tagName;
+  childrow[p->m_Columns.m_notebook_data] = *nbd;
   
   return 0;
 }

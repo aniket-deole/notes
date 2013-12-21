@@ -17,15 +17,21 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define _MAINTOOLBAR_HH_
 
 #include <gtkmm/toolbar.h>
+#include "notify.hh"
+
+class Notify;
 
 class MainToolbar : public Gtk::Toolbar {
 private:
     int a;
-
+    Notify* app;
 
 public:
     MainToolbar ();
     ~MainToolbar ();
+    void setApp (Notify* a) { app = a; }
+    void exitNotify ();
+    void newNote ();
 };
 
 #endif

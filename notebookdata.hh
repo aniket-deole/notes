@@ -13,33 +13,27 @@ You should have received a copy of the GNU General Public License along
 with this program.  If not, see <http://www.gnu.org/licenses/>.
 ***/
 
-#ifndef _NOTEVIEW_HH_
-#define _NOTEVIEW_HH_
+#ifndef _NOTEBOOKDATA_HH_
+#define _NOTEBOOKDATA_HH_
 
-#include <gtkmm.h>
-#include <webkit/webkit.h>
-#include "notedata.hh"
-#include "databasemanager.hh"
-
-class DatabaseManager;
-class LeftPaneView;
-
-class NotePaneView : public Gtk::Box {
+class NotebookData {
 private:
-	int a;
-  WebKitWebView* webview;
-
-  Gtk::ScrolledWindow* webviewWrapper;
-
-  DatabaseManager* dbm;
-
+  int primary_key;
+   
+  std::string title;
 public:
-	NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding = 0);
-	~NotePaneView ();
 
-	void setDatabaseManager (DatabaseManager* d);
-	void setWebViewContent (std::string);
+  NotebookData () {}
 
-	void newNote ();
+  NotebookData (int p_key, std::string t) {
+    primary_key = p_key;
+    title = t;
+  }
+
+  int getPrimaryKey () { return primary_key; }
+
+  std::string getTitle () { return title; }
 };
+
+
 #endif

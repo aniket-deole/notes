@@ -17,6 +17,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <gtkmm/widget.h>
 #include <gtkmm.h>
 #include <iostream>
+#include <cstring>
 #include "notelistpaneview.hh"
 #include "windowbody.hh"
 #include "notedata.hh"
@@ -67,7 +68,8 @@ class NoteCellRenderer : public Gtk::CellRenderer {
     layout_from = widget.create_pango_layout ("");
     layout_from->set_font_description (font_from);
     layout_from->set_alignment(Pango::ALIGN_LEFT);
-    layout_from->set_markup ("<span foreground='#555'>" + property_note_.get_value ().getSummary () + "</span>");
+    std::string summary = property_note_.get_value ().getSummary ();
+    layout_from->set_markup ("<span foreground='#555'>" + summary.substr (0, (cell_area.get_width () / 4.0) + 10) + "</span>");
     layout_from->set_width((cell_area.get_width () - 10) * Pango::SCALE);
     cr->move_to (10, 27 + cell_area.get_y ());
 
@@ -86,7 +88,7 @@ class NoteCellRenderer : public Gtk::CellRenderer {
 };
 
 
-Gtk::TreeViewColumn* create_column (Gtk::TreeModelColumn<int> tmc, Gtk::TreeModelColumn<NoteData> n) {
+static Gtk::TreeViewColumn* create_column (Gtk::TreeModelColumn<int> tmc, Gtk::TreeModelColumn<NoteData> n) {
   NoteCellRenderer* ncr = new NoteCellRenderer ();
   Gtk::TreeViewColumn* c = Gtk::manage (new Gtk::TreeViewColumn ("Notes", *ncr));
   c->add_attribute(*ncr, "id", tmc);
@@ -148,14 +150,12 @@ NoteListPaneView::~NoteListPaneView () {
 void NoteListPaneView::setDatabaseManager (DatabaseManager* d) {
   dbm = d;
   dbm->exec ("select * from notes", &fillNotesCallback,this);
+  m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0"));
 }
 
 
 int NoteListPaneView::fillNotesCallback (void* nlpv, int argc, char **argv, char **azColName) {
   NoteListPaneView* p = (NoteListPaneView*) nlpv;
-
-  std::string tagName = "\t";
-  tagName += argv[1];
 
   Gtk::TreeModel::Row row = *(p->m_refTreeModel->append());
   row[p->m_Columns.m_col_id] = 1;
@@ -219,4 +219,16 @@ void NoteListPaneView::fetchNotesForNotebook (int primaryKey) {
         app->npv->setWebViewContent ("No Notes :(");
       }
   }
+}
+
+void NoteListPaneView::newNote () {
+  Gtk::TreeModel::Row row = *(m_refTreeModel->prepend());
+  row[m_Columns.m_col_id] = 9999;
+  row[m_Columns.m_col_name] = "id";
+  NoteData n1 (9999, "Untitled", "14:53", "");
+  row[m_Columns.m_note_data] = n1;
+  
+  m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0"));
+  m_TreeView.scroll_to_row (Gtk::TreeModel::Path ("0"));
+  std::cout << "NoteListPaneView::newNote PKey: " << std::endl;
 }

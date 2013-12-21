@@ -48,3 +48,7 @@ void NotePaneView::setDatabaseManager (DatabaseManager* d) {
 void NotePaneView::setWebViewContent (std::string content) {
 	webkit_web_view_load_string (webview, content.c_str (), "text/html", NULL, NULL);
 }
+
+void NotePaneView::newNote () {
+	webkit_web_view_load_string (webview, "", "text/html", NULL, NULL);
+}

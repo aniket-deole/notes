@@ -27,13 +27,14 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 class Notify;
 class NoteListPaneView;
 class NotePaneView;
+class MainToolbar;
 
 void addCss (Gtk::Widget* widget, std::string cssClass, std::string css);
 
 class WindowBody : public Gtk::Box {
 private:
     int a;
-    MainToolbar mainToolbar;
+    MainToolbar* mainToolbar;
 
     Notify* app;
     LeftPaneView* lpv;

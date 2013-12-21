@@ -68,6 +68,8 @@ public:
 
   void setApp (Notify* a) { app = a; }
 
+  void newNote ();
+
 };
 
 #endif

@@ -26,12 +26,15 @@ MainToolbar::MainToolbar () {
   button->set_size_request (40, 40);
   // TODO Change this later to set_icon_widget
   button->set_icon_name("dialog-cancel");
-
+  button->signal_clicked().connect(sigc::mem_fun(*this,
+              &MainToolbar::exitNotify) );
   add(*button);
 
   button = Gtk::manage(new Gtk::ToolButton());
   button->set_size_request (40, 40);
   button->set_icon_name("document-new");
+  button->signal_clicked().connect(sigc::mem_fun(*this,
+              &MainToolbar::newNote) );
   add(*button);
 
   button = Gtk::manage(new Gtk::ToolButton());
@@ -44,4 +47,13 @@ MainToolbar::MainToolbar () {
 
 MainToolbar::~MainToolbar () {
 
+}
+
+void MainToolbar::exitNotify () {
+  exit (0);
+}
+
+void MainToolbar::newNote () {
+  app->nlpv->newNote ();
+  app->npv->newNote ();
 }
