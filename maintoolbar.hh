@@ -32,6 +32,7 @@ public:
     void setApp (Notify* a) { app = a; }
     void exitNotify ();
     void newNote ();
+    void newNotebook ();
 };
 
 #endif

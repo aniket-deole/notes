@@ -40,7 +40,9 @@ MainToolbar::MainToolbar () {
   button = Gtk::manage(new Gtk::ToolButton());
   button->set_size_request (40, 40);
   button->set_icon_name("address-book-new");
-  add(*button);
+  button->signal_clicked().connect(sigc::mem_fun(*this,
+              &MainToolbar::newNotebook) );
+    add(*button);
 
   show_all ();
 }
@@ -56,4 +58,8 @@ void MainToolbar::exitNotify () {
 void MainToolbar::newNote () {
   app->nlpv->newNote ();
   app->npv->newNote ();
+}
+
+void MainToolbar::newNotebook () {
+  app->lpv->newNotebook ();
 }

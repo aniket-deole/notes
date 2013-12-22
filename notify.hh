@@ -38,9 +38,7 @@ public:
 	NotePaneView* npv;
 
 	DatabaseManager* dbm;
-
-	Glib::Dispatcher m_Dispatcher;
-
+	
 protected:
 	void on_button_clicked();
 	Gtk::Button m_button;

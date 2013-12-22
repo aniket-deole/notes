@@ -263,3 +263,72 @@ int LeftPaneView::fillTagsCallback (void* lpv, int argc, char **argv, char **azC
 void LeftPaneView::setApp (Notify* a) {
   app = a;
 }
+
+void LeftPaneView::newNotebook () {
+
+/*
+  Gtk::Window* popup = Gtk::manage (new Gtk::Window ());
+  popup->set_default_size (640, 360);
+  popup->show_all ();
+*/
+  popup = new Gtk::Dialog ("New Notebook", *app, true);
+  std::string cssProperties = ".popup { background-color: #DDD; }";
+  addCss (popup, "popup", cssProperties);
+
+  Gtk::Box* contentBox = popup->get_content_area ();
+  Gtk::Label* label = Gtk::manage (new Gtk::Label ("Enter Notebook Name: "));
+  
+
+  addCss (label, "label", ".label {\n color:#34393D;\n font: OpenSans light 12;"
+                " background-image:none; background-color:white;\n}\n");
+
+  contentBox->pack_start (*label, false, true, 0);
+
+  notebookName = new Gtk::Entry ();
+  notebookName->set_width_chars (5);
+  contentBox->add (*notebookName);
+
+  Gtk::Button* okButton = new Gtk::Button ("Ok");
+  okButton->signal_clicked().connect(sigc::mem_fun(*this,
+              &LeftPaneView::newNotebookOk) ); 
+  contentBox->add (*okButton);
+
+  contentBox->show_all ();
+  popup->set_position (Gtk::WIN_POS_CENTER);
+  popup->set_resizable (false);
+  popup->get_content_area () ->set_margin_top (50);
+  popup->run ();
+}
+
+void LeftPaneView::newNotebookOk () {
+  if (notebookName->get_text().empty ()) { return;}
+  popup->hide ();
+
+
+  dbm->exec ("insert into notebooks values (NULL, '" + notebookName->get_text () + "', 0)", NULL,this);
+
+  m_refTreeModel->clear ();
+
+  //Fill the TreeView's model
+  notebooksRow = *(m_refTreeModel->append());
+  notebooksRow[m_Columns.m_col_id] = 0;
+  notebooksRow[m_Columns.m_col_name] = "Notebooks";
+  NotebookData* nbd = new NotebookData (-1, "Notebooks");
+  notebooksRow[m_Columns.m_notebook_data] = *nbd;
+
+  tagsRow = *(m_refTreeModel->append());
+  tagsRow[m_Columns.m_col_id] = 2;
+  tagsRow[m_Columns.m_col_name] = "Tags";
+  nbd = new NotebookData (-1, "Tags");
+  tagsRow[m_Columns.m_notebook_data] = *nbd;
+
+
+
+  dbm->exec ("select * from notebooks where id = 0", &fillNotebooksCallback,this);
+  dbm->exec ("select * from notebooks where id > 0 order by title", &fillNotebooksCallback,this);
+  dbm->exec ("select * from tags", &fillTagsCallback,this);
+  m_TreeView.expand_all ();
+  m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0:0"));
+  selectedPath = "0:0";
+  notebookListSelected = true;
+}

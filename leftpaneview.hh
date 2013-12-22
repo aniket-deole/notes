@@ -71,6 +71,11 @@ public:
   void setApp (Notify* a);
   static int fillNotebooksCallback (void*,int,char**,char**);
   static int fillTagsCallback (void*,int,char**,char**);
+
+  void newNotebook ();
+  void newNotebookOk ();
+  Gtk::Dialog* popup;
+  Gtk::Entry* notebookName;
 };
 
 #endif
