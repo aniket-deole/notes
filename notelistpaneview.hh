@@ -31,6 +31,8 @@ private:
 	Gtk::TreeView* treeView;
   DatabaseManager* dbm;
   Notify* app;
+  Gtk::Dialog* popup;
+  Gtk::Entry* noteName;
 
 public:
     NoteListPaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding = 0);
@@ -69,7 +71,8 @@ public:
   void setApp (Notify* a) { app = a; }
 
   void newNote ();
-
+  void newNoteOk ();
+  bool on_treeview_button_press_event (GdkEventButton* event);
 };
 
 #endif

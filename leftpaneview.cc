@@ -140,24 +140,35 @@ LeftPaneView::LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
   childrow[m_Columns.m_col_name] = "\tTag2";
 */
 
-  //Add the TreeView's view columns:
-//  m_TreeView.append_column("Name", m_Columns.m_col_name);
-
   m_TreeView.append_column(*create_column (m_Columns.m_col_id, m_Columns.m_notebook_data));
 
   //Connect signal:
   m_TreeView.signal_row_expanded().connect(sigc::mem_fun(*this,
               &LeftPaneView::on_treeview_row_expanded) );
 
-  m_TreeView.signal_row_activated().connect(sigc::mem_fun(*this,
-              &LeftPaneView::on_treeview_row_activated) );
+//  m_TreeView.signal_row_activated().connect(sigc::mem_fun(*this,
+//              &LeftPaneView::on_treeview_row_activated) );
 
   Glib::RefPtr<Gtk::TreeSelection> ts = m_TreeView.get_selection ();
 
   ts->signal_changed().connect(sigc::mem_fun(*this,
               &LeftPaneView::on_treeview_row_changed) );
 
+  m_TreeView.signal_button_press_event ().connect_notify (sigc::mem_fun(*this,
+              &LeftPaneView::on_treeview_button_release_event) );
+
   /* Select the All Notes item by default */ 
+
+  Gtk::MenuItem* item = Gtk::manage(new Gtk::MenuItem("_Edit", true));
+  item->signal_activate().connect(
+    sigc::mem_fun(*this, &LeftPaneView::on_menu_file_popup_edit_notebook_name) );
+  m_Menu_Popup.append(*item);
+  item = Gtk::manage(new Gtk::MenuItem("_Delete", true));
+  item->signal_activate().connect(
+    sigc::mem_fun(*this, &LeftPaneView::on_menu_file_popup_delete_notebook) );
+  m_Menu_Popup.append(*item);
+  m_Menu_Popup.accelerate(*this);
+  m_Menu_Popup.show_all(); //Show all menu items when the menu pops up
   
   show_all ();
 }
@@ -194,6 +205,7 @@ void LeftPaneView::on_treeview_row_changed () {
         ts->select (Gtk::TreeModel::Path (selectedPath));
       }
     } else {
+
       std::cout << "Tree Child Clicked." << std::endl;
       selectedPath = tm->get_string (iter);
       if (path[0] == 1)
@@ -215,8 +227,9 @@ LeftPaneView::~LeftPaneView () {
 }
 
 void LeftPaneView::setDatabaseManager (DatabaseManager* d) {
-  dbm = d;
-  dbm->exec ("select * from notebooks", &fillNotebooksCallback,this);
+  dbm = d;  
+  dbm->exec ("select * from notebooks where id = 0", &fillNotebooksCallback,this);
+  dbm->exec ("select * from notebooks where id > 0 order by title", &fillNotebooksCallback,this);
   dbm->exec ("select * from tags", &fillTagsCallback,this);
   m_TreeView.expand_all ();
   m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0:0"));
@@ -322,7 +335,137 @@ void LeftPaneView::newNotebookOk () {
   nbd = new NotebookData (-1, "Tags");
   tagsRow[m_Columns.m_notebook_data] = *nbd;
 
+  dbm->exec ("select * from notebooks where id = 0", &fillNotebooksCallback,this);
+  dbm->exec ("select * from notebooks where id > 0 order by title", &fillNotebooksCallback,this);
+  dbm->exec ("select * from tags", &fillTagsCallback,this);
+  m_TreeView.expand_all ();
+  m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0:0"));
+  selectedPath = "0:0";
+  notebookListSelected = true;
+}
 
+void LeftPaneView::on_treeview_button_release_event (GdkEventButton* event) {
+      /* single click with the right mouse button? */
+    if (event->button == 3)
+    {
+      std::cout << "Single right click on the tree view." << std::endl;
+
+
+  Glib::RefPtr<Gtk::TreeSelection> ts = m_TreeView.get_selection ();
+  Gtk::TreeModel::iterator iter = ts->get_selected ();
+  Glib::RefPtr<Gtk::TreeModel> tm = ts->get_model ();
+
+  Gtk::TreeModel::Path path;
+     m_TreeView.get_path_at_pos ((gint) event->x, (gint) event->y, path);
+    if (path.size () == 2) {
+      selectedPath = tm->get_string (iter);
+      if (path[0] == 1)
+        notebookListSelected = false;
+      else
+        notebookListSelected = true;
+
+      /* Callback to fill up the notelistpane. */
+      Gtk::TreeModel::Row row = *(tm->get_iter (path));
+  //  app->npv->setWebViewContent (n.getSummary ());
+      selectedNotebook = row[m_Columns.m_notebook_data];
+      
+      notebookName = new Gtk::Entry ();
+      notebookName->set_text (row[m_Columns.m_col_name]);
+       
+      std::cout << "LeftPaneView::on_treeview_button_release_event Name: " << row[m_Columns.m_col_id] << ", PKey: " << selectedNotebook.getTitle () << std::endl;
+      m_Menu_Popup.popup(event->button, event->time);
+      app->nlpv->fetchNotesForNotebook (row[m_Columns.m_col_id]);
+    }
+
+    }
+
+}
+template <typename T>
+std::string NumberToString(T pNumber)
+{
+ std::ostringstream oOStrStream;
+ oOStrStream << pNumber;
+ return oOStrStream.str();
+}
+
+void LeftPaneView::on_menu_file_popup_edit_notebook_name() {
+  popup = new Gtk::Dialog ("Edit Notebook", *app, true);
+  std::string cssProperties = ".popup { background-color: #DDD; }";
+  addCss (popup, "popup", cssProperties);
+
+  Gtk::Box* contentBox = popup->get_content_area ();
+  Gtk::Label* label = Gtk::manage (new Gtk::Label ("Enter Notebook Name: "));
+  
+
+  addCss (label, "label", ".label {\n color:#34393D;\n font: OpenSans light 12;"
+                " background-image:none; background-color:white;\n}\n");
+
+  contentBox->pack_start (*label, false, true, 0);
+
+  contentBox->add (*notebookName);
+
+  Gtk::Button* okButton = new Gtk::Button ("Ok");
+  okButton->signal_clicked().connect(sigc::mem_fun(*this,
+              &LeftPaneView::notebookEdit) ); 
+  contentBox->add (*okButton);
+
+  contentBox->show_all ();
+  popup->set_position (Gtk::WIN_POS_CENTER);
+  popup->set_resizable (false);
+  popup->get_content_area () ->set_margin_top (50);
+  popup->run ();
+}
+
+void LeftPaneView::on_menu_file_popup_delete_notebook () {
+  popup = new Gtk::Dialog ("Delete Notebook", *app, true);
+  std::string cssProperties = ".popup { background-color: #DDD; }";
+  addCss (popup, "popup", cssProperties);
+
+  Gtk::Box* contentBox = popup->get_content_area ();
+  Gtk::Label* label = Gtk::manage (new Gtk::Label ("Are you sure you want to delete the notebook ? "));
+  
+  contentBox->pack_start (*label, false, true, 0);
+
+  Gtk::Button* deleteButton = new Gtk::Button ("Delete");
+  deleteButton->signal_clicked().connect(sigc::mem_fun(*this,
+              &LeftPaneView::notebookDelete) ); 
+  contentBox->add (*deleteButton);
+
+  Gtk::Button* cancelButton = new Gtk::Button ("Cancel");
+  cancelButton->signal_clicked().connect(sigc::mem_fun(*this,
+              &LeftPaneView::notebookDeleteCancel) ); 
+  contentBox->add (*cancelButton);
+
+  contentBox->show_all ();
+  popup->set_position (Gtk::WIN_POS_CENTER);
+  popup->set_resizable (false);
+  popup->run ();
+}
+
+
+void LeftPaneView::notebookEdit () {
+  if (notebookName->get_text().empty ()) { return;}
+  popup->hide ();
+
+  std::string notebook_name = notebookName->get_text ();
+  std::string notebook_id = NumberToString (selectedNotebook.getPrimaryKey ());
+
+  dbm->exec ("update notebooks set title = '" + notebook_name + "' where id = " + notebook_id, NULL, this);
+
+  m_refTreeModel->clear ();
+
+  //Fill the TreeView's model
+  notebooksRow = *(m_refTreeModel->append());
+  notebooksRow[m_Columns.m_col_id] = 0;
+  notebooksRow[m_Columns.m_col_name] = "Notebooks";
+  NotebookData* nbd = new NotebookData (-1, "Notebooks");
+  notebooksRow[m_Columns.m_notebook_data] = *nbd;
+
+  tagsRow = *(m_refTreeModel->append());
+  tagsRow[m_Columns.m_col_id] = 2;
+  tagsRow[m_Columns.m_col_name] = "Tags";
+  nbd = new NotebookData (-1, "Tags");
+  tagsRow[m_Columns.m_notebook_data] = *nbd;
 
   dbm->exec ("select * from notebooks where id = 0", &fillNotebooksCallback,this);
   dbm->exec ("select * from notebooks where id > 0 order by title", &fillNotebooksCallback,this);
@@ -331,4 +474,39 @@ void LeftPaneView::newNotebookOk () {
   m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0:0"));
   selectedPath = "0:0";
   notebookListSelected = true;
+}
+
+
+void LeftPaneView::notebookDelete () {
+  std::string notebook_id = NumberToString (selectedNotebook.getPrimaryKey ());
+  dbm->exec ("delete from notes where notebook_id = " + notebook_id, NULL, this);
+  dbm->exec ("delete from notebooks where id = " + notebook_id, NULL, this);
+
+  m_refTreeModel->clear ();
+
+  //Fill the TreeView's model
+  notebooksRow = *(m_refTreeModel->append());
+  notebooksRow[m_Columns.m_col_id] = 0;
+  notebooksRow[m_Columns.m_col_name] = "Notebooks";
+  NotebookData* nbd = new NotebookData (-1, "Notebooks");
+  notebooksRow[m_Columns.m_notebook_data] = *nbd;
+
+  tagsRow = *(m_refTreeModel->append());
+  tagsRow[m_Columns.m_col_id] = 2;
+  tagsRow[m_Columns.m_col_name] = "Tags";
+  nbd = new NotebookData (-1, "Tags");
+  tagsRow[m_Columns.m_notebook_data] = *nbd;
+
+  dbm->exec ("select * from notebooks where id = 0", &fillNotebooksCallback,this);
+  dbm->exec ("select * from notebooks where id > 0 order by title", &fillNotebooksCallback,this);
+  dbm->exec ("select * from tags", &fillTagsCallback,this);
+  m_TreeView.expand_all ();
+  m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0:0"));
+  selectedPath = "0:0";
+  notebookListSelected = true;
+  popup->hide ();
+}
+
+void LeftPaneView::notebookDeleteCancel () {
+  popup->hide ();
 }

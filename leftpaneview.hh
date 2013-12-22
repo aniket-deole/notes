@@ -76,6 +76,14 @@ public:
   void newNotebookOk ();
   Gtk::Dialog* popup;
   Gtk::Entry* notebookName;
+  void on_treeview_button_release_event (GdkEventButton* button);
+  void on_menu_file_popup_edit_notebook_name();
+  void on_menu_file_popup_delete_notebook ();
+  Gtk::Menu m_Menu_Popup;
+  void notebookEdit () ;
+  NotebookData selectedNotebook;
+  void notebookDelete ();
+  void notebookDeleteCancel ();
 };
 
 #endif

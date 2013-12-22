@@ -222,13 +222,38 @@ void NoteListPaneView::fetchNotesForNotebook (int primaryKey) {
 }
 
 void NoteListPaneView::newNote () {
-  Gtk::TreeModel::Row row = *(m_refTreeModel->prepend());
-  row[m_Columns.m_col_id] = 9999;
-  row[m_Columns.m_col_name] = "id";
-  NoteData n1 (9999, "Untitled", "14:53", "");
-  row[m_Columns.m_note_data] = n1;
+
+/*
+  Gtk::Window* popup = Gtk::manage (new Gtk::Window ());
+  popup->set_default_size (640, 360);
+  popup->show_all ();
+*/
+  popup = new Gtk::Dialog ("New Note", *app, true);
+  std::string cssProperties = ".popup { background-color: #DDD; }";
+  addCss (popup, "popup", cssProperties);
+
+  Gtk::Box* contentBox = popup->get_content_area ();
+  Gtk::Label* label = Gtk::manage (new Gtk::Label ("Enter Note Title: "));
   
-  m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0"));
-  m_TreeView.scroll_to_row (Gtk::TreeModel::Path ("0"));
-  std::cout << "NoteListPaneView::newNote PKey: " << std::endl;
+  contentBox->pack_start (*label, false, true, 0);
+
+  noteName = new Gtk::Entry ();
+  noteName->set_text ("Untitled");
+  contentBox->add (*noteName);
+  Gtk::Button* okButton = new Gtk::Button ("Ok");
+  okButton->signal_clicked().connect(sigc::mem_fun(*this,
+              &NoteListPaneView::newNoteOk) ); 
+  contentBox->add (*okButton);
+
+  contentBox->show_all ();
+  popup->set_position (Gtk::WIN_POS_CENTER);
+  popup->set_resizable (false);
+  popup->run ();
+
+}
+
+void NoteListPaneView::newNoteOk () {
+  dbm->exec ("INSERT INTO notes values (NULL,'"+ noteName->get_text ()+"', '', 1, 0, 0)", NULL,this);
+  fetchNotesForNotebook (1);
+  popup->hide ();
 }

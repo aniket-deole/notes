@@ -27,6 +27,9 @@ Notify::Notify() {
 	show_all ();
 	gdk_window_set_decorations (gtk_widget_get_window ((GtkWidget*) gobj ()), GDK_DECOR_BORDER);
 
+	add_events (Gdk::BUTTON_PRESS_MASK);
+	add_events (Gdk::KEY_PRESS_MASK);
+
     dbm = new DatabaseManager (this);
 
     windowBody->setApp (this);
