@@ -18,6 +18,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <gtkmm.h>
 #include "notedata.hh"
+#include "notebookdata.hh"
 #include "databasemanager.hh"
 #include "notify.hh"
 
@@ -33,6 +34,8 @@ private:
   Notify* app;
   Gtk::Dialog* popup;
   Gtk::Entry* noteName;
+
+  Gtk::ComboBoxText m_Combo;
 
 public:
     NoteListPaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding = 0);
@@ -53,11 +56,25 @@ public:
   };
 
   ModelColumns m_Columns;
+  
+  class ModelColumnsForNotebooks : public Gtk::TreeModel::ColumnRecord
+  {
+  public:
 
+    ModelColumnsForNotebooks()
+    { add(m_col_name); add(m_col_id); add (m_notebook_data); }
+
+    Gtk::TreeModelColumn<Glib::ustring> m_col_name;
+    Gtk::TreeModelColumn<int> m_col_id;
+    Gtk::TreeModelColumn<NotebookData> m_notebook_data;
+  };
+
+  ModelColumnsForNotebooks m_Columns_notebooks;
   
   Gtk::ScrolledWindow m_ScrolledWindow;
   Gtk::TreeView m_TreeView;
   Glib::RefPtr<Gtk::TreeStore> m_refTreeModel;
+  Glib::RefPtr<Gtk::TreeStore> m_refTreeModel_notebooks;
   void treeviewcolumn_validated_on_cell_data(
         Gtk::CellRenderer* /* renderer */,
         const Gtk::TreeModel::iterator& iter);
@@ -73,6 +90,7 @@ public:
   void newNote ();
   void newNoteOk ();
   bool on_treeview_button_press_event (GdkEventButton* event);
+  static int fillNotebooksCallback (void* lpv, int argc, char **argv, char **azColName) ;
 };
 
 #endif

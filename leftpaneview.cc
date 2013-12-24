@@ -279,44 +279,33 @@ void LeftPaneView::setApp (Notify* a) {
 
 void LeftPaneView::newNotebook () {
 
-/*
-  Gtk::Window* popup = Gtk::manage (new Gtk::Window ());
-  popup->set_default_size (640, 360);
-  popup->show_all ();
-*/
-  popup = new Gtk::Dialog ("New Notebook", *app, true);
-  std::string cssProperties = ".popup { background-color: #DDD; }";
-  addCss (popup, "popup", cssProperties);
-
+  popup = new Gtk::MessageDialog (*app, "Enter notebook name: ", true, Gtk::MESSAGE_OTHER, Gtk::BUTTONS_OK_CANCEL, true);
   Gtk::Box* contentBox = popup->get_content_area ();
-  Gtk::Label* label = Gtk::manage (new Gtk::Label ("Enter Notebook Name: "));
-  
-
-  addCss (label, "label", ".label {\n color:#34393D;\n font: OpenSans light 12;"
-                " background-image:none; background-color:white;\n}\n");
-
-  contentBox->pack_start (*label, false, true, 0);
 
   notebookName = new Gtk::Entry ();
-  notebookName->set_width_chars (5);
-  contentBox->add (*notebookName);
-
-  Gtk::Button* okButton = new Gtk::Button ("Ok");
-  okButton->signal_clicked().connect(sigc::mem_fun(*this,
-              &LeftPaneView::newNotebookOk) ); 
-  contentBox->add (*okButton);
+  contentBox->pack_end (*notebookName);
 
   contentBox->show_all ();
-  popup->set_position (Gtk::WIN_POS_CENTER);
   popup->set_resizable (false);
-  popup->get_content_area () ->set_margin_top (50);
-  popup->run ();
+  popup->set_modal (true);
+  int reply = popup->run ();
+  
+  if (reply == Gtk::RESPONSE_OK) {
+    std::cout << "Resonse ok." << std::endl;
+    newNotebookOk ();
+    popup->hide ();
+  } else if (reply == Gtk::RESPONSE_CANCEL) {
+    std::cout << "Resonse cancel." << std::endl;
+    popup->hide ();
+  } else {
+    std::cout << "Resonse else." << std::endl;
+    popup->hide ();
+  }
+
 }
 
 void LeftPaneView::newNotebookOk () {
   if (notebookName->get_text().empty ()) { return;}
-  popup->hide ();
-
 
   dbm->exec ("insert into notebooks values (NULL, '" + notebookName->get_text () + "', 0)", NULL,this);
 
@@ -364,17 +353,19 @@ void LeftPaneView::on_treeview_button_release_event (GdkEventButton* event) {
       else
         notebookListSelected = true;
 
-      /* Callback to fill up the notelistpane. */
-      Gtk::TreeModel::Row row = *(tm->get_iter (path));
-  //  app->npv->setWebViewContent (n.getSummary ());
-      selectedNotebook = row[m_Columns.m_notebook_data];
-      
-      notebookName = new Gtk::Entry ();
-      notebookName->set_text (row[m_Columns.m_col_name]);
-       
-      std::cout << "LeftPaneView::on_treeview_button_release_event Name: " << row[m_Columns.m_col_id] << ", PKey: " << selectedNotebook.getTitle () << std::endl;
-      m_Menu_Popup.popup(event->button, event->time);
-      app->nlpv->fetchNotesForNotebook (row[m_Columns.m_col_id]);
+      if (path [0] == 0 && path[1] != 0) {
+        /* Callback to fill up the notelistpane. */
+        Gtk::TreeModel::Row row = *(tm->get_iter (path));
+    //  app->npv->setWebViewContent (n.getSummary ());
+        selectedNotebook = row[m_Columns.m_notebook_data];
+        
+        notebookName = new Gtk::Entry ();
+        notebookName->set_text (row[m_Columns.m_col_name]);
+         
+        std::cout << "LeftPaneView::on_treeview_button_release_event Name: " << row[m_Columns.m_col_id] << ", PKey: " << selectedNotebook.getTitle () << std::endl;
+        m_Menu_Popup.popup(event->button, event->time);
+        app->nlpv->fetchNotesForNotebook (row[m_Columns.m_col_id]);
+      }
     }
 
     }
@@ -389,26 +380,17 @@ std::string NumberToString(T pNumber)
 }
 
 void LeftPaneView::on_menu_file_popup_edit_notebook_name() {
-  popup = new Gtk::Dialog ("Edit Notebook", *app, true);
-  std::string cssProperties = ".popup { background-color: #DDD; }";
-  addCss (popup, "popup", cssProperties);
+  popup = new Gtk::MessageDialog ("Etner New Name for notebook: ", true, Gtk::MESSAGE_OTHER, Gtk::BUTTONS_OK_CANCEL, true);
 
   Gtk::Box* contentBox = popup->get_content_area ();
-  Gtk::Label* label = Gtk::manage (new Gtk::Label ("Enter Notebook Name: "));
-  
 
-  addCss (label, "label", ".label {\n color:#34393D;\n font: OpenSans light 12;"
-                " background-image:none; background-color:white;\n}\n");
-
-  contentBox->pack_start (*label, false, true, 0);
-
-  contentBox->add (*notebookName);
-
+  contentBox->pack_end (*notebookName);
+/*
   Gtk::Button* okButton = new Gtk::Button ("Ok");
   okButton->signal_clicked().connect(sigc::mem_fun(*this,
               &LeftPaneView::notebookEdit) ); 
   contentBox->add (*okButton);
-
+*/
   contentBox->show_all ();
   popup->set_position (Gtk::WIN_POS_CENTER);
   popup->set_resizable (false);
@@ -417,15 +399,10 @@ void LeftPaneView::on_menu_file_popup_edit_notebook_name() {
 }
 
 void LeftPaneView::on_menu_file_popup_delete_notebook () {
-  popup = new Gtk::Dialog ("Delete Notebook", *app, true);
-  std::string cssProperties = ".popup { background-color: #DDD; }";
-  addCss (popup, "popup", cssProperties);
+  popup = new Gtk::MessageDialog ("Delete Notebook ?", true, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_OK_CANCEL, true);
 
   Gtk::Box* contentBox = popup->get_content_area ();
-  Gtk::Label* label = Gtk::manage (new Gtk::Label ("Are you sure you want to delete the notebook ? "));
-  
-  contentBox->pack_start (*label, false, true, 0);
-
+/*
   Gtk::Button* deleteButton = new Gtk::Button ("Delete");
   deleteButton->signal_clicked().connect(sigc::mem_fun(*this,
               &LeftPaneView::notebookDelete) ); 
@@ -435,6 +412,7 @@ void LeftPaneView::on_menu_file_popup_delete_notebook () {
   cancelButton->signal_clicked().connect(sigc::mem_fun(*this,
               &LeftPaneView::notebookDeleteCancel) ); 
   contentBox->add (*cancelButton);
+*/
 
   contentBox->show_all ();
   popup->set_position (Gtk::WIN_POS_CENTER);
@@ -509,4 +487,8 @@ void LeftPaneView::notebookDelete () {
 
 void LeftPaneView::notebookDeleteCancel () {
   popup->hide ();
+}
+
+void LeftPaneView::selectNotebookInPane (int pathIndex) {
+  m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0:" + NumberToString (pathIndex + 1)));
 }

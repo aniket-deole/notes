@@ -87,6 +87,53 @@ class NoteCellRenderer : public Gtk::CellRenderer {
   }
 };
 
+class NotebookCellRenderer2 : public Gtk::CellRenderer {
+  public:
+  Glib::PropertyProxy< int > property_id()
+  {
+    return property_id_.get_proxy();
+  }
+  
+  Glib::PropertyProxy<NotebookData> property_note()
+  {
+    return property_notebook_.get_proxy();
+  }
+
+  NotebookCellRenderer2 () :
+    Glib::ObjectBase( typeid(NotebookCellRenderer2) ),
+    Gtk::CellRenderer(), 
+    property_id_(*this, "id"),
+    property_notebook_(*this, "notebook") {
+    set_fixed_size (-1, 20);
+  }
+
+  Pango::Rectangle* renderNotebook (const ::Cairo::RefPtr< ::Cairo::Context >& cr, Gtk::Widget& widget, const Gdk::Rectangle& background_area, const Gdk::Rectangle& cell_area, Pango::Rectangle* pr, int id) {
+    Pango::FontDescription font_from;
+    font_from.set_size (10 * Pango::SCALE);
+    if (property_notebook_.get_value ().getPrimaryKey () < 0) {
+      font_from.set_weight (Pango::WEIGHT_SEMIBOLD);
+      cr->move_to (10, cell_area.get_y () + 3);
+    } else {
+      font_from.set_weight (Pango::WEIGHT_NORMAL);
+      cr->move_to (25, cell_area.get_y () + 3);
+    }
+    Glib::RefPtr <Pango::Layout> layout_from = widget.create_pango_layout ("");
+    layout_from->set_font_description (font_from);
+    layout_from->set_markup ("<span foreground='#FFF'>" + property_notebook_.get_value ().getTitle () + "</span>");
+    layout_from->set_width(210 * Pango::SCALE);
+    layout_from->show_in_cairo_context (cr);
+    return pr;
+  }
+
+  Glib::Property< int > property_id_;
+  Glib::Property< NotebookData > property_notebook_;
+  
+  protected:
+   virtual void render_vfunc (const ::Cairo::RefPtr< ::Cairo::Context >& cr, Gtk::Widget& widget, const Gdk::Rectangle& background_area, const Gdk::Rectangle& cell_area, Gtk::CellRendererState flags) {
+    Pango::Rectangle* pr = new Pango::Rectangle ();
+    renderNotebook (cr, widget, background_area, cell_area, pr, property_id_);
+  }
+};
 
 static Gtk::TreeViewColumn* create_column (Gtk::TreeModelColumn<int> tmc, Gtk::TreeModelColumn<NoteData> n) {
   NoteCellRenderer* ncr = new NoteCellRenderer ();
@@ -221,6 +268,13 @@ void NoteListPaneView::fetchNotesForNotebook (int primaryKey) {
   }
 }
 
+static Gtk::TreeViewColumn* create_column2 (Gtk::TreeModelColumn<int> tmc, Gtk::TreeModelColumn<NotebookData> n) {
+  NotebookCellRenderer2* ncr = new NotebookCellRenderer2 ();
+  Gtk::TreeViewColumn* c = Gtk::manage (new Gtk::TreeViewColumn ("Notebooks", *ncr));
+  c->add_attribute(*ncr, "id", tmc);
+  c->add_attribute(*ncr, "notebook", n);
+  return c;
+}
 void NoteListPaneView::newNote () {
 
 /*
@@ -228,32 +282,75 @@ void NoteListPaneView::newNote () {
   popup->set_default_size (640, 360);
   popup->show_all ();
 */
-  popup = new Gtk::Dialog ("New Note", *app, true);
-  std::string cssProperties = ".popup { background-color: #DDD; }";
-  addCss (popup, "popup", cssProperties);
 
+  popup = new Gtk::MessageDialog (*app, "Enter note title: ", true, Gtk::MESSAGE_OTHER, Gtk::BUTTONS_OK_CANCEL, true);
   Gtk::Box* contentBox = popup->get_content_area ();
-  Gtk::Label* label = Gtk::manage (new Gtk::Label ("Enter Note Title: "));
-  
-  contentBox->pack_start (*label, false, true, 0);
 
   noteName = new Gtk::Entry ();
   noteName->set_text ("Untitled");
-  contentBox->add (*noteName);
-  Gtk::Button* okButton = new Gtk::Button ("Ok");
-  okButton->signal_clicked().connect(sigc::mem_fun(*this,
-              &NoteListPaneView::newNoteOk) ); 
-  contentBox->add (*okButton);
+  contentBox->pack_end (*noteName);
 
+  m_refTreeModel_notebooks = Gtk::TreeStore::create(m_Columns_notebooks);
+//  m_Combo.append_column(*create_column2 (m_Columns_notebooks.m_col_id, m_Columns_notebooks.m_notebook_data));
+  m_Combo.set_model (m_refTreeModel_notebooks);
+
+  dbm->exec ("select * from notebooks where id > 0 order by title", &fillNotebooksCallback,this);
+  m_Combo.set_active (0);
+  contentBox->pack_end (m_Combo);
   contentBox->show_all ();
-  popup->set_position (Gtk::WIN_POS_CENTER);
   popup->set_resizable (false);
-  popup->run ();
-
+  popup->set_modal (true);
+  int reply = popup->run ();
+  
+  if (reply == Gtk::RESPONSE_OK) {
+    std::cout << "Resonse ok." << std::endl;
+    newNoteOk ();
+    popup->hide ();
+    m_Combo.unparent ();
+  } else if (reply == Gtk::RESPONSE_CANCEL) {
+    std::cout << "Resonse cancel." << std::endl;
+    popup->hide ();
+    m_Combo.unparent ();
+  } else {
+    std::cout << "Resonse else." << std::endl;
+    popup->hide ();
+    m_Combo.unparent ();
+  }
 }
 
+int NoteListPaneView::fillNotebooksCallback (void* lpv, int argc, char **argv, char **azColName) {
+  std::cout << "NoteListPaneView::fillNotebooksCallback" << std::endl;
+  NoteListPaneView* p = (NoteListPaneView*) lpv;
+
+  std::string notebookName = "";
+  int notebookId = atoi (argv[0]);
+  notebookName += argv[1];
+
+  NotebookData* nbd = new NotebookData (notebookId, notebookName);
+  Gtk::TreeModel::Row childrow = *(p->m_refTreeModel_notebooks->append());
+  childrow[p->m_Columns_notebooks.m_col_id] = notebookId;
+  childrow[p->m_Columns_notebooks.m_col_name] = notebookName;
+  childrow[p->m_Columns_notebooks.m_notebook_data] = *nbd;
+  
+  return 0;
+}
 void NoteListPaneView::newNoteOk () {
-  dbm->exec ("INSERT INTO notes values (NULL,'"+ noteName->get_text ()+"', '', 1, 0, 0)", NULL,this);
-  fetchNotesForNotebook (1);
-  popup->hide ();
+
+  Gtk::TreeModel::iterator iter = m_Combo.get_active ();
+
+  NotebookData nbd;
+
+  if (iter) {
+    Gtk::TreeModel::Row row = *iter;
+    nbd = row [m_Columns_notebooks.m_notebook_data];
+
+    Gtk::TreeModel::Path path = m_refTreeModel_notebooks->get_path (iter);
+
+    dbm->exec ("INSERT INTO notes values (NULL,'"+ noteName->get_text ()+"', '', " + NumberToString (nbd.getPrimaryKey ()) + ", 0, 0)", NULL,this);
+    fetchNotesForNotebook (nbd.getPrimaryKey ());
+    app->lpv->selectNotebookInPane (path[0]);
+  } else {
+    std::cout << "Invalid Selection" << std::endl;
+  }
+
 }
