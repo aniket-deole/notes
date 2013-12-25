@@ -380,50 +380,58 @@ std::string NumberToString(T pNumber)
 }
 
 void LeftPaneView::on_menu_file_popup_edit_notebook_name() {
-  popup = new Gtk::MessageDialog ("Etner New Name for notebook: ", true, Gtk::MESSAGE_OTHER, Gtk::BUTTONS_OK_CANCEL, true);
 
+  popup = new Gtk::MessageDialog (*app, "Etner New Name for notebook: ", true, Gtk::MESSAGE_OTHER, Gtk::BUTTONS_OK_CANCEL, true);
   Gtk::Box* contentBox = popup->get_content_area ();
 
   contentBox->pack_end (*notebookName);
-/*
-  Gtk::Button* okButton = new Gtk::Button ("Ok");
-  okButton->signal_clicked().connect(sigc::mem_fun(*this,
-              &LeftPaneView::notebookEdit) ); 
-  contentBox->add (*okButton);
-*/
+
   contentBox->show_all ();
-  popup->set_position (Gtk::WIN_POS_CENTER);
   popup->set_resizable (false);
-  popup->get_content_area () ->set_margin_top (50);
-  popup->run ();
+  popup->set_modal (true);
+  int reply = popup->run ();
+  
+  if (reply == Gtk::RESPONSE_OK) {
+    std::cout << "Resonse ok." << std::endl;
+    notebookEdit ();
+    popup->hide ();
+  } else if (reply == Gtk::RESPONSE_CANCEL) {
+    std::cout << "Resonse cancel." << std::endl;
+    popup->hide ();
+  } else {
+    std::cout << "Resonse else." << std::endl;
+    popup->hide ();
+  }
+
 }
 
 void LeftPaneView::on_menu_file_popup_delete_notebook () {
-  popup = new Gtk::MessageDialog ("Delete Notebook ?", true, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_OK_CANCEL, true);
 
+  popup = new Gtk::MessageDialog (*app, "Delete Notebook ?", true, Gtk::MESSAGE_OTHER, Gtk::BUTTONS_OK_CANCEL, true);
   Gtk::Box* contentBox = popup->get_content_area ();
-/*
-  Gtk::Button* deleteButton = new Gtk::Button ("Delete");
-  deleteButton->signal_clicked().connect(sigc::mem_fun(*this,
-              &LeftPaneView::notebookDelete) ); 
-  contentBox->add (*deleteButton);
-
-  Gtk::Button* cancelButton = new Gtk::Button ("Cancel");
-  cancelButton->signal_clicked().connect(sigc::mem_fun(*this,
-              &LeftPaneView::notebookDeleteCancel) ); 
-  contentBox->add (*cancelButton);
-*/
-
   contentBox->show_all ();
-  popup->set_position (Gtk::WIN_POS_CENTER);
   popup->set_resizable (false);
-  popup->run ();
+  popup->set_modal (true);
+  int reply = popup->run ();
+  
+  if (reply == Gtk::RESPONSE_OK) {
+    std::cout << "Resonse ok." << std::endl;
+    notebookDelete ();
+    popup->hide ();
+  } else if (reply == Gtk::RESPONSE_CANCEL) {
+    std::cout << "Resonse cancel." << std::endl;
+    notebookDeleteCancel ();
+    popup->hide ();
+  } else {
+    std::cout << "Resonse else." << std::endl;
+    popup->hide ();
+  }
+
 }
 
 
 void LeftPaneView::notebookEdit () {
   if (notebookName->get_text().empty ()) { return;}
-  popup->hide ();
 
   std::string notebook_name = notebookName->get_text ();
   std::string notebook_id = NumberToString (selectedNotebook.getPrimaryKey ());
@@ -482,11 +490,10 @@ void LeftPaneView::notebookDelete () {
   m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0:0"));
   selectedPath = "0:0";
   notebookListSelected = true;
-  popup->hide ();
 }
 
 void LeftPaneView::notebookDeleteCancel () {
-  popup->hide ();
+  return;
 }
 
 void LeftPaneView::selectNotebookInPane (int pathIndex) {
