@@ -349,6 +349,7 @@ void NoteListPaneView::newNoteOk () {
     dbm->exec ("INSERT INTO notes values (NULL,'"+ noteName->get_text ()+"', '', " + NumberToString (nbd.getPrimaryKey ()) + ", 0, 0)", NULL,this);
     fetchNotesForNotebook (nbd.getPrimaryKey ());
     app->lpv->selectNotebookInPane (path[0]);
+    app->npv->newNote ();
   } else {
     std::cout << "Invalid Selection" << std::endl;
   }

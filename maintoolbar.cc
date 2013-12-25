@@ -57,7 +57,6 @@ void MainToolbar::exitNotify () {
 
 void MainToolbar::newNote () {
   app->nlpv->newNote ();
-  app->npv->newNote ();
 }
 
 void MainToolbar::newNotebook () {
