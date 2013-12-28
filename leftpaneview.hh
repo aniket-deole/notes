@@ -34,7 +34,6 @@ private:
   void on_treeview_row_activated (const Gtk::TreePath&, Gtk::TreeViewColumn* const&);
   void on_treeview_row_changed ();
 
-
   std::string selectedPath;
   bool notebookListSelected;
 
@@ -85,6 +84,8 @@ public:
   void notebookDelete ();
   void notebookDeleteCancel ();
   void selectNotebookInPane (int pathIndex);
+  int getSelectedNotebookId () { return selectedNotebook.getPrimaryKey (); }
+  void refreshLeftPaneView ();
 };
 
 #endif

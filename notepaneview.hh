@@ -36,6 +36,9 @@ private:
 
 	Gtk::Button* saveButton;
 	NoteData nd;
+
+	Notify* app;
+
 public:
 	NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding = 0);
 	~NotePaneView ();
@@ -48,5 +51,6 @@ public:
 	void disableButtons ();
 	void enableButtons ();
 	void saveNote ();
+	void setApp (Notify* n) { app = n; }
 };
 #endif

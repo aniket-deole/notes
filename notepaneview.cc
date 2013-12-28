@@ -28,7 +28,8 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 	noteTitle->set_editable (true);
 	
 	addCss (noteTitle, "noteTitle", ".noteTitle {\n color:#000;\n font: OpenSans light 18; padding-top:10px;padding-bottom:10px; "
-								"padding-left:14px; background-image:none; background-color:white;\n}\n");
+								"padding-left:14px; background-image:none; background-color:white;\n}\n"
+								".noteTitle:selected {    background-color: #34393D; color:white ; }");
 
 	webviewWrapper = Gtk::manage (new Gtk::ScrolledWindow ());
 
@@ -64,8 +65,6 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 	pack_start (*sepBot, false, false, 0);
 
 	pack_start (*webviewWrapper);
-
-
 
 	show_all ();
 }
@@ -141,4 +140,8 @@ void NotePaneView::saveNote () {
 	std::string title = replaceSingleQuote (noteTitle->get_text ());
 	std::cout << "saved: " << "update notes set title = '" + title + "', body = '" + body + "' where id = " + NumberToString (nd.getPrimaryKey ()) 	<< std::endl;
   	dbm->exec ("update notes set title = '" + title + "', body = '" + body + "', modified_time = strftime('%s','now') where id = " + NumberToString (nd.getPrimaryKey ()), NULL, this);
+
+//  	app->lpv->refreshLeftPaneView ();
+
+  	app->nlpv->fetchNotesForNotebook (app->lpv->getSelectedNotebookId ());
 }

@@ -217,6 +217,7 @@ void LeftPaneView::on_treeview_row_changed () {
       Gtk::TreeModel::Row row = *iter;
   //  app->npv->setWebViewContent (n.getSummary ());
       app->nlpv->fetchNotesForNotebook (row[m_Columns.m_col_id]);
+      selectedNotebook = row[m_Columns.m_notebook_data];
       std::cout << "LeftPaneView::on_treeview_row_changed Name: " << row[m_Columns.m_col_id] << ", PKey: " << row[m_Columns.m_col_name] << std::endl;
     }
   }
@@ -499,3 +500,25 @@ void LeftPaneView::notebookDeleteCancel () {
 void LeftPaneView::selectNotebookInPane (int pathIndex) {
   m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0:" + NumberToString (pathIndex + 1)));
 } 
+
+void LeftPaneView::refreshLeftPaneView () {
+  m_refTreeModel->clear ();  //Fill the TreeView's model
+  notebooksRow = *(m_refTreeModel->append());
+  notebooksRow[m_Columns.m_col_id] = 0;
+  notebooksRow[m_Columns.m_col_name] = "Notebooks";
+  NotebookData* nbd = new NotebookData (-1, "Notebooks");
+  notebooksRow[m_Columns.m_notebook_data] = *nbd;
+
+  tagsRow = *(m_refTreeModel->append());
+  tagsRow[m_Columns.m_col_id] = 2;
+  tagsRow[m_Columns.m_col_name] = "Tags";
+  nbd = new NotebookData (-1, "Tags");
+  tagsRow[m_Columns.m_notebook_data] = *nbd;
+  dbm->exec ("select * from notebooks where id = 0", &fillNotebooksCallback,this);
+  dbm->exec ("select * from notebooks where id > 0 order by title", &fillNotebooksCallback,this);
+  dbm->exec ("select * from tags", &fillTagsCallback,this);
+  m_TreeView.expand_all ();
+  m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0:0"));
+  selectedPath = "0:0";
+  notebookListSelected = true;
+}

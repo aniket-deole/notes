@@ -292,7 +292,7 @@ int NoteListPaneView::fillNotesCallback (void* nlpv, int argc, char **argv, char
   Gtk::TreeModel::Row row = *(p->m_refTreeModel->append());
   row[p->m_Columns.m_col_id] = 1;
   row[p->m_Columns.m_col_name] = "id";
-  NoteData n1 (atoi(argv[0]), argv[1], "14:53", argv[2], atoi (argv[3]), atoi(argv[4]));
+  NoteData n1 (atoi(argv[0]), argv[1], "14:53", argv[2], atoi(argv[3]), atoi (argv[4]), atoi(argv[5]));
   row[p->m_Columns.m_note_data] = n1;
   
   std::cout << "NoteListPaneView::fillNotesCallback PKey: " << atoi(argv[0]) << std::endl;

@@ -26,6 +26,8 @@ private:
   std::string remaining;
   std::string summary;
 
+  int notebook_id;
+
   long int create_unix_time;
   long int modified_unix_time;
 
@@ -33,11 +35,12 @@ public:
 
   NoteData () {}
 
-  NoteData (int p_key, std::string t, std::string r, std::string s, int create_time, int modified_time) {
+  NoteData (int p_key, std::string t, std::string r, std::string s, int n_id, int create_time, int modified_time) {
     primary_key = p_key;
     title = t;
     remaining = r;
     summary = s;
+    notebook_id = n_id;
     create_unix_time = create_time;
     modified_unix_time = modified_time;
   }
@@ -53,7 +56,7 @@ public:
     return *rem;
    }
   std::string getSummary () { return summary; }
-
+  int getNotebookId () { return notebook_id; }
   int getCreateTime () { return create_unix_time; }
 
   int getModifiedTime () { return modified_unix_time; }

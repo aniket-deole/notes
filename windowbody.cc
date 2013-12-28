@@ -80,6 +80,7 @@ void WindowBody::setApp (Notify* a) {
     app->npv = npv;
     nlpv->setApp (app);
     lpv->setApp (app);
+    npv->setApp (app);
     mainToolbar->setApp (app);
 }
 
