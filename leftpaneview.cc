@@ -407,7 +407,7 @@ void LeftPaneView::on_menu_file_popup_edit_notebook_name() {
 
 void LeftPaneView::on_menu_file_popup_delete_notebook () {
 
-  popup = new Gtk::MessageDialog (*app, "Delete Notebook ?", true, Gtk::MESSAGE_OTHER, Gtk::BUTTONS_OK_CANCEL, true);
+  popup = new Gtk::MessageDialog (*app, "Delete Notebook ? (This will delete all notes from that notebook !", true, Gtk::MESSAGE_OTHER, Gtk::BUTTONS_OK_CANCEL, true);
   Gtk::Box* contentBox = popup->get_content_area ();
   contentBox->show_all ();
   popup->set_resizable (false);

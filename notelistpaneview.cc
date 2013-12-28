@@ -23,6 +23,15 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "windowbody.hh"
 #include "notedata.hh"
 
+
+template <typename T>
+std::string NumberToString(T pNumber)
+{
+ std::ostringstream oOStrStream;
+ oOStrStream << pNumber;
+ return oOStrStream.str();
+}
+
 class NoteCellRenderer : public Gtk::CellRenderer {
   public:
   Glib::PropertyProxy< int > property_id()
@@ -49,7 +58,7 @@ class NoteCellRenderer : public Gtk::CellRenderer {
     font_from.set_weight (Pango::WEIGHT_SEMIBOLD);
     Glib::RefPtr <Pango::Layout> layout_from = widget.create_pango_layout ("");
     layout_from->set_font_description (font_from);
-    layout_from->set_markup ("<span foreground='#555'>" + property_note_.get_value ().getTitle () + "</span>");
+    layout_from->set_markup ("<span foreground='#555'>" + property_note_.get_value ().getTitle ().substr (0, 25) + "</span>");
     layout_from->set_width(210 * Pango::SCALE);
     cr->move_to (10, 5 + cell_area.get_y ());
     layout_from->show_in_cairo_context (cr);
@@ -272,7 +281,7 @@ NoteListPaneView::~NoteListPaneView () {
 
 void NoteListPaneView::setDatabaseManager (DatabaseManager* d) {
   dbm = d;
-  dbm->exec ("select * from notes", &fillNotesCallback,this);
+  dbm->exec ("select * from notes order by modified_time desc, id", &fillNotesCallback,this);
   m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0"));
 }
 
@@ -283,7 +292,7 @@ int NoteListPaneView::fillNotesCallback (void* nlpv, int argc, char **argv, char
   Gtk::TreeModel::Row row = *(p->m_refTreeModel->append());
   row[p->m_Columns.m_col_id] = 1;
   row[p->m_Columns.m_col_name] = "id";
-  NoteData n1 (atoi(argv[0]), argv[1], "14:53", argv[2]);
+  NoteData n1 (atoi(argv[0]), argv[1], "14:53", argv[2], atoi (argv[3]), atoi(argv[4]));
   row[p->m_Columns.m_note_data] = n1;
   
   std::cout << "NoteListPaneView::fillNotesCallback PKey: " << atoi(argv[0]) << std::endl;
@@ -308,22 +317,15 @@ void NoteListPaneView::on_treeview_row_changed () {
     app->npv->setNote (n);
   }
 }
-template <typename T>
-std::string NumberToString(T pNumber)
-{
- std::ostringstream oOStrStream;
- oOStrStream << pNumber;
- return oOStrStream.str();
-}
 
 void NoteListPaneView::fetchNotesForNotebook (int primaryKey) {
   m_refTreeModel->clear ();
  
   std::string query;
   if (primaryKey == 0)
-    query = "select * from notes order by id";
+    query = "select * from notes order by modified_time desc, id";
   else
-    query = "select * from notes where notebook_id = " + ::NumberToString(primaryKey) + " order by id";
+    query = "select * from notes where notebook_id = " + ::NumberToString(primaryKey) + " order by modified_time desc, id";
   std::cout << query << std::endl;
   if (dbm)
     dbm->exec (query, & fillNotesCallback, this);
@@ -427,7 +429,7 @@ void NoteListPaneView::newNoteOk () {
 
     Gtk::TreeModel::Path path = m_refTreeModel_notebooks->get_path (iter);
 
-    dbm->exec ("INSERT INTO notes values (NULL,'"+ noteName->get_text ()+"', '', " + NumberToString (nbd.getPrimaryKey ()) + ", 0, 0)", NULL,this);
+    dbm->exec ("INSERT INTO notes values (NULL,'"+ noteName->get_text ()+"', '', " + NumberToString (nbd.getPrimaryKey ()) + ", strftime ('%s','now'), strftime ('%s','now'))", NULL,this);
     fetchNotesForNotebook (nbd.getPrimaryKey ());
     app->lpv->selectNotebookInPane (path[0]);
     app->npv->newNote ();

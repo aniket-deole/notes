@@ -16,6 +16,8 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef _NOTEDATA_HH_
 #define _NOTEDATA_HH_
 
+#include <ctime>
+
 class NoteData {
 private:
   int primary_key;
@@ -23,22 +25,42 @@ private:
   std::string title;
   std::string remaining;
   std::string summary;
+
+  long int create_unix_time;
+  long int modified_unix_time;
+
 public:
 
   NoteData () {}
 
-  NoteData (int p_key, std::string t, std::string r, std::string s) {
+  NoteData (int p_key, std::string t, std::string r, std::string s, int create_time, int modified_time) {
     primary_key = p_key;
     title = t;
     remaining = r;
     summary = s;
+    create_unix_time = create_time;
+    modified_unix_time = modified_time;
   }
 
   int getPrimaryKey () { return primary_key; }
 
   std::string getTitle () { return title; }
-  std::string getRemaining () { return remaining; }
+  std::string getRemaining () { 
+    char buffer[80];
+    struct tm* timeinfo = localtime (&modified_unix_time);
+    strftime (buffer,80,"%F %R",timeinfo);
+    std::string* rem = new std::string (buffer, strnlen(buffer, 80));
+    return *rem;
+   }
   std::string getSummary () { return summary; }
+
+  int getCreateTime () { return create_unix_time; }
+
+  int getModifiedTime () { return modified_unix_time; }
+
+  void set_modified_time (int modified_time) {
+    modified_unix_time = modified_time;
+  }
 };
 
 
