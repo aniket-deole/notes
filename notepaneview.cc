@@ -58,7 +58,14 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 
 
 	pack_start (*ev, false, false, 0);
+
+	Gtk::Separator* sepBot = Gtk::manage (new Gtk::Separator (Gtk::ORIENTATION_HORIZONTAL));
+	pack_start (*sepBot, false, false, 0);
+
 	pack_start (*webviewWrapper);
+
+
+
 	show_all ();
 }
 
