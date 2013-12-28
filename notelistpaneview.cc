@@ -338,8 +338,9 @@ void NoteListPaneView::fetchNotesForNotebook (int primaryKey) {
 
     NoteData n = row[m_Columns.m_note_data];
     app->npv->setNote (n);
-
-        app->npv->enableButtons ();
+    app->npv->enableButtons ();
+    m_TreeView.set_cursor (Gtk::TreeModel::Path ("0"));
+    m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0"));
   } else {
     if (app && primaryKey != 0)
       if (app->npv) {

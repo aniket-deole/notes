@@ -141,7 +141,5 @@ void NotePaneView::saveNote () {
 	std::cout << "saved: " << "update notes set title = '" + title + "', body = '" + body + "' where id = " + NumberToString (nd.getPrimaryKey ()) 	<< std::endl;
   	dbm->exec ("update notes set title = '" + title + "', body = '" + body + "', modified_time = strftime('%s','now') where id = " + NumberToString (nd.getPrimaryKey ()), NULL, this);
 
-//  	app->lpv->refreshLeftPaneView ();
-
   	app->nlpv->fetchNotesForNotebook (app->lpv->getSelectedNotebookId ());
 }
