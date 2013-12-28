@@ -498,4 +498,4 @@ void LeftPaneView::notebookDeleteCancel () {
 
 void LeftPaneView::selectNotebookInPane (int pathIndex) {
   m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0:" + NumberToString (pathIndex + 1)));
-}
+} 

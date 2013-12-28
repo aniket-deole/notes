@@ -21,7 +21,7 @@ DatabaseManager::DatabaseManager (Notify* a) {
 	app = a;
 
 	db = 0;
-    if (sqlite3_open ("notify.db", &db) != SQLITE_OK) {
+    if (sqlite3_open ("/home/aniket/.local/notify.db", &db) != SQLITE_OK) {
 	    /* Report ERROR */
 	    std::cout << "Debug.5: Cannot Create Database." << std::endl;
 	    exit (-1);
@@ -38,35 +38,7 @@ DatabaseManager::DatabaseManager (Notify* a) {
 	    sqlite3_exec (db, "INSERT INTO notebooks values (0,'All Notebooks', 0)", NULL, 0, NULL);
 		sqlite3_exec (db, "INSERT INTO tags values (0,'All Tags')", NULL, 0, NULL);
 	    
-	    sqlite3_exec (db, "INSERT INTO notebooks values (NULL, 'Literature', 0)", NULL, 0, NULL);
-	    sqlite3_exec (db, "INSERT INTO notebooks values (NULL, 'Culture', 0)", NULL, 0, NULL);
-	    sqlite3_exec (db, "INSERT INTO notebooks values (NULL, 'Linux', 0)", NULL, 0, NULL);
-
-	    sqlite3_exec (db, "INSERT INTO notes values (NULL,'First Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
-	    sqlite3_exec (db, "INSERT INTO notes values (NULL,'Second Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
-	    sqlite3_exec (db, "INSERT INTO notes values (NULL,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
-	    sqlite3_exec (db, "INSERT INTO notes values (NULL,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
-	    sqlite3_exec (db, "INSERT INTO notes values (NULL,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
-	    sqlite3_exec (db, "INSERT INTO notes values (NULL,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
-	    sqlite3_exec (db, "INSERT INTO notes values (NULL,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
-	    sqlite3_exec (db, "INSERT INTO notes values (NULL,'Third Note', 'Who has been strangely quite for the past few days as her public profile.Who has been strangely quite for the past few days as her public profile.Who has been strangely quite for the past few days as her public profile.Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
-	    sqlite3_exec (db, "INSERT INTO notes values (NULL,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
-	    sqlite3_exec (db, "INSERT INTO notes values (NULL,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
-	    sqlite3_exec (db, "INSERT INTO notes values (NULL,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
-	    sqlite3_exec (db, "INSERT INTO notes values (NULL,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
-	    sqlite3_exec (db, "INSERT INTO notes values (NULL,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
-	    sqlite3_exec (db, "INSERT INTO notes values (NULL,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
-	    sqlite3_exec (db, "INSERT INTO notes values (NULL,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
-	    sqlite3_exec (db, "INSERT INTO notes values (NULL,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
-	    sqlite3_exec (db, "INSERT INTO notes values (NULL,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
-	    sqlite3_exec (db, "INSERT INTO notes values (NULL,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
-	    sqlite3_exec (db, "INSERT INTO notes values (NULL,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
-	    sqlite3_exec (db, "INSERT INTO notes values (NULL,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
-	    sqlite3_exec (db, "INSERT INTO notes values (NULL,'Third Note', 'Who has been strangely quite for the past few days as her public profile.', 1, 0, 0)", NULL, 0, NULL);
-
-	    sqlite3_exec (db, "INSERT INTO notes values (NULL,'First Note', 'ABCD EFG How I wonder what you are.', 2, 0, 0)", NULL, 0, NULL);
-	    sqlite3_exec (db, "INSERT INTO notes values (NULL,'Second Note', 'ABCD EFG How I wonder what you are.', 2, 0, 0)", NULL, 0, NULL);
-	    sqlite3_exec (db, "INSERT INTO notes values (NULL,'Third Note', 'ABCD EFG How I wonder what you are.ABCD EFG How I wonder what you are.ABCD EFG How I wonder what you are.ABCD EFG How I wonder what you are. My English Horrible ? That''s unpossible !', 2, 0, 0)", NULL, 0, NULL);
+	    sqlite3_exec (db, "INSERT INTO notebooks values (NULL, 'FirstNotebook', 0)", NULL, 0, NULL);
 	    sqlite3_exec (db, "COMMIT", NULL, NULL, NULL);
 	}
 }

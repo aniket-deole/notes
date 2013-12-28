@@ -18,6 +18,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <gtkmm.h>
 #include <iostream>
 #include <cstring>
+#include <vector>
 #include "notelistpaneview.hh"
 #include "windowbody.hh"
 #include "notedata.hh"
@@ -69,7 +70,82 @@ class NoteCellRenderer : public Gtk::CellRenderer {
     layout_from->set_font_description (font_from);
     layout_from->set_alignment(Pango::ALIGN_LEFT);
     std::string summary = property_note_.get_value ().getSummary ();
-    layout_from->set_markup ("<span foreground='#555'>" + summary.substr (0, (cell_area.get_width () / 4.0) + 10) + "</span>");
+
+    /* Removing HTML Tags */
+    std::string strippedSummary = "";
+   std::vector<std::string>    tags;
+    std::vector<std::string>    text;
+
+    for(;;)
+    {
+        std::string::size_type  startpos;
+
+        startpos = summary.find('<');
+        if(startpos == std::string::npos)
+        {
+            // no tags left only text!
+            text.push_back(summary);
+            break;
+        }
+
+        // handle the text before the tag    
+        if(0 != startpos)
+        {
+            text.push_back(summary.substr(0, startpos));
+            summary = summary.substr(startpos, summary.size() - startpos);
+            startpos = 0;
+        }
+
+        //  skip all the text in the html tag
+        std::string::size_type endpos;
+        for(endpos = startpos;
+            endpos < summary.size() && summary[endpos] != '>';
+            ++endpos)
+        {
+            // since '>' can appear inside of an attribute string we need
+            // to make sure we process it properly.
+            if(summary[endpos] == '"')
+            {
+                endpos++;
+                while(endpos < summary.size() && summary[endpos] != '"')
+                {
+                    endpos++;
+                }
+            }
+        }
+
+        //  Handle text and end of html that has beginning of tag but not the end
+        if(endpos == summary.size())
+        {
+            summary = summary.substr(endpos, summary.size() - endpos);
+            break;
+        }
+        else
+        {
+            //  handle the entire tag
+            endpos++;
+            tags.push_back(summary.substr(startpos, endpos - startpos));
+            summary = summary.substr(endpos, summary.size() - endpos);
+        }
+    }
+
+
+    // auto, iterators or range based for loop would probably be better but
+    // this makes it a bit easier to read.    
+    for(size_t i = 0; i < tags.size(); i++)
+    {
+ //       std::cout << tags[i] << std::endl;
+    }
+
+    for(size_t i = 0; i < text.size(); i++)
+    {
+ //       std::cout << text[i] << std::endl;
+        strippedSummary.append (text[i]);
+    }
+
+    /* Removing HTML Tags Over */
+
+    layout_from->set_markup ("<span foreground='#555'>" + strippedSummary.substr (0, (cell_area.get_width () / 4.0) + 10) + "</span>");
     layout_from->set_width((cell_area.get_width () - 10) * Pango::SCALE);
     cr->move_to (10, 27 + cell_area.get_y ());
 
@@ -229,7 +305,7 @@ void NoteListPaneView::on_treeview_row_changed () {
     Gtk::TreeModel::Row row = *iter;
     NoteData n = row[m_Columns.m_note_data];
     std::cout << "NoteListPaneView::on_treeview_row_changed, Note, Title: " << n.getTitle () << ", PrimaryKey: " << n.getPrimaryKey () << std::endl;
-    app->npv->setWebViewContent (n.getSummary ());
+    app->npv->setNote (n);
   }
 }
 template <typename T>
@@ -259,11 +335,16 @@ void NoteListPaneView::fetchNotesForNotebook (int primaryKey) {
     Gtk::TreeModel::Row row = *iter;
 
     NoteData n = row[m_Columns.m_note_data];
-    app->npv->setWebViewContent (n.getSummary ());
+    app->npv->setNote (n);
+
+        app->npv->enableButtons ();
   } else {
     if (app && primaryKey != 0)
       if (app->npv) {
         app->npv->setWebViewContent ("No Notes :(");
+        app->npv->setNoteTitleEntryText ("Untitled");
+        app->npv->disableButtons ();
+
       }
   }
 }

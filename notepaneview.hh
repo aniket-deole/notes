@@ -27,19 +27,26 @@ class LeftPaneView;
 class NotePaneView : public Gtk::Box {
 private:
 	int a;
-  WebKitWebView* webview;
+	WebKitWebView* webview;
 
-  Gtk::ScrolledWindow* webviewWrapper;
+	Gtk::ScrolledWindow* webviewWrapper;
 
-  DatabaseManager* dbm;
+	DatabaseManager* dbm;
+	Gtk::Entry* noteTitle;
 
+	Gtk::Button* saveButton;
+	NoteData nd;
 public:
 	NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding = 0);
 	~NotePaneView ();
 
 	void setDatabaseManager (DatabaseManager* d);
 	void setWebViewContent (std::string);
-
+	void setNoteTitleEntryText (std::string);
+	void setNote (NoteData n);
 	void newNote ();
+	void disableButtons ();
+	void enableButtons ();
+	void saveNote ();
 };
 #endif
