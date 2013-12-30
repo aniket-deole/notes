@@ -44,8 +44,8 @@ MainToolbar::MainToolbar () {
               &MainToolbar::newNotebook) );
   add(*button);
 
-	Glib::RefPtr<Gtk::StyleContext> sc = get_style_context(); 
-	sc->add_class("primary-toolbar");
+Glib::RefPtr<Gtk::StyleContext> sc = get_style_context(); 
+sc->add_class("primary-toolbar");
 
   show_all ();
 }
