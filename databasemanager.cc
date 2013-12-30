@@ -14,6 +14,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 ***/
 
 #include <iostream>
+#include <cstdlib>
 
 #include "databasemanager.hh"
 
@@ -21,7 +22,11 @@ DatabaseManager::DatabaseManager (Notify* a) {
 	app = a;
 
 	db = 0;
-    if (sqlite3_open ("/home/aniket/.local/notify.db", &db) != SQLITE_OK) {
+
+	char* path = getenv ("HOME");
+	strcat (path, "/.local/notify.db");
+	
+    if (sqlite3_open (path, &db) != SQLITE_OK) {
 	    /* Report ERROR */
 	    std::cout << "Debug.5: Cannot Create Database." << std::endl;
 	    exit (-1);

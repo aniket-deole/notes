@@ -77,7 +77,7 @@ void NotePaneView::setDatabaseManager (DatabaseManager* d) {
 }
 
 void NotePaneView::setNote (NoteData n) {
-	setWebViewContent (n.getSummary ());
+	setWebViewContent (n.getBody ());
 	setNoteTitleEntryText (n.getTitle ());
 	nd = n;
 }
