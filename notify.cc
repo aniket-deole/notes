@@ -19,7 +19,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Notify::Notify() {
 	/** Window Related Properties **/
-	set_default_size (1280, 720);
+	set_default_size (960, 540);
 
     windowBody = Gtk::manage (new WindowBody (false, 0, Gtk::PACK_SHRINK));
 

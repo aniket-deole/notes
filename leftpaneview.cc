@@ -235,6 +235,14 @@ void LeftPaneView::setDatabaseManager (DatabaseManager* d) {
   m_TreeView.expand_all ();
   m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0:0"));
   selectedPath = "0:0";
+  
+  Glib::RefPtr<Gtk::TreeSelection> ts = m_TreeView.get_selection ();
+  Gtk::TreeModel::iterator iter = ts->get_selected ();
+  Glib::RefPtr<Gtk::TreeModel> tm = ts->get_model ();
+
+  Gtk::TreeModel::Path path = tm->get_path (iter);
+  Gtk::TreeModel::Row row = *iter; 
+  selectedNotebook = row[m_Columns.m_notebook_data];
   notebookListSelected = true;
 }
 
