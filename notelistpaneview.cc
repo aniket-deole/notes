@@ -204,6 +204,16 @@ NoteListPaneView::NoteListPaneView (bool homogeneous, int spacing, Gtk::PackOpti
   m_TreeView.signal_row_activated().connect(sigc::mem_fun(*this,
               &NoteListPaneView::on_treeview_row_activated) );
 
+  m_TreeView.signal_button_press_event ().connect_notify (sigc::mem_fun(*this,
+              &NoteListPaneView::on_treeview_button_release_event) );
+
+  Gtk::MenuItem* item = Gtk::manage(new Gtk::MenuItem("_Delete Note", true));
+  item->signal_activate().connect(
+    sigc::mem_fun(*this, &NoteListPaneView::on_menu_file_popup_delete_note) );
+  m_Menu_Popup.append(*item);
+  m_Menu_Popup.accelerate(*this);
+  m_Menu_Popup.show_all(); //Show all menu items when the menu pops up
+ 
   show_all ();
 }
 void NoteListPaneView::treeviewcolumn_validated_on_cell_data(
@@ -374,5 +384,66 @@ void NoteListPaneView::newNoteOk () {
   } else {
     std::cout << "Invalid Selection" << std::endl;
   }
+
+}
+
+
+
+void NoteListPaneView::on_treeview_button_release_event (GdkEventButton* event) {
+      /* single click with the right mouse button? */
+    if (event->button == 3)
+    {
+      std::cout << "Single right click on the tree view." << std::endl;
+
+
+  Glib::RefPtr<Gtk::TreeSelection> ts = m_TreeView.get_selection ();
+  Gtk::TreeModel::iterator iter = ts->get_selected ();
+  Glib::RefPtr<Gtk::TreeModel> tm = ts->get_model ();
+
+  Gtk::TreeModel::Path path;
+  m_TreeView.get_path_at_pos ((gint) event->x, (gint) event->y, path);
+
+    if (path.size () == 1) {
+      
+        Gtk::TreeModel::Row row = *(tm->get_iter (path));
+        selectedNote = row[m_Columns.m_note_data];
+         
+        std::cout << "NoteListPaneView::on_treeview_button_release_event Name: " << row[m_Columns.m_col_id] << ", PKey: " << selectedNote.getTitle () << std::endl;
+        m_Menu_Popup.popup(event->button, event->time);
+    }
+    }
+
+}
+
+void NoteListPaneView::on_menu_file_popup_delete_note () {
+
+  popup = new Gtk::MessageDialog (*app, "Delete Note ?", true, Gtk::MESSAGE_OTHER, Gtk::BUTTONS_OK_CANCEL, true);
+  Gtk::Box* contentBox = popup->get_content_area ();
+  contentBox->show_all ();
+  popup->set_resizable (false);
+  popup->set_modal (true);
+  int reply = popup->run ();
+  
+  if (reply == Gtk::RESPONSE_OK) {
+    std::cout << "Resonse ok." << std::endl;
+    noteDelete ();
+    popup->hide ();
+  } else {
+    std::cout << "Resonse cancel/else." << std::endl;
+    popup->hide ();
+  }
+}
+
+
+void NoteListPaneView::noteDelete () {
+  std::string note_id = NumberToString (selectedNote.getPrimaryKey ());
+  dbm->exec ("delete from notes where id = " + note_id, NULL, this);
+
+  m_refTreeModel->clear ();
+
+  std::string notebook_id = NumberToString (app->lpv->getSelectedNotebookId ());
+
+  dbm->exec ("select * from notes where notebook_id = " + notebook_id + " order by modified_time desc, id", &fillNotesCallback,this);
+  m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0"));
 
 }

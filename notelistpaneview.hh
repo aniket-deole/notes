@@ -37,6 +37,8 @@ private:
 
   Gtk::ComboBoxText m_Combo;
 
+  NoteData selectedNote;
+
 public:
     NoteListPaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding = 0);
     ~NoteListPaneView ();
@@ -84,6 +86,7 @@ public:
   void fetchNotesForNotebook (int primaryKey);
   void on_treeview_row_activated (const Gtk::TreePath&, Gtk::TreeViewColumn* const&);
   void on_treeview_row_changed ();
+  void on_treeview_button_release_event (GdkEventButton* event);
 
   void setApp (Notify* a) { app = a; }
 
@@ -91,6 +94,12 @@ public:
   void newNoteOk ();
   bool on_treeview_button_press_event (GdkEventButton* event);
   static int fillNotebooksCallback (void* lpv, int argc, char **argv, char **azColName) ;
+  Gtk::Menu m_Menu_Popup;
+  void on_menu_file_popup_delete_note ();
+
+
+  void noteDelete ();
+
 };
 
 #endif

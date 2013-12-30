@@ -435,7 +435,6 @@ void LeftPaneView::on_menu_file_popup_delete_notebook () {
     std::cout << "Resonse else." << std::endl;
     popup->hide ();
   }
-
 }
 
 
