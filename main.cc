@@ -18,9 +18,10 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 int main (int argc, char* argv[]) {
-	Glib::RefPtr<Gtk::Application> app = Gtk::Application::create(argc, argv, "org.gtkmm.example");
+	Glib::RefPtr<Gtk::Application> app = Gtk::Application::create(argc, argv, "org.aniketdeole.notes");
 
 	Notify notify;
+	app->register_application ();
 	return app->run (notify);
 }
 

@@ -1,7 +1,7 @@
 CPP=g++
 CFLAGS=-g -rdynamic -O0 -Wall `pkg-config sigc++-2.0 gtk+-3.0 gtkmm-3.0 gdkmm-3.0 webkitgtk-3.0 sqlite3 --cflags`
 
-TGT=notify
+TGT=notes
 
 OBJS= main.o notify.o windowbody.o maintoolbar.o leftpaneview.o notelistpaneview.o notepaneview.o databasemanager.o notedata.cc
 
@@ -13,7 +13,10 @@ all : ${OBJS}
 
 .PHONY: clean
 clean:
-	rm -rf *.o notify
+	rm -rf *.o notes
 
 test: all
-	./notify
+	./notes
+
+install: all
+	sudo cp notes /usr/bin/notes
