@@ -32,6 +32,16 @@ std::string NumberToString(T pNumber)
  return oOStrStream.str();
 }
 
+std::string ReplaceString(std::string subject, const std::string& search,
+                          const std::string& replace) {
+    size_t pos = 0;
+    while ((pos = subject.find(search, pos)) != std::string::npos) {
+         subject.replace(pos, search.length(), replace);
+         pos += replace.length();
+    }
+    return subject;
+}
+
 class NoteCellRenderer : public Gtk::CellRenderer {
   public:
   Glib::PropertyProxy< int > property_id()
@@ -153,6 +163,12 @@ class NoteCellRenderer : public Gtk::CellRenderer {
     }
 
     /* Removing HTML Tags Over */
+
+    /* Change special Characters. */
+    strippedSummary = ReplaceString (strippedSummary, "&nbsp;", " ");
+    strippedSummary = ReplaceString (strippedSummary, "\n", " ");
+    strippedSummary = ReplaceString (strippedSummary, "&", "&amp;");
+    std::cout << strippedSummary << std::endl;
 
     layout_from->set_markup ("<span foreground='#555'>" + strippedSummary.substr (0, (cell_area.get_width () / 4.0) + 10) + "</span>");
     layout_from->set_width((cell_area.get_width () - 10) * Pango::SCALE);
