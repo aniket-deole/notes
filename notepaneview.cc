@@ -66,6 +66,12 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
     
 	webkit_web_view_load_string (webview, "No Notes :(", "text/html", NULL, NULL);
 
+	WebKitWebSettings* wkws = webkit_web_view_get_settings ( webview);
+	g_object_set (G_OBJECT(wkws), "default-font-size", 10, NULL);	
+	g_object_set (G_OBJECT(wkws), "enable-offline-web-application-cache", true, NULL);	
+	g_object_set (G_OBJECT(wkws), "tab-key-cycles-through-elements", false, NULL);	
+
+
 	webviewWrapper->set_policy (Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
 	pack_start (*webviewWrapper);
 
