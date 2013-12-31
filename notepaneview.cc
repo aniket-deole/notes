@@ -31,17 +31,6 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 								"padding-left:14px; background-image:none; background-color:white;\n}\n"
 								".noteTitle:selected {    background-color: #34393D; color:white ; }");
 
-	webviewWrapper = Gtk::manage (new Gtk::ScrolledWindow ());
-
-	webview = WEBKIT_WEB_VIEW(webkit_web_view_new());
-	
-	GtkScrolledWindow* webviewWrapper_c = webviewWrapper->gobj ();
-	gtk_scrolled_window_add_with_viewport (webviewWrapper_c, GTK_WIDGET (webview));
-
-	webkit_web_view_set_editable(webview, true);
-    
-	webkit_web_view_load_string (webview, "No Notes :(", "text/html", NULL, NULL);
-
 	Gtk::EventBox* ev = Gtk::manage (new Gtk::EventBox ());
 
 	Gtk::Box* noteTitleAndSaveButtonBox = Gtk::manage (new Gtk::Box ());
@@ -64,6 +53,20 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 	Gtk::Separator* sepBot = Gtk::manage (new Gtk::Separator (Gtk::ORIENTATION_HORIZONTAL));
 	pack_start (*sepBot, false, false, 0);
 
+
+
+	webviewWrapper = Gtk::manage (new Gtk::ScrolledWindow ());
+
+	webview = WEBKIT_WEB_VIEW(webkit_web_view_new());
+	
+	GtkScrolledWindow* webviewWrapper_c = webviewWrapper->gobj ();
+	gtk_container_add (GTK_CONTAINER (webviewWrapper_c), GTK_WIDGET (webview));
+
+	webkit_web_view_set_editable(webview, true);
+    
+	webkit_web_view_load_string (webview, "No Notes :(", "text/html", NULL, NULL);
+
+		webviewWrapper->set_policy (Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
 	pack_start (*webviewWrapper);
 
 	show_all ();
