@@ -68,7 +68,10 @@ class NoteCellRenderer : public Gtk::CellRenderer {
     font_from.set_weight (Pango::WEIGHT_SEMIBOLD);
     Glib::RefPtr <Pango::Layout> layout_from = widget.create_pango_layout ("");
     layout_from->set_font_description (font_from);
-    layout_from->set_markup ("<span foreground='#555'>" + property_note_.get_value ().getTitle ().substr (0, 25) + "</span>");
+    if (property_note_.get_value ().getTitle ().length () > 25)
+      layout_from->set_markup ("<span foreground='#555'>" + property_note_.get_value ().getTitle ().substr (0, 25) + "...</span>");
+    else
+      layout_from->set_markup ("<span foreground='#555'>" + property_note_.get_value ().getTitle ().substr (0, 25) + "</span>");
     layout_from->set_width(210 * Pango::SCALE);
     cr->move_to (10, 5 + cell_area.get_y ());
     layout_from->show_in_cairo_context (cr);
@@ -78,20 +81,22 @@ class NoteCellRenderer : public Gtk::CellRenderer {
     layout_from = widget.create_pango_layout ("");
     layout_from->set_font_description (font_from);
     layout_from->set_alignment(Pango::ALIGN_RIGHT);
-    layout_from->set_markup ("<span foreground='#AAA'>" + property_note_.get_value ().getRemaining () + "</span>");
+    layout_from->set_markup ("<span foreground='#BBB'>" + property_note_.get_value ().getRemaining () + "</span>");
     layout_from->set_width(90* Pango::SCALE);
     cr->move_to (cell_area.get_width () - 90, 10 + cell_area.get_y ());
     layout_from->show_in_cairo_context (cr);
 
-    font_from.set_size (10 * Pango::SCALE);
+    font_from.set_size (9 * Pango::SCALE);
     font_from.set_weight (Pango::WEIGHT_LIGHT);
     layout_from = widget.create_pango_layout ("");
     layout_from->set_font_description (font_from);
     layout_from->set_alignment(Pango::ALIGN_LEFT);
     std::string summary = property_note_.get_value ().getSummary ();
 
-
-    layout_from->set_markup ("<span foreground='#555'>" + summary.substr (0, (cell_area.get_width () / 4.0) + 10) + "</span>");
+    if (summary.length () > (cell_area.get_width () / 4.0) + 10)
+      layout_from->set_markup ("<span foreground='#888'>" + summary.substr (0, (cell_area.get_width () / 4.0) + 10) + "...</span>");
+    else
+      layout_from->set_markup ("<span foreground='#888'>" + summary.substr (0, (cell_area.get_width () / 4.0) + 10) + "</span>");
     layout_from->set_width((cell_area.get_width () - 10) * Pango::SCALE);
     cr->move_to (10, 27 + cell_area.get_y ());
 
@@ -438,12 +443,5 @@ void NoteListPaneView::on_menu_file_popup_delete_note () {
 void NoteListPaneView::noteDelete () {
   std::string note_id = NumberToString (selectedNote.getPrimaryKey ());
   dbm->exec ("delete from notes where id = " + note_id, NULL, this);
-
-  m_refTreeModel->clear ();
-
-  std::string notebook_id = NumberToString (app->lpv->getSelectedNotebookId ());
-
-  dbm->exec ("select * from notes where notebook_id = " + notebook_id + " order by modified_time desc, id", &fillNotesCallback,this);
-  m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0"));
-
+  fetchNotesForNotebook (app->lpv->getSelectedNotebookId ());
 }

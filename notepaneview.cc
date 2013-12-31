@@ -66,7 +66,7 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
     
 	webkit_web_view_load_string (webview, "No Notes :(", "text/html", NULL, NULL);
 
-		webviewWrapper->set_policy (Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
+	webviewWrapper->set_policy (Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
 	pack_start (*webviewWrapper);
 
 	show_all ();
