@@ -23,26 +23,40 @@ MainToolbar::MainToolbar () {
 
  //Create the toolbar and add it to a container widget:
   Gtk::ToolButton* button = Gtk::manage(new Gtk::ToolButton());
-  button->set_size_request (40, 40);
   // TODO Change this later to set_icon_widget
-  button->set_icon_name("dialog-cancel");
+//  button->set_icon_name("dialog-cancel");
+  button->set_label ("Close");
   button->signal_clicked().connect(sigc::mem_fun(*this,
               &MainToolbar::exitNotify) );
   add(*button);
 
+  Gtk::SeparatorToolItem* sti = Gtk::manage (new Gtk::SeparatorToolItem ());
+  sti->set_expand (false);
+  sti->set_draw (true);
+  add (*sti);
+
   button = Gtk::manage(new Gtk::ToolButton());
   button->set_size_request (40, 40);
-  button->set_icon_name("document-new");
+  button->set_label ("New Note");
   button->signal_clicked().connect(sigc::mem_fun(*this,
               &MainToolbar::newNote) );
   add(*button);
 
   button = Gtk::manage(new Gtk::ToolButton());
   button->set_size_request (40, 40);
-  button->set_icon_name("address-book-new");
+  button->set_label ("New Notebook");
   button->signal_clicked().connect(sigc::mem_fun(*this,
               &MainToolbar::newNotebook) );
   add(*button);
+
+  sti = Gtk::manage (new Gtk::SeparatorToolItem ());
+  sti->set_expand (true);
+  add (*sti);
+
+  button = Gtk::manage(new Gtk::ToolButton());
+  button->set_size_request (40, 40);
+  button->set_label ("Maximize");
+  add (*button);
 
 	Glib::RefPtr<Gtk::StyleContext> sc = get_style_context(); 
 	sc->add_class("primary-toolbar");
