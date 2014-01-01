@@ -27,6 +27,7 @@ MainToolbar::MainToolbar () {
   Gtk::ToolButton* button = Gtk::manage(new Gtk::ToolButton());
   // TODO Change this later to set_icon_widget
 //  button->set_icon_name("dialog-cancel");
+  button->set_size_request (40, 40);
   button->set_label ("Close");
   button->signal_clicked().connect(sigc::mem_fun(*this,
               &MainToolbar::exitNotify) );
@@ -69,13 +70,20 @@ MainToolbar::MainToolbar () {
   searchEntryContainer->add (*searchEntry);
   add (*searchEntryContainer);
 
-  button = Gtk::manage(new Gtk::ToolButton());
-  button->set_size_request (40, 40);
-  button->set_label ("Maximize");
-  add (*button);
+  ti = Gtk::manage (new Gtk::SeparatorToolItem ());
+  add (*ti);
+
+  maximizeButton = Gtk::manage(new Gtk::ToolButton());
+  maximizeButton->set_size_request (40, 40);
+  maximizeButton->set_label ("Maximize");
+  maximizeButton->signal_clicked().connect (sigc::mem_fun(*this,
+              &MainToolbar::maximizeClicked));
+  add (*maximizeButton);
 
 	Glib::RefPtr<Gtk::StyleContext> sc = get_style_context(); 
 	sc->add_class("primary-toolbar");
+
+  maximized = false;
 
   show_all ();
 }
@@ -107,5 +115,17 @@ void MainToolbar::searchEntryClicked () {
   if (!searchEntryActive) {
    searchEntry->set_text ("");
    searchEntryActive = true;
+  }
+}
+
+void MainToolbar::maximizeClicked () {
+  if (maximized) {
+    app->unmaximize ();
+    maximized = false;
+    maximizeButton->set_label ("Maximize");
+  }else{
+    app->maximize ();
+    maximized = true;
+    maximizeButton->set_label ("Restore");
   }
 }

@@ -28,7 +28,9 @@ private:
     Gtk::Entry* searchEntry;
 
     bool searchEntryActive;
+    bool maximized;
 
+    Gtk::ToolButton* maximizeButton;
 public:
     MainToolbar ();
     ~MainToolbar ();
@@ -38,6 +40,7 @@ public:
     void newNotebook ();
     void searchCallback ();
     void searchEntryClicked ();
+    void maximizeClicked ();
 };
 
 #endif

@@ -39,6 +39,18 @@ private:
 
 	Notify* app;
 
+	Gtk::Button* boldButton;
+	Gtk::Button* italicsButton;
+	Gtk::Button* underlineButton;
+	Gtk::Button* strikeButton;
+	Gtk::Button* clearFormattingButton;
+	Gtk::Button* tabOutButton;
+	Gtk::Button* tabInButton;
+	Gtk::Button* justifyButton;
+	Gtk::Button* olistButton;
+	Gtk::Button* ulistButton;
+	Gtk::Button* clistButton;
+
 public:
 	NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding = 0);
 	~NotePaneView ();
@@ -52,5 +64,16 @@ public:
 	void enableButtons ();
 	void saveNote ();
 	void setApp (Notify* n) { app = n; }
+	void boldButtonCallback();
+	void italicsButtonCallback();
+	void underlineButtonCallback();
+	void strikeButtonCallback();
+	void clearFormattingButtonCallback();
+	void tabOutButtonCallback();
+	void tabInButtonCallback();
+	void justifyButtonCallback();
+	void olistButtonCallback();
+	void ulistButtonCallback();
+	void clistButtonCallback();
 };
 #endif

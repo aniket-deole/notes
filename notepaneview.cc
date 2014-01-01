@@ -21,6 +21,125 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding) {
 	set_orientation (Gtk::ORIENTATION_VERTICAL);
+	/* Toolbar */
+	Gtk::Box* toolbarBox = Gtk::manage (new Gtk::Box ());
+	
+	boldButton = Gtk::manage (new Gtk::Button ());
+    Gtk::Image* img = Gtk::manage (new Gtk::Image ("img/bold.png"));
+    boldButton->set_image (*img);
+  	boldButton->signal_clicked().connect(
+    		sigc::mem_fun(*this, &NotePaneView::boldButtonCallback) );
+	toolbarBox->pack_start (*boldButton, false, false , 0);
+	addCss (boldButton, "boldButton", " .boldButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
+	boldButton->set_size_request (30, 30);
+
+	italicsButton = Gtk::manage (new Gtk::Button ());
+    img = Gtk::manage (new Gtk::Image ("img/italics.png"));
+    italicsButton->set_image (*img);
+  	italicsButton->signal_clicked().connect(
+    		sigc::mem_fun(*this, &NotePaneView::italicsButtonCallback) );
+	toolbarBox->pack_start (*italicsButton, false, false , 0);
+	addCss (italicsButton, "italicsButton", " .italicsButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
+	italicsButton->set_size_request (30, 30);
+
+	underlineButton = Gtk::manage (new Gtk::Button ());
+    img = Gtk::manage (new Gtk::Image ("img/underline.png"));
+    underlineButton->set_image (*img);
+  	underlineButton->signal_clicked().connect(
+    		sigc::mem_fun(*this, &NotePaneView::underlineButtonCallback) );
+	toolbarBox->pack_start (*underlineButton, false, false , 0);
+	addCss (underlineButton, "underlineButton", " .underlineButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
+	underlineButton->set_size_request (30, 30);
+
+	strikeButton = Gtk::manage (new Gtk::Button ());
+    img = Gtk::manage (new Gtk::Image ("img/strikethrough.png"));
+    strikeButton->set_image (*img);
+  	strikeButton->signal_clicked().connect(
+    		sigc::mem_fun(*this, &NotePaneView::strikeButtonCallback) );
+	toolbarBox->pack_start (*strikeButton, false, false , 0);
+	addCss (strikeButton, "strikeButton", " .strikeButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
+	strikeButton->set_size_request (30, 30);
+
+	clearFormattingButton = Gtk::manage (new Gtk::Button ());
+    img = Gtk::manage (new Gtk::Image ("img/clearFormatting.png"));
+    clearFormattingButton->set_image (*img);
+  	clearFormattingButton->signal_clicked().connect(
+    		sigc::mem_fun(*this, &NotePaneView::clearFormattingButtonCallback) );
+	toolbarBox->pack_start (*clearFormattingButton, false, false , 0);
+	addCss (clearFormattingButton, "clearFormattingButton", " .clearFormattingButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
+	clearFormattingButton->set_size_request (30, 30);
+
+	Gtk::Separator* separatorVertical = Gtk::manage (new Gtk::Separator (Gtk::ORIENTATION_VERTICAL));
+	toolbarBox->pack_start (*separatorVertical, false, false, 0);
+
+	tabOutButton = Gtk::manage (new Gtk::Button ());
+    img = Gtk::manage (new Gtk::Image ("img/tabout.png"));
+    tabOutButton->set_image (*img);
+  	tabOutButton->signal_clicked().connect(
+    		sigc::mem_fun(*this, &NotePaneView::tabOutButtonCallback) );
+	toolbarBox->pack_start (*tabOutButton, false, false , 0);
+	addCss (tabOutButton, "tabOutButton", " .tabOutButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
+	tabOutButton->set_size_request (30, 30);
+
+	tabInButton = Gtk::manage (new Gtk::Button ());
+    img = Gtk::manage (new Gtk::Image ("img/tabin.png"));
+    tabInButton->set_image (*img);
+  	tabInButton->signal_clicked().connect(
+    		sigc::mem_fun(*this, &NotePaneView::tabInButtonCallback));
+	toolbarBox->pack_start (*tabInButton, false, false , 0);
+	addCss (tabInButton, "tabInButton", " .tabInButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
+	tabInButton->set_size_request (30, 30);
+
+	justifyButton = Gtk::manage (new Gtk::Button ());
+    img = Gtk::manage (new Gtk::Image ("img/justify.png"));
+    justifyButton->set_image (*img);
+  	justifyButton->signal_clicked().connect(
+    		sigc::mem_fun(*this, &NotePaneView::justifyButtonCallback));
+	toolbarBox->pack_start (*justifyButton, false, false , 0);
+	addCss (justifyButton, "justifyButton", " .justifyButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
+	justifyButton->set_size_request (30, 30);	
+
+	separatorVertical = Gtk::manage (new Gtk::Separator (Gtk::ORIENTATION_VERTICAL));
+	toolbarBox->pack_start (*separatorVertical, false, false, 0);
+
+	olistButton = Gtk::manage (new Gtk::Button ());
+    img = Gtk::manage (new Gtk::Image ("img/olist.png"));
+    olistButton->set_image (*img);
+  	olistButton->signal_clicked().connect(
+    		sigc::mem_fun(*this, &NotePaneView::olistButtonCallback) );
+	toolbarBox->pack_start (*olistButton, false, false , 0);
+	addCss (olistButton, "olistButton", " .olistButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
+	olistButton->set_size_request (30, 30);
+
+	ulistButton = Gtk::manage (new Gtk::Button ());
+    img = Gtk::manage (new Gtk::Image ("img/ulist.png"));
+    ulistButton->set_image (*img);
+  	ulistButton->signal_clicked().connect(
+    		sigc::mem_fun(*this, &NotePaneView::ulistButtonCallback));
+	toolbarBox->pack_start (*ulistButton, false, false , 0);
+	addCss (ulistButton, "ulistButton", " .ulistButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
+	ulistButton->set_size_request (30, 30);
+
+	clistButton = Gtk::manage (new Gtk::Button ());
+    img = Gtk::manage (new Gtk::Image ("img/clist.png"));
+    clistButton->set_image (*img);
+  	clistButton->signal_clicked().connect(
+    		sigc::mem_fun(*this, &NotePaneView::clistButtonCallback));
+	toolbarBox->pack_start (*clistButton, false, false , 0);
+	addCss (clistButton, "clistButton", " .clistButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
+	clistButton->set_size_request (30, 30);	
+
+	separatorVertical = Gtk::manage (new Gtk::Separator (Gtk::ORIENTATION_VERTICAL));
+	toolbarBox->pack_start (*separatorVertical, false, false, 0);
+
+	toolbarBox->set_size_request (30, -1);	
+	Gtk::EventBox* eventBox = Gtk::manage (new Gtk::EventBox ());
+	eventBox->add (*toolbarBox);
+	addCss (eventBox, "eventBox", ".eventBox { background-image:none; background-color:white;\n}\n");
+	pack_start (*eventBox, false, false, 0);
+
+	Gtk::Separator* sepTop = Gtk::manage (new Gtk::Separator (Gtk::ORIENTATION_HORIZONTAL));
+	pack_start (*sepTop, false, false, 0);
 
 	noteTitle = Gtk::manage (new Gtk::Entry ());
 	noteTitle->set_text ("NoteTitle");
@@ -79,7 +198,7 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 	webviewWrapper->set_policy (Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
 	pack_start (*webviewWrapper);
 
-	show_all ();
+	show_all_children ();
 }
 
 NotePaneView::~NotePaneView () {}
@@ -155,4 +274,64 @@ void NotePaneView::saveNote () {
   	dbm->exec ("update notes set title = '" + title + "', body = '" + body + "', modified_time = strftime('%s','now') where id = " + NumberToString (nd.getPrimaryKey ()), NULL, this);
 
   	app->nlpv->fetchNotesForNotebook (app->lpv->getSelectedNotebookId ());
+}
+
+
+void NotePaneView::boldButtonCallback() {
+    WebKitDOMDocument* dom = webkit_web_view_get_dom_document (webview);
+    webkit_dom_document_exec_command (dom, "bold", false, "");
+    gtk_widget_grab_focus (GTK_WIDGET (webview));
+}
+void NotePaneView::italicsButtonCallback() {
+    WebKitDOMDocument* dom = webkit_web_view_get_dom_document (webview);
+    webkit_dom_document_exec_command (dom, "italic", false, "");
+    gtk_widget_grab_focus (GTK_WIDGET (webview));
+}
+void NotePaneView::underlineButtonCallback() {
+    WebKitDOMDocument* dom = webkit_web_view_get_dom_document (webview);
+    webkit_dom_document_exec_command (dom, "underline", false, "");
+    gtk_widget_grab_focus (GTK_WIDGET (webview));
+}
+
+void NotePaneView::strikeButtonCallback() {
+    WebKitDOMDocument* dom = webkit_web_view_get_dom_document (webview);
+    webkit_dom_document_exec_command (dom, "strikeThrough", false, "");
+    gtk_widget_grab_focus (GTK_WIDGET (webview));
+}
+
+void NotePaneView::clearFormattingButtonCallback() {
+    WebKitDOMDocument* dom = webkit_web_view_get_dom_document (webview);
+    webkit_dom_document_exec_command (dom, "removeFormat", false, "");
+    gtk_widget_grab_focus (GTK_WIDGET (webview));
+}
+void NotePaneView::tabOutButtonCallback() {
+    WebKitDOMDocument* dom = webkit_web_view_get_dom_document (webview);
+    webkit_dom_document_exec_command (dom, "indent", false, "");
+    gtk_widget_grab_focus (GTK_WIDGET (webview));
+}
+
+void NotePaneView::tabInButtonCallback() {
+    WebKitDOMDocument* dom = webkit_web_view_get_dom_document (webview);
+    webkit_dom_document_exec_command (dom, "outdent", false, "");
+    gtk_widget_grab_focus (GTK_WIDGET (webview));
+}
+void NotePaneView::justifyButtonCallback() {
+    WebKitDOMDocument* dom = webkit_web_view_get_dom_document (webview);
+    webkit_dom_document_exec_command (dom, "outdent", false, "");
+    gtk_widget_grab_focus (GTK_WIDGET (webview));
+}
+void NotePaneView::olistButtonCallback() {
+    WebKitDOMDocument* dom = webkit_web_view_get_dom_document (webview);
+    webkit_dom_document_exec_command (dom, "insertOrderedList", false, "");
+    gtk_widget_grab_focus (GTK_WIDGET (webview));
+}
+void NotePaneView::ulistButtonCallback() {
+    WebKitDOMDocument* dom = webkit_web_view_get_dom_document (webview);
+    webkit_dom_document_exec_command (dom, "insertUnorderedList", false, "");
+    gtk_widget_grab_focus (GTK_WIDGET (webview));
+}
+void NotePaneView::clistButtonCallback() {
+    WebKitDOMDocument* dom = webkit_web_view_get_dom_document (webview);
+    webkit_dom_document_exec_command (dom, "insertHTML", false, "<input type='checkbox' >");
+    gtk_widget_grab_focus (GTK_WIDGET (webview));
 }
