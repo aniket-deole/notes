@@ -35,12 +35,18 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 
 	Gtk::Box* noteTitleAndSaveButtonBox = Gtk::manage (new Gtk::Box ());
 
+
+	Gtk::Separator* sepVert = Gtk::manage (new Gtk::Separator (Gtk::ORIENTATION_VERTICAL));
+
 	saveButton = Gtk::manage (new Gtk::Button ("  Save Note  "));
+	addCss (saveButton, "saveButton", ".saveButton { background-image:none; background-color:white;"
+		"border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;\n}\n");
 
   	saveButton->signal_clicked().connect(
     sigc::mem_fun(*this, &NotePaneView::saveNote) );
 
 	noteTitleAndSaveButtonBox->pack_start (*noteTitle, true, true, 0);
+	noteTitleAndSaveButtonBox->pack_start (*sepVert, false, false, 0);
 	noteTitleAndSaveButtonBox->pack_end (*saveButton, false, false, 0);
 
 	ev->add (*noteTitleAndSaveButtonBox);
