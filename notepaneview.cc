@@ -129,9 +129,6 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 	addCss (clistButton, "clistButton", " .clistButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
 	clistButton->set_size_request (30, 30);	
 
-	separatorVertical = Gtk::manage (new Gtk::Separator (Gtk::ORIENTATION_VERTICAL));
-	toolbarBox->pack_start (*separatorVertical, false, false, 0);
-
 	toolbarBox->set_size_request (30, -1);	
 	Gtk::EventBox* eventBox = Gtk::manage (new Gtk::EventBox ());
 	eventBox->add (*toolbarBox);
@@ -332,6 +329,6 @@ void NotePaneView::ulistButtonCallback() {
 }
 void NotePaneView::clistButtonCallback() {
     WebKitDOMDocument* dom = webkit_web_view_get_dom_document (webview);
-    webkit_dom_document_exec_command (dom, "insertHTML", false, "<input type='checkbox' >");
+    webkit_dom_document_exec_command (dom, "insertHTML", false, "<input type='checkbox'></input>");
     gtk_widget_grab_focus (GTK_WIDGET (webview));
 }
