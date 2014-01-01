@@ -51,12 +51,9 @@ MainToolbar::MainToolbar () {
               &MainToolbar::newNotebook) );
   add(*button);
 
-  sti = Gtk::manage (new Gtk::SeparatorToolItem ());
-  sti->set_expand (true);
-  sti->set_can_focus (false);
-  sti->set_use_action_appearance (false);
-  sti->set_visible (true);
-  add (*sti);
+  Gtk::ToolItem* ti = Gtk::manage (new Gtk::ToolItem ());
+  ti->set_expand (true);
+  add (*ti);
 
   Gtk::ToolItem* searchEntryContainer = Gtk::manage (new Gtk::ToolItem ());
 
