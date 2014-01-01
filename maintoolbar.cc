@@ -60,8 +60,11 @@ MainToolbar::MainToolbar () {
 
   searchEntry = Gtk::manage (new Gtk::Entry ());
   searchEntry->set_text ("Search");
+  searchEntry->set_icon_from_icon_name ("system-search");
   searchEntry->signal_changed ().connect (sigc::mem_fun (*this, 
             &MainToolbar::searchCallback));
+  searchEntry->signal_activate ().connect (sigc::mem_fun (*this,
+            &MainToolbar::searchEntryClicked));
   searchEntryActive = false;
   addCss (searchEntry, "searchEntry", ".searchEntry { color: #888; \n}\n");
   searchEntryContainer->add (*searchEntry);
@@ -99,4 +102,11 @@ void MainToolbar::searchCallback () {
     return;
   }
   app->nlpv->noteSearch (searchEntry->get_text ());
+}
+
+void MainToolbar::searchEntryClicked () {
+  if (!searchEntryActive) {
+   searchEntry->set_text ("");
+   searchEntryActive = true;
+  }
 }

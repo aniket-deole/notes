@@ -472,7 +472,6 @@ void NoteListPaneView::noteSearch (std::string str) {
         app->npv->setWebViewContent ("No Notes :(");
         app->npv->setNoteTitleEntryText ("Untitled");
         app->npv->disableButtons ();
-
       }
     }
 }

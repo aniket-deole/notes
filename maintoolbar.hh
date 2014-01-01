@@ -37,6 +37,7 @@ public:
     void newNote ();
     void newNotebook ();
     void searchCallback ();
+    void searchEntryClicked ();
 };
 
 #endif
