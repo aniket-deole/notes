@@ -16,6 +16,8 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <gtkmm/box.h>
 #include <gtkmm/widget.h>
 
+#include <iostream>
+
 #include "maintoolbar.hh"
 
 
@@ -51,7 +53,19 @@ MainToolbar::MainToolbar () {
 
   sti = Gtk::manage (new Gtk::SeparatorToolItem ());
   sti->set_expand (true);
+  sti->set_can_focus (false);
   add (*sti);
+
+  Gtk::ToolItem* searchEntryContainer = Gtk::manage (new Gtk::ToolItem ());
+
+  searchEntry = Gtk::manage (new Gtk::Entry ());
+  searchEntry->set_text ("Search");
+  searchEntry->signal_changed ().connect (sigc::mem_fun (*this, 
+            &MainToolbar::searchCallback));
+  searchEntryActive = false;
+  addCss (searchEntry, "searchEntry", ".searchEntry { color: #888; \n}\n");
+  searchEntryContainer->add (*searchEntry);
+  add (*searchEntryContainer);
 
   button = Gtk::manage(new Gtk::ToolButton());
   button->set_size_request (40, 40);
@@ -78,4 +92,11 @@ void MainToolbar::newNote () {
 
 void MainToolbar::newNotebook () {
   app->lpv->newNotebook ();
+}
+
+void MainToolbar::searchCallback () {
+  if (searchEntry->get_text().empty ()){
+    return;
+  }
+  app->nlpv->noteSearch (searchEntry->get_text ());
 }

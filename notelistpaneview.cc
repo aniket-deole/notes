@@ -445,3 +445,34 @@ void NoteListPaneView::noteDelete () {
   dbm->exec ("delete from notes where id = " + note_id, NULL, this);
   fetchNotesForNotebook (app->lpv->getSelectedNotebookId ());
 }
+
+void NoteListPaneView::noteSearch (std::string str) {
+    m_refTreeModel->clear ();
+ 
+  std::string query;
+  query = "select * from notes where title like '%" + str + "%' or body like '%" + str + "%' order by modified_time desc, id";
+
+  std::cout << query << std::endl;
+  if (dbm)
+    dbm->exec (query, & fillNotesCallback, this);
+  
+  m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0"));
+  Glib::RefPtr<Gtk::TreeSelection> ts = m_TreeView.get_selection ();
+  Gtk::TreeModel::iterator iter = ts->get_selected ();
+  if (iter) {
+    Gtk::TreeModel::Row row = *iter;
+
+    NoteData n = row[m_Columns.m_note_data];
+    app->npv->setNote (n);
+    app->npv->enableButtons ();
+    m_TreeView.set_cursor (Gtk::TreeModel::Path ("0"));
+    m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0"));
+  } else {
+      if (app->npv) {
+        app->npv->setWebViewContent ("No Notes :(");
+        app->npv->setNoteTitleEntryText ("Untitled");
+        app->npv->disableButtons ();
+
+      }
+    }
+}

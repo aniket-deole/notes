@@ -96,10 +96,8 @@ public:
   static int fillNotebooksCallback (void* lpv, int argc, char **argv, char **azColName) ;
   Gtk::Menu m_Menu_Popup;
   void on_menu_file_popup_delete_note ();
-
-
   void noteDelete ();
-
+  void noteSearch (std::string);
 };
 
 #endif

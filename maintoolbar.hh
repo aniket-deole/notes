@@ -25,6 +25,9 @@ class MainToolbar : public Gtk::Toolbar {
 private:
     int a;
     Notify* app;
+    Gtk::Entry* searchEntry;
+
+    bool searchEntryActive;
 
 public:
     MainToolbar ();
@@ -33,6 +36,7 @@ public:
     void exitNotify ();
     void newNote ();
     void newNotebook ();
+    void searchCallback ();
 };
 
 #endif

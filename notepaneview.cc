@@ -59,8 +59,6 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 	Gtk::Separator* sepBot = Gtk::manage (new Gtk::Separator (Gtk::ORIENTATION_HORIZONTAL));
 	pack_start (*sepBot, false, false, 0);
 
-
-
 	webviewWrapper = Gtk::manage (new Gtk::ScrolledWindow ());
 
 	webview = WEBKIT_WEB_VIEW(webkit_web_view_new());
