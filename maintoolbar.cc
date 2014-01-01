@@ -54,12 +54,14 @@ MainToolbar::MainToolbar () {
   sti = Gtk::manage (new Gtk::SeparatorToolItem ());
   sti->set_expand (true);
   sti->set_can_focus (false);
+  sti->set_use_action_appearance (false);
+  sti->set_visible (true);
   add (*sti);
 
   Gtk::ToolItem* searchEntryContainer = Gtk::manage (new Gtk::ToolItem ());
 
   searchEntry = Gtk::manage (new Gtk::Entry ());
-  searchEntry->set_text ("Search");
+  searchEntry->set_text ("");
   searchEntry->set_icon_from_icon_name ("system-search");
   searchEntry->signal_changed ().connect (sigc::mem_fun (*this, 
             &MainToolbar::searchCallback));
