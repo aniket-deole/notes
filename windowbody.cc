@@ -28,7 +28,7 @@ void addCss (Gtk::Widget* widget, std::string cssClass, std::string css) {
 	Glib::RefPtr<Gtk::CssProvider> provider = Gtk::CssProvider::create ();
 
 	provider->load_from_data (css);
-	context->add_provider (provider, GTK_STYLE_PROVIDER_PRIORITY_THEME);
+	context->add_provider (provider, GTK_STYLE_PROVIDER_PRIORITY_SETTINGS);
 	context->add_class (cssClass);
 }
 

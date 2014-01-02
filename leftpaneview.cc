@@ -86,22 +86,41 @@ LeftPaneView::LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 
   //Add the TreeView, inside a ScrolledWindow, with the button underneath:
   m_ScrolledWindow.add(m_TreeView);
-  std::string cssProperties = ".m_TreeView { background-color: #34393D;     border-radius: 0;     color: white; } "
-" .m_TreeView:selected, .m_TreeView:prelight:selected, .m_TreeView.category-expander:hover {      color: white;     border-style: solid;     border-width: 1px 0 1px 0; "
-"  		-unico-inner-stroke-width: 1px 0 1px 0; background-image: -gtk-gradient (linear, left top, left bottom, from (alpha (#000, 0.11)), to (alpha (#000, 0.07)));     " 
-"		-unico-border-gradient: -gtk-gradient (linear,                     left top, left bottom,                     "
-" 		from (alpha (#fff, 0.070)), "
-"		to (alpha (#fff, 0.10)));      -unico-inner-stroke-gradient: -gtk-gradient (linear,                     left top, left bottom, "
-"		from (alpha (#000, 0.03)),                     to (alpha (#000, 0.10))); }  "
-"	.m_TreeView:selected:backdrop, .m_TreeView:prelight:selected:backdrop {     background-image: -gtk-gradient (linear,"
-"		left top,                     left bottom,                     from (alpha (#000, 0.08)),                     to (alpha (#000, 0.04)));      -unico-border-gradient: -gtk-gradient (linear,       "
-"		left top, left bottom,                     from (alpha (#000, 0.19)),                     to (alpha (#fff, 0.25)));      "
-"		-unico-inner-stroke-gradient: -gtk-gradient (linear,                     left top, left bottom,                     from (alpha (#000, 0.03)),                     to (alpha (#000, 0.10)));  } "
-"	.m_TreeView:prelight { background-color: shade (@bg_color, 1.10); }"
-"	.m_TreeView:hover { color: white; border-style: solid; border-width: 1px 0 1px 0; -unico-inner-stroke-width: 1px 0 1px 0; "
-"		background-image: -gtk-gradient (linear, left top, left bottom, from (alpha (#FFF, 0.2)), to (alpha (#FFF, 0.2))); "
-"		-unico-border-gradient: -gtk-gradient (linear, left top, left bottom, from (alpha (#fff, 0.3)), to (alpha (#fff, 0.30)));}"
-"  .m_TreeView row:nth-child(odd) { color : red; } row:nth-child(even) { color : green; }";
+  std::string cssProperties = 
+".m_TreeView {"
+"background-color: #34393D;"
+"border-radius: 0;"
+"color: white;"
+"}"
+""
+".m_TreeView:selected, .m_TreeView:prelight:selected, .m_TreeView.category-expander:hover {"
+"color: white;"
+"border-style: solid;"
+"border-width: 1px 0 1px 0;"
+"-unico-inner-stroke-width: 1px 0 1px 0;"
+"background-image: -gtk-gradient (linear, left top, left bottom, from (alpha (#000, 0.11)), to (alpha (#000, 0.07)));"
+"-unico-border-gradient: -gtk-gradient (linear, left top, left bottom, from (alpha (#fff, 0.070)), to (alpha (#fff, 0.10)));"
+"-unico-inner-stroke-gradient: -gtk-gradient (linear, left top, left bottom, from (alpha (#000, 0.03)), to (alpha (#000, 0.10)));"
+"border-color: #BBB;"
+"}"
+""
+".m_TreeView:selected:backdrop, .m_TreeView:prelight:selected:backdrop {"
+"background-image: -gtk-gradient (linear,left top, left bottom, from (alpha (#000, 0.08)), to (alpha (#000, 0.04)));"
+"-unico-border-gradient: -gtk-gradient (linear, left top, left bottom, from (alpha (#000, 0.19)), to (alpha (#fff, 0.25)));"
+"-unico-inner-stroke-gradient: -gtk-gradient (linear, left top, left bottom, from (alpha (#000, 0.03)), to (alpha (#000, 0.10)));"
+"border-color: #BBB;"
+"}"
+""
+".m_TreeView:prelight, .m_TreeView:hover {"
+"color: white;"
+"border-style: solid;"
+"border-width: 1px 0 1px 0;"
+"-unico-inner-stroke-width: 1px 0 1px 0;"
+"background-image: -gtk-gradient (linear, left top, left bottom, from (alpha (#FFF, 0.2)), to (alpha (#FFF, 0.2)));"
+"-unico-border-gradient: -gtk-gradient (linear, left top, left bottom, from (alpha (#fff, 0.3)), to (alpha (#fff, 0.30)));"
+"border-color: #BBB;"
+"}";
+
 
   addCss (&m_TreeView, "m_TreeView", cssProperties);
 
