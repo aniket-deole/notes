@@ -64,6 +64,7 @@ public:
 	void enableButtons ();
 	void saveNote ();
 	void setApp (Notify* n) { app = n; }
+
 	void boldButtonCallback();
 	void italicsButtonCallback();
 	void underlineButtonCallback();

@@ -141,8 +141,10 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 	noteTitle = Gtk::manage (new Gtk::Entry ());
 	noteTitle->set_text ("NoteTitle");
 	noteTitle->set_has_frame (false);
-	noteTitle->set_editable (true);
-	
+	noteTitle->set_editable (false);
+	noteTitle->set_can_focus (false);
+	noteTitle->signal_changed ().connect (sigc::mem_fun (*this, &NotePaneView::enableButtons));
+
 	addCss (noteTitle, "noteTitle", ".noteTitle {\n color:#000;\n font: OpenSans light 18; padding-top:10px;padding-bottom:10px; "
 								"padding-left:14px; background-image:none; background-color:white;\n}\n"
 								".noteTitle:selected {    background-color: #34393D; color:white ; }");
@@ -182,9 +184,9 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 	GtkScrolledWindow* webviewWrapper_c = webviewWrapper->gobj ();
 	gtk_container_add (GTK_CONTAINER (webviewWrapper_c), GTK_WIDGET (webview));
 
-	webkit_web_view_set_editable(webview, true);
+	webkit_web_view_set_editable(webview, false);
     
-	webkit_web_view_load_string (webview, "No Notes :(", "text/html", NULL, NULL);
+	webkit_web_view_load_string (webview, "Click the new note button to create a note.", "text/html", NULL, NULL);
 
 	WebKitWebSettings* wkws = webkit_web_view_get_settings ( webview);
 	g_object_set (G_OBJECT(wkws), "default-font-size", 10, NULL);	
@@ -225,10 +227,19 @@ void NotePaneView::newNote () {
 
 void NotePaneView::disableButtons () {
 	saveButton->set_sensitive (false);
+	noteTitle->set_editable (false);
+	webkit_web_view_set_editable(webview, false);
+	noteTitle->set_can_focus (false);
 }
 
 void NotePaneView::enableButtons () {
+	if (saveButton->get_sensitive ())
+		return;
 	saveButton->set_sensitive (true);
+	noteTitle->set_editable (true);
+	webkit_web_view_set_editable(webview, true);
+	noteTitle->set_can_focus (true);
+
 }
 
 std::string
@@ -272,7 +283,6 @@ void NotePaneView::saveNote () {
 
   	app->nlpv->fetchNotesForNotebook (app->lpv->getSelectedNotebookId ());
 }
-
 
 void NotePaneView::boldButtonCallback() {
     WebKitDOMDocument* dom = webkit_web_view_get_dom_document (webview);

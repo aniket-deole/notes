@@ -296,7 +296,7 @@ void NoteListPaneView::fetchNotesForNotebook (int primaryKey) {
   } else {
     if (app && primaryKey != 0)
       if (app->npv) {
-        app->npv->setWebViewContent ("No Notes :(");
+        app->npv->setWebViewContent ("Click the new note button to create a note.");
         app->npv->setNoteTitleEntryText ("Untitled");
         app->npv->disableButtons ();
 
@@ -469,9 +469,9 @@ void NoteListPaneView::noteSearch (std::string str) {
     m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0"));
   } else {
       if (app->npv) {
-        app->npv->setWebViewContent ("No Notes :(");
+        app->npv->setWebViewContent ("Click the new note button to create a note.");
         app->npv->setNoteTitleEntryText ("Untitled");
         app->npv->disableButtons ();
       }
-    }
+  }
 }
