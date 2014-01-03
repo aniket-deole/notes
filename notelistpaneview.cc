@@ -267,6 +267,7 @@ void NoteListPaneView::on_treeview_row_changed () {
     NoteData n = row[m_Columns.m_note_data];
     std::cout << "NoteListPaneView::on_treeview_row_changed, Note, Title: " << n.getTitle () << ", PrimaryKey: " << n.getPrimaryKey () << std::endl;
     app->npv->setNote (n);
+    app->npv->enableButtons ();
   }
 }
 

@@ -233,7 +233,7 @@ void NotePaneView::disableButtons () {
 }
 
 void NotePaneView::enableButtons () {
-	if (saveButton->get_sensitive ())
+	if (saveButton->get_sensitive () && noteTitle->get_editable ())
 		return;
 	saveButton->set_sensitive (true);
 	noteTitle->set_editable (true);
