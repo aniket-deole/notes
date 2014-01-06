@@ -16,22 +16,37 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef _EVERNOTEDATAPROVIDER_H_
 #define _EVERNOTEDATAPROVIDER_H_
 
+#include <iostream>
+
 #include <Python.h>
 
-class EvernoteDataProvider : public DataProvider {
+class EvernoteDataProvider{
 private:
 	bool hasOAuthToken;
 	std::string authToken;
+
+	int notebookCount;
 
 	PyObject *pName, *pModule, *pDict, *pFunc;
     PyObject *pArgs, *pValue;
 
 public:
+	EvernoteDataProvider ();
+	~EvernoteDataProvider ();
+
 	int open ();
 	int close ();
 	int sync ();
 	int login ();
 	int logout ();
+	int getNotebookCountPy ();
+	int getNotebookDetails ();
+	std::string getNotebookName (int);
+	std::string getNotebookGuid (int);
+	long int getNotebookServiceUpdated (int);
+	long int getNotebookServiceCreated (int);
+	bool getNotebookIsDefault (int);
+	bool getNotesForNotebook (std::string);
 
 	void setHasOAuthToken (bool b) {
 		hasOAuthToken = b;
@@ -48,6 +63,9 @@ public:
 	std::string getAuthToken () {
 		return authToken;
 	}
+
+	int getNotebookCount () { return notebookCount; }
+	void setNotebookCount (int a) { notebookCount = a; }
 };
 
 #endif
