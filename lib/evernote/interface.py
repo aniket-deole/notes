@@ -14,6 +14,7 @@ client = 0
 user_store = 0
 note_store = 0
 auth_token = 0
+result_list = 0
 
 def login (t):
     global client
@@ -46,18 +47,21 @@ def getNotebook (i):
     global notebooks
     return notebooks[i]
 
-def getNotesForNotebook (notebookGuida):
+def getNoteCountForNotebook (notebookGuid):
     global note_store
+    global result_list
+
     updated_filter = NoteFilter(order=NoteSortOrder.UPDATED)
-    updated_filter.notebookGuid = notebookGuida
+    updated_filter.notebookGuid = notebookGuid
     offset = 0
     max_notes = 10
-    print notebookGuida
     result_spec = NotesMetadataResultSpec(includeTitle=True)
     result_list = note_store.findNotesMetadata(auth_token, updated_filter, offset, max_notes, result_spec)
 
     # note is an instance of NoteMetadata
     # result_list is an instance of NotesMetadataList
-    for note in result_list.notes:
-        print note.title
-    return 2
+    return len (result_list)
+    
+def getNoteForNotebook (i):
+    global result_list
+    return result_list[i]

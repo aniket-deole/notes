@@ -158,22 +158,22 @@ int EvernoteDataProvider::getNotebookCountPy () {
     return retVal;
 }
 
-bool EvernoteDataProvider::getNotesForNotebook (std::string name) {
+bool EvernoteDataProvider::getNotesForNotebook (std::string guid) {
     int argc = 0;
-    bool retVal = false;
-    pFunc = PyObject_GetAttrString(pModule, "getNotesForNotebook");
+    int noteCount;
+    pFunc = PyObject_GetAttrString(pModule, "getNoteCountForNotebook");
     /* pFunc is a new reference */
 
     if (pFunc && PyCallable_Check(pFunc)) {
         pArgs = PyTuple_New(1);
-        pValue = PyString_FromString(name.c_str ());
+        pValue = PyString_FromString(guid.c_str ());
         PyTuple_SetItem(pArgs, 0, pValue);
         
         pValue = PyObject_CallObject(pFunc, pArgs);
         
         Py_DECREF(pArgs);
         if (pValue != NULL) {
-            retVal = PyLong_AsLong (pValue);
+            noteCount = PyInt_FromLong (pValue);
             Py_DECREF(pValue);
         }
         else {
@@ -189,6 +189,8 @@ bool EvernoteDataProvider::getNotesForNotebook (std::string name) {
         fprintf(stderr, "Cannot find function getNotesForNotebook\n");
     }
     Py_XDECREF(pFunc);
+
+    
     return retVal;
 }
 
