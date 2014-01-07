@@ -16,6 +16,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <gtkmm/box.h>
 #include <gtkmm/widget.h>
 #include <gtkmm.h>
+#include <uuid/uuid.h>
 #include <iostream>
 #include <cstring>
 #include <vector>
@@ -137,7 +138,7 @@ class NotebookCellRenderer2 : public Gtk::CellRenderer {
   Pango::Rectangle* renderNotebook (const ::Cairo::RefPtr< ::Cairo::Context >& cr, Gtk::Widget& widget, const Gdk::Rectangle& background_area, const Gdk::Rectangle& cell_area, Pango::Rectangle* pr, int id) {
     Pango::FontDescription font_from;
     font_from.set_size (10 * Pango::SCALE);
-    if (property_notebook_.get_value ().getPrimaryKey () < 0) {
+    if (property_notebook_.get_value ().getGuid ().empty ()) {
       font_from.set_weight (Pango::WEIGHT_SEMIBOLD);
       cr->move_to (10, cell_area.get_y () + 3);
     } else {
@@ -244,7 +245,7 @@ int NoteListPaneView::fillNotesCallback (void* nlpv, int argc, char **argv, char
   Gtk::TreeModel::Row row = *(p->m_refTreeModel->append());
   row[p->m_Columns.m_col_id] = 1;
   row[p->m_Columns.m_col_name] = "id";
-  NoteData n1 (atoi(argv[0]), argv[1], "14:53", argv[2], atoi(argv[3]), atoi (argv[4]), atoi(argv[5]));
+  NoteData n1 (atoi(argv[0]), argv[1], "14:53", argv[2], atoi(argv[3]), atoi (argv[4]), atoi(argv[5]), argv[6], argv[7]);
   row[p->m_Columns.m_note_data] = n1;
   
   std::cout << "NoteListPaneView::fillNotesCallback PKey: " << atoi(argv[0]) << std::endl;
@@ -265,20 +266,20 @@ void NoteListPaneView::on_treeview_row_changed () {
     Gtk::TreeModel::Path path = tm->get_path (iter);
     Gtk::TreeModel::Row row = *iter;
     NoteData n = row[m_Columns.m_note_data];
-    std::cout << "NoteListPaneView::on_treeview_row_changed, Note, Title: " << n.getTitle () << ", PrimaryKey: " << n.getPrimaryKey () << std::endl;
+    std::cout << "NoteListPaneView::on_treeview_row_changed, Note, Title: " << n.getTitle () << ", Guid: " << n.getGuid () << std::endl;
     app->npv->setNote (n);
     app->npv->enableButtons ();
   }
 }
 
-void NoteListPaneView::fetchNotesForNotebook (int primaryKey) {
+void NoteListPaneView::fetchNotesForNotebook (std::string n_guid) {
   m_refTreeModel->clear ();
  
   std::string query;
-  if (primaryKey == 0)
+  if (n_guid.empty ())
     query = "select * from notes order by modified_time desc, id";
   else
-    query = "select * from notes where notebook_id = " + ::NumberToString(primaryKey) + " order by modified_time desc, id";
+    query = "select * from notes where notebook_guid = '" + n_guid + "' order by modified_time desc, id";
   std::cout << query << std::endl;
   if (dbm)
     dbm->exec (query, & fillNotesCallback, this);
@@ -295,7 +296,7 @@ void NoteListPaneView::fetchNotesForNotebook (int primaryKey) {
     m_TreeView.set_cursor (Gtk::TreeModel::Path ("0"));
     m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0"));
   } else {
-    if (app && primaryKey != 0)
+    if (app && !n_guid.empty ())
       if (app->npv) {
         app->npv->setWebViewContent ("Click the new note button to create a note.");
         app->npv->setNoteTitleEntryText ("Untitled");
@@ -363,7 +364,7 @@ int NoteListPaneView::fillNotebooksCallback (void* lpv, int argc, char **argv, c
   int notebookId = atoi (argv[0]);
   notebookName += argv[1];
 
-  NotebookData* nbd = new NotebookData (notebookId, notebookName);
+  NotebookData* nbd = new NotebookData (notebookId, notebookName, argv[3], (argv[4] == NULL ? "" : argv[4]));
   Gtk::TreeModel::Row childrow = *(p->m_refTreeModel_notebooks->append());
   childrow[p->m_Columns_notebooks.m_col_id] = notebookId;
   childrow[p->m_Columns_notebooks.m_col_name] = notebookName;
@@ -383,8 +384,20 @@ void NoteListPaneView::newNoteOk () {
 
     Gtk::TreeModel::Path path = m_refTreeModel_notebooks->get_path (iter);
 
-    dbm->exec ("INSERT INTO notes values (NULL,'"+ noteName->get_text ()+"', '', " + NumberToString (nbd.getPrimaryKey ()) + ", strftime ('%s','now'), strftime ('%s','now'))", NULL,this);
-    fetchNotesForNotebook (nbd.getPrimaryKey ());
+    uuid_t uuid;
+    uuid_generate_time_safe(uuid);
+
+    // unparse (to string)
+    char uuid_str[37];      // ex. "1b4e28ba-2fa1-11d2-883f-0016d3cca427" + "\0"
+    uuid_unparse_lower(uuid, uuid_str);
+    std::string query = "INSERT INTO notes values (NULL,'";
+    query += noteName->get_text ();
+    query += "', '', " + NumberToString (nbd.getPrimaryKey ()) + ", strftime ('%s','now'), strftime ('%s','now'), '";
+    query += uuid_str;
+    query += "', '"+ nbd.getGuid () + "')";
+
+    dbm->exec (query, NULL,this);
+    fetchNotesForNotebook (nbd.getGuid ());
     app->lpv->selectNotebookInPane (path[0]);
     app->npv->newNote ();
   } else {
@@ -442,9 +455,9 @@ void NoteListPaneView::on_menu_file_popup_delete_note () {
 
 
 void NoteListPaneView::noteDelete () {
-  std::string note_id = NumberToString (selectedNote.getPrimaryKey ());
-  dbm->exec ("delete from notes where id = " + note_id, NULL, this);
-  fetchNotesForNotebook (app->lpv->getSelectedNotebookId ());
+  std::string note_id = selectedNote.getGuid ();
+  dbm->exec ("delete from notes where guid = " + note_id, NULL, this);
+  fetchNotesForNotebook (app->lpv->getSelectedNotebookGuid ());
 }
 
 void NoteListPaneView::noteSearch (std::string str) {

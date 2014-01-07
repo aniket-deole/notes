@@ -21,18 +21,23 @@ private:
   int primary_key;
    
   std::string title;
+  std::string guid;
+  std::string parent_guid;
 public:
 
   NotebookData () {}
 
-  NotebookData (int p_key, std::string t) {
+  NotebookData (int p_key, std::string t, std::string g, std::string p_g) {
     primary_key = p_key;
     title = t;
+    guid = g;
+    parent_guid = p_g;
   }
 
   int getPrimaryKey () { return primary_key; }
-
   std::string getTitle () { return title; }
+  std::string getGuid () { return guid; }
+  void setGuid (std::string g) { guid = g; }
 };
 
 

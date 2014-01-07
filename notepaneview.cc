@@ -278,10 +278,10 @@ void NotePaneView::saveNote () {
 	body = replaceSingleQuote (body);
 
 	std::string title = replaceSingleQuote (noteTitle->get_text ());
-	std::cout << "saved: " << "update notes set title = '" + title + "', body = '" + body + "' where id = " + NumberToString (nd.getPrimaryKey ()) 	<< std::endl;
-  	dbm->exec ("update notes set title = '" + title + "', body = '" + body + "', modified_time = strftime('%s','now') where id = " + NumberToString (nd.getPrimaryKey ()), NULL, this);
+	std::cout << "saved: " << "update notes set title = '" + title + "', body = '" + body + "' where guid = '" << nd.getGuid () << "'" << std::endl;
+  	dbm->exec ("update notes set title = '" + title + "', body = '" + body + "', modified_time = strftime('%s','now') where guid = '" + (nd.getGuid ()) + "'", NULL, this);
 
-  	app->nlpv->fetchNotesForNotebook (app->lpv->getSelectedNotebookId ());
+  	app->nlpv->fetchNotesForNotebook (app->lpv->getSelectedNotebookGuid ());
 }
 
 void NotePaneView::boldButtonCallback() {

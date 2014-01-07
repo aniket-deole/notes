@@ -33,11 +33,13 @@ private:
   long int create_unix_time;
   long int modified_unix_time;
 
+  std::string guid;
+  std::string notebook_guid;
+
 public:
 
   NoteData () {}
-  NoteData (int p_key, std::string t, std::string r, std::string b, int n_id, int create_time, int modified_time);
-  int getPrimaryKey () { return primary_key; }
+  NoteData (int p_key, std::string t, std::string r, std::string b, int n_id, int create_time, int modified_time, std::string g, std::string n_guid);
 
   std::string getTitle () { return title; }
   std::string getRemaining () { 
@@ -47,6 +49,7 @@ public:
     std::string* rem = new std::string (buffer, strnlen(buffer, 80));
     return *rem;
    }
+   int getPrimaryKey () { return primary_key; }
   std::string getSummary () { return summary; }
   std::string getBody () { return body; }
   int getNotebookId () { return notebook_id; }
@@ -56,6 +59,19 @@ public:
 
   void set_modified_time (int modified_time) {
     modified_unix_time = modified_time;
+  }
+
+  void setGuid (std::string g) {
+    guid = g;
+  }
+  std::string getGuid () {
+    return guid;
+  }
+  void setNotebookGuid (std::string g) {
+    notebook_guid = g;
+  }
+  std::string getNotebookGuid () {
+    return notebook_guid;
   }
 };
 

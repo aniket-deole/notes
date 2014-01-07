@@ -28,7 +28,7 @@ static std::string ReplaceString(std::string subject, const std::string& search,
 }
 
 
-NoteData::NoteData (int p_key, std::string t, std::string r, std::string b, int n_id, int create_time, int modified_time) {
+NoteData::NoteData (int p_key, std::string t, std::string r, std::string b, int n_id, int create_time, int modified_time, std::string g, std::string n_guid) {
     primary_key = p_key;
     title = t;
     remaining = r;
@@ -36,6 +36,8 @@ NoteData::NoteData (int p_key, std::string t, std::string r, std::string b, int 
     notebook_id = n_id;
     create_unix_time = create_time;
     modified_unix_time = modified_time;
+    guid = g;
+    notebook_guid = n_guid;
 
     /* Create summary to display in the note list pane view. */
 

@@ -16,6 +16,8 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <cstdlib>
 
+#include <uuid/uuid.h>
+
 #include "databasemanager.hh"
 
 DatabaseManager::DatabaseManager (Notify* a) {
@@ -35,15 +37,24 @@ DatabaseManager::DatabaseManager (Notify* a) {
 	if (sqlite3_exec (db, "select * from notebooks", NULL, 0, NULL) != SQLITE_OK) {
 	    /* DB is not setup. This is the first run. Or the file 
 	     * has been corrupted. */
-	    sqlite3_exec (db, "CREATE TABLE notebooks (id integer primary key, title text, parent_id int)", NULL, 0, NULL);
-	    sqlite3_exec (db, "CREATE TABLE notes (id integer primary key, title text, body text, notebook_id int, created_time datetime, modified_time datetime);", NULL, 0, NULL);
+	    sqlite3_exec (db, "CREATE TABLE notebooks (id integer primary key, title text unique, parent_id int, guid text, parent_guid text)", NULL, 0, NULL);
+	    sqlite3_exec (db, "CREATE TABLE notes (id integer primary key, title text, body text, notebook_id int, created_time datetime, modified_time datetime, guid text, notebook_guid text);", NULL, 0, NULL);
 	    sqlite3_exec (db, "CREATE TABLE notes_tags_xref (note_id int, tag_id int);", NULL, 0, NULL);
 	    sqlite3_exec (db, "CREATE TABLE tags (id integer primary key, title text);", NULL, 0, NULL);
 
-	    sqlite3_exec (db, "INSERT INTO notebooks values (0,'All Notebooks', 0)", NULL, 0, NULL);
-		sqlite3_exec (db, "INSERT INTO tags values (0,'All Tags')", NULL, 0, NULL);
-	    
-	    sqlite3_exec (db, "INSERT INTO notebooks values (NULL, 'FirstNotebook', 0)", NULL, 0, NULL);
+//	    sqlite3_exec (db, "INSERT INTO notebooks values (0,'All Notebooks', 0)", NULL, 0, NULL);
+//		sqlite3_exec (db, "INSERT INTO tags values (0,'All Tags')", NULL, 0, NULL);
+
+	    uuid_t uuid;
+        uuid_generate_time_safe(uuid);
+ 
+        // unparse (to string)
+        char uuid_str[37];      // ex. "1b4e28ba-2fa1-11d2-883f-0016d3cca427" + "\0"
+        uuid_unparse_lower(uuid, uuid_str);
+        std::string query = "INSERT INTO notebooks values (NULL, 'FirstNotebook', NULL, '";
+        query += uuid_str;
+        query += "', NULL)";
+	    sqlite3_exec (db, query.c_str (), NULL, 0, NULL);
 	    sqlite3_exec (db, "COMMIT", NULL, NULL, NULL);
 	}
 }

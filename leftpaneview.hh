@@ -84,7 +84,7 @@ public:
   void notebookDelete ();
   void notebookDeleteCancel ();
   void selectNotebookInPane (int pathIndex);
-  int getSelectedNotebookId () { return selectedNotebook.getPrimaryKey (); }
+  std::string getSelectedNotebookGuid () { return selectedNotebook.getGuid (); }
   void refreshLeftPaneView ();
 };
 
