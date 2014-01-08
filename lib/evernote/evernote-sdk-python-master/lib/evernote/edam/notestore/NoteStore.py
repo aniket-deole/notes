@@ -4163,7 +4163,6 @@ class Client(Iface):
       raise x
     result = getNote_result()
     result.read(self._iprot)
-    print result
     self._iprot.readMessageEnd()
     if result.success is not None:
       return result.success
