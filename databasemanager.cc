@@ -37,8 +37,8 @@ DatabaseManager::DatabaseManager (Notify* a) {
 	if (sqlite3_exec (db, "select * from notebooks", NULL, 0, NULL) != SQLITE_OK) {
 	    /* DB is not setup. This is the first run. Or the file 
 	     * has been corrupted. */
-	    sqlite3_exec (db, "CREATE TABLE notebooks (id integer primary key, title text unique, parent_id int, guid text, parent_guid text)", NULL, 0, NULL);
-	    sqlite3_exec (db, "CREATE TABLE notes (id integer primary key, title text, body text, notebook_id int, created_time datetime, modified_time datetime, guid text, notebook_guid text);", NULL, 0, NULL);
+	    sqlite3_exec (db, "CREATE TABLE notebooks (id integer primary key, title text unique, guid text, parent_guid text, created_time datetime, modified_time datetime)", NULL, 0, NULL);
+	    sqlite3_exec (db, "CREATE TABLE notes (id integer primary key, title text, body text, created_time datetime, modified_time datetime, guid text, notebook_guid text);", NULL, 0, NULL);
 	    sqlite3_exec (db, "CREATE TABLE notes_tags_xref (note_id int, tag_id int);", NULL, 0, NULL);
 	    sqlite3_exec (db, "CREATE TABLE tags (id integer primary key, title text);", NULL, 0, NULL);
 

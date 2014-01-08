@@ -245,7 +245,8 @@ int NoteListPaneView::fillNotesCallback (void* nlpv, int argc, char **argv, char
   Gtk::TreeModel::Row row = *(p->m_refTreeModel->append());
   row[p->m_Columns.m_col_id] = 1;
   row[p->m_Columns.m_col_name] = "id";
-  NoteData n1 (atoi(argv[0]), argv[1], "14:53", argv[2], atoi(argv[3]), atoi (argv[4]), atoi(argv[5]), argv[6], argv[7]);
+  /*id integer primary key, title text, body text, created_time datetime, modified_time datetime, guid text, notebook_guid text*/
+  NoteData n1 (atoi(argv[0]), argv[1], argv[2], atoi(argv[3]), atoi (argv[4]), argv[5], argv[6]);
   row[p->m_Columns.m_note_data] = n1;
   
   std::cout << "NoteListPaneView::fillNotesCallback PKey: " << atoi(argv[0]) << std::endl;
@@ -364,7 +365,8 @@ int NoteListPaneView::fillNotebooksCallback (void* lpv, int argc, char **argv, c
   int notebookId = atoi (argv[0]);
   notebookName += argv[1];
 
-  NotebookData* nbd = new NotebookData (notebookId, notebookName, argv[3], (argv[4] == NULL ? "" : argv[4]));
+  /* id integer primary key, title text unique, guid text, parent_guid text, created_time datetime, modified_time datetime */
+  NotebookData* nbd = new NotebookData (atoi (argv[0]), argv[1], argv[2], (argv[3] == NULL ? "" : argv[3]), atoi (argv[4]), atoi (argv[5]));
   Gtk::TreeModel::Row childrow = *(p->m_refTreeModel_notebooks->append());
   childrow[p->m_Columns_notebooks.m_col_id] = notebookId;
   childrow[p->m_Columns_notebooks.m_col_name] = notebookName;

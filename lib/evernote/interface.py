@@ -54,7 +54,7 @@ def getNoteCountForNotebook (notebookGuid):
     updated_filter = NoteFilter(order=NoteSortOrder.UPDATED)
     updated_filter.notebookGuid = notebookGuid
     offset = 0
-    max_notes = 10
+    max_notes = 20
     result_spec = NotesMetadataResultSpec(includeTitle=True)
     result_list = note_store.findNotesMetadata(auth_token, updated_filter, offset, max_notes, result_spec)
 
@@ -64,8 +64,7 @@ def getNoteCountForNotebook (notebookGuid):
     
 def getNoteForNotebook (i):
     global result_list
-    note = result_list.notes[0]
+    note = result_list.notes[i]
     idd = note.guid
     wholeNote = note_store.getNote(idd, True, False, False, False)
-    print wholeNote
-    return result_list.notes[i]
+    return wholeNote

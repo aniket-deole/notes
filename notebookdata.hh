@@ -23,15 +23,19 @@ private:
   std::string title;
   std::string guid;
   std::string parent_guid;
+  long int created;
+  long int updated;
 public:
 
   NotebookData () {}
-
-  NotebookData (int p_key, std::string t, std::string g, std::string p_g) {
+  /* id integer primary key, title text unique, guid text, parent_guid text, created_time datetime, modified_time datetime */
+  NotebookData (int p_key, std::string t, std::string g, std::string p_g, long int c_time, long int u_time) {
     primary_key = p_key;
     title = t;
     guid = g;
     parent_guid = p_g;
+    created = c_time;
+    updated = u_time;
   }
 
   int getPrimaryKey () { return primary_key; }

@@ -143,13 +143,13 @@ LeftPaneView::LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
   notebooksRow = *(m_refTreeModel->append());
   notebooksRow[m_Columns.m_col_id] = 0;
   notebooksRow[m_Columns.m_col_name] = "Notebooks";
-  NotebookData* nbd = new NotebookData (-1, "Notebooks", "", "");
+  NotebookData* nbd = new NotebookData (-1, "Notebooks", "", "", 0, 0);
   notebooksRow[m_Columns.m_notebook_data] = *nbd;
 
   tagsRow = *(m_refTreeModel->append());
   tagsRow[m_Columns.m_col_id] = 2;
   tagsRow[m_Columns.m_col_name] = "Tags";
-  nbd = new NotebookData (-1, "Tags", "", "");
+  nbd = new NotebookData (-1, "Tags", "", "", 0, 0);
   tagsRow[m_Columns.m_notebook_data] = *nbd;
 /*
   childrow = *(m_refTreeModel->append(row.children()));
@@ -250,7 +250,7 @@ LeftPaneView::~LeftPaneView () {
 
 void LeftPaneView::setDatabaseManager (DatabaseManager* d) {
   dbm = d;  
-  NotebookData* nbd = new NotebookData (0, "All Notebooks", "", "");
+  NotebookData* nbd = new NotebookData (0, "All Notebooks", "", "", 0, 0);
 
   Gtk::TreeModel::Row childrow = *(m_refTreeModel->append(notebooksRow.children()));
   childrow[m_Columns.m_col_id] = 0;
@@ -280,7 +280,8 @@ int LeftPaneView::fillNotebooksCallback (void* lpv, int argc, char **argv, char 
   std::string notebookName = "";
   int notebookId = atoi (argv[0]);
   notebookName += argv[1];
-  NotebookData* nbd = new NotebookData (notebookId, notebookName, argv[3], (argv[4] == NULL ? "" : argv[4]));
+  /* id integer primary key, title text unique, guid text, parent_guid text, created_time datetime, modified_time datetime */
+  NotebookData* nbd = new NotebookData (atoi (argv[0]), argv[1], argv[2], (argv[3] == NULL ? "" : argv[3]), atoi (argv[4]), atoi (argv[5]));
 
   Gtk::TreeModel::Row childrow = *(p->m_refTreeModel->append(p->notebooksRow.children()));
   childrow[p->m_Columns.m_col_id] = notebookId;
@@ -298,7 +299,7 @@ int LeftPaneView::fillTagsCallback (void* lpv, int argc, char **argv, char **azC
 
   std::string tagName = "";
   tagName += argv[1];
-  NotebookData* nbd = new NotebookData (tagId, tagName, "", "");
+  NotebookData* nbd = new NotebookData (tagId, tagName, "", "", 0, 0);
 
   Gtk::TreeModel::Row childrow = *(p->m_refTreeModel->append(p->tagsRow.children()));
   childrow[p->m_Columns.m_col_id] = 4;
@@ -360,16 +361,16 @@ void LeftPaneView::newNotebookOk () {
   notebooksRow = *(m_refTreeModel->append());
   notebooksRow[m_Columns.m_col_id] = 0;
   notebooksRow[m_Columns.m_col_name] = "Notebooks";
-  NotebookData* nbd = new NotebookData (-1, "Notebooks","","");
+  NotebookData* nbd = new NotebookData (-1, "Notebooks","","", 0, 0);
   notebooksRow[m_Columns.m_notebook_data] = *nbd;
 
   tagsRow = *(m_refTreeModel->append());
   tagsRow[m_Columns.m_col_id] = 2;
   tagsRow[m_Columns.m_col_name] = "Tags";
-  nbd = new NotebookData (-1, "Tags", "","");
+  nbd = new NotebookData (-1, "Tags", "","",0 ,0);
   tagsRow[m_Columns.m_notebook_data] = *nbd;
 
-  nbd = new NotebookData (0, "All Notebooks", "","");
+  nbd = new NotebookData (0, "All Notebooks", "","", 0, 0);
 
   Gtk::TreeModel::Row childrow = *(m_refTreeModel->append(notebooksRow.children()));
   childrow[m_Columns.m_col_id] = 0;
@@ -432,7 +433,7 @@ std::string NumberToString(T pNumber)
 
 void LeftPaneView::on_menu_file_popup_edit_notebook_name() {
 
-  popup = new Gtk::MessageDialog (*app, "Etner New Name for notebook: ", true, Gtk::MESSAGE_OTHER, Gtk::BUTTONS_OK_CANCEL, true);
+  popup = new Gtk::MessageDialog (*app, "Enter New Name for notebook: ", true, Gtk::MESSAGE_OTHER, Gtk::BUTTONS_OK_CANCEL, true);
   Gtk::Box* contentBox = popup->get_content_area ();
 
   contentBox->pack_end (*notebookName);
@@ -494,16 +495,16 @@ void LeftPaneView::notebookEdit () {
   notebooksRow = *(m_refTreeModel->append());
   notebooksRow[m_Columns.m_col_id] = 0;
   notebooksRow[m_Columns.m_col_name] = "Notebooks";
-  NotebookData* nbd = new NotebookData (-1, "Notebooks", "","");
+  NotebookData* nbd = new NotebookData (-1, "Notebooks", "","", 0, 0);
   notebooksRow[m_Columns.m_notebook_data] = *nbd;
 
   tagsRow = *(m_refTreeModel->append());
   tagsRow[m_Columns.m_col_id] = 2;
   tagsRow[m_Columns.m_col_name] = "Tags";
-  nbd = new NotebookData (-1, "Tags", "","");
+  nbd = new NotebookData (-1, "Tags", "","", 0, 0);
   tagsRow[m_Columns.m_notebook_data] = *nbd;
 
-  nbd = new NotebookData (0, "All Notebooks", "","");
+  nbd = new NotebookData (0, "All Notebooks", "","", 0, 0);
 
   Gtk::TreeModel::Row childrow = *(m_refTreeModel->append(notebooksRow.children()));
   childrow[m_Columns.m_col_id] = 0;
@@ -530,16 +531,16 @@ void LeftPaneView::notebookDelete () {
   notebooksRow = *(m_refTreeModel->append());
   notebooksRow[m_Columns.m_col_id] = 0;
   notebooksRow[m_Columns.m_col_name] = "Notebooks";
-  NotebookData* nbd = new NotebookData (-1, "Notebooks", "","");
+  NotebookData* nbd = new NotebookData (-1, "Notebooks", "","", 0, 0);
   notebooksRow[m_Columns.m_notebook_data] = *nbd;
 
   tagsRow = *(m_refTreeModel->append());
   tagsRow[m_Columns.m_col_id] = 2;
   tagsRow[m_Columns.m_col_name] = "Tags";
-  nbd = new NotebookData (-1, "Tags", "", "");
+  nbd = new NotebookData (-1, "Tags", "", "", 0, 0);
   tagsRow[m_Columns.m_notebook_data] = *nbd;
 
-  nbd = new NotebookData (0, "All Notebooks", "", "");
+  nbd = new NotebookData (0, "All Notebooks", "", "", 0, 0);
 
   Gtk::TreeModel::Row childrow = *(m_refTreeModel->append(notebooksRow.children()));
   childrow[m_Columns.m_col_id] = 0;
@@ -567,16 +568,17 @@ void LeftPaneView::refreshLeftPaneView () {
   notebooksRow = *(m_refTreeModel->append());
   notebooksRow[m_Columns.m_col_id] = 0;
   notebooksRow[m_Columns.m_col_name] = "Notebooks";
-  NotebookData* nbd = new NotebookData (-1, "Notebooks", "", "");
+  /* id integer primary key, title text unique, guid text, parent_guid text, created_time datetime, modified_time datetime */
+  NotebookData* nbd = new NotebookData (-1, "Notebooks", "", "", 0, 0);
   notebooksRow[m_Columns.m_notebook_data] = *nbd;
 
   tagsRow = *(m_refTreeModel->append());
   tagsRow[m_Columns.m_col_id] = 2;
   tagsRow[m_Columns.m_col_name] = "Tags";
-  nbd = new NotebookData (-1, "Tags", "","");
+  nbd = new NotebookData (-1, "Tags", "","", 0, 0);
   tagsRow[m_Columns.m_notebook_data] = *nbd;
 
-  nbd = new NotebookData (0, "All Notebooks", "", "");
+  nbd = new NotebookData (0, "All Notebooks", "", "", 0, 0);
 
   Gtk::TreeModel::Row childrow = *(m_refTreeModel->append(notebooksRow.children()));
   childrow[m_Columns.m_col_id] = 0;

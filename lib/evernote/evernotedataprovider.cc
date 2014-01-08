@@ -12,16 +12,79 @@ PURPOSE.  See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along
 with this program.  If not, see <http://www.gnu.org/licenses/>.
 ***/
+#include <iostream>
+#include <sstream>
 #include <cstdlib>
 #include <vector>
 #include "evernotedataprovider.hh"
 
+/*
+Note(contentHash='\xbbS\x8ad\x05\xd0%\x98\xf9\xa6L[\xc2\xce\x8bY', 
+    updated=1388741518000, created=1388741518000, deleted=None, contentLength=221, 
+    title='Test note from EDAMTest.py', notebookGuid='dafa6b30-402c-4920-b251-2827881d2ac3', 
+    content='<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE en-note SYSTEM "http://xml.evernote.com/pub/enml2.dtd"><en-note>Here is the Evernote logo:<br/><en-media type="image/png" hash="a54fe8bcd146e20a8a5742834558543c"/></en-note>', 
+    tagNames=None, updateSequenceNum=53, tagGuids=None, active=True, 
+    attributes=NoteAttributes(lastEditorId=None, placeName=None, sourceURL=None, 
+        classifications=None, creatorId=None, author=None, reminderTime=None, altitude=None, 
+        reminderOrder=None, shareDate=None, reminderDoneTime=None, longitude=None, lastEditedBy=None, 
+        source=None, applicationData=None, sourceApplication=None, latitude=None, contentClass=None, subjectDate=None), 
+    guid='c3aab5ac-947f-4d94-8e8c-a54f11674ec0', 
+    resources=[Resource(noteGuid='c3aab5ac-947f-4d94-8e8c-a54f11674ec0', height=60, 
+        width=60, alternateData=None, mime='image/png', updateSequenceNum=54, 
+        duration=None, attributes=ResourceAttributes(recoType=None, sourceURL=None, cameraMake=None, 
+        timestamp=None, altitude=None, clientWillIndex=None, longitude=None, fileName=None, 
+        attachment=None, latitude=None, applicationData=None, cameraModel=None), 
+        guid='05ac4079-b3e5-4648-bc45-26fbe834d88b', data=Data(body=None, bodyHash='\xa5O\xe8\xbc\xd1F\xe2\n\x8aWB\x83EXT<', size=6035), 
+        active=True, recognition=Data(body=None, bodyHash='\x91G\x01\xa5\x11\\Xw\xca\xc1\x00"\x9d\xf3\x16Y', size=291))]
+)
+*/
+
+static std::string ReplaceString(std::string subject, const std::string& search,
+                          const std::string& replace) {
+    size_t pos = 0;
+    while ((pos = subject.find(search, pos)) != std::string::npos) {
+         subject.replace(pos, search.length(), replace);
+         pos += replace.length();
+    }
+    return subject;
+}
+
+template <typename T>
+std::string NumberToString(T pNumber)
+{
+ std::ostringstream oOStrStream;
+ oOStrStream << pNumber;
+ return oOStrStream.str();
+}
 class Note {
-    std::string name;
+public:
+    std::string title;
     std::string guid;
-    std::string body;
-    Note (std::string n, std::string g, std::string b) {
-        name = n; guid = g; body = b;
+    std::string content;
+    std::string notebook_guid;
+    long int created;
+    long int updated;
+    bool deleted;
+    Note (std::string t, std::string g, std::string c, std::string n_g, long int c_time, long int u_time, bool d = false) {
+        title = t; guid = g; content = c; notebook_guid = n_g;
+        created = c_time; updated = u_time; deleted = d;
+    }
+
+    void createInsertStatement () {
+        std::string query = "INSERT INTO NOTES VALUES (NULL,'";
+        query += ReplaceString (title, "'", "''");
+        query += "','";
+        query += ReplaceString (content, "'", "''");
+        query += "',";
+        query += NumberToString (created);
+        query += ",";
+        query += NumberToString (updated);
+        query += ",'";
+        query += guid;
+        query += "','";
+        query += notebook_guid;
+        query += "');";
+        std::cout << query << std::endl;        
     }
 };
 
@@ -30,18 +93,30 @@ public:
     std::string name;
     std::string guid;
     bool isDefaultNotebook;
-    long int serviceCreated;
-    long int serviceUpdated;
+    long int created;
+    long int updated;
     Notebook (std::string n,std::string g,bool d ,long int c, long int u) {
-        name = n; guid = g; isDefaultNotebook = d; serviceCreated = c; serviceUpdated = u;
+        name = n; guid = g; isDefaultNotebook = d; created = c; updated = u;
     }
-    void print () {
-        std::cout << name << ":" << guid << ":" << isDefaultNotebook << ":" << serviceCreated << ":" << serviceUpdated << std::endl;
+
+    void createInsertStatement () {
+        std::string query = "INSERT INTO NOTEBOOKS VALUES (NULL,'";
+        query += ReplaceString (name, "'", "''");
+        query += "','";
+        query += guid;
+        query += "','";
+        /* Parent GUID should go here. */
+        query += "',";
+        query += NumberToString (created);
+        query += ",";
+        query += NumberToString (updated);
+        query += ");";
+        std::cout << query << std::endl;        
     }
-    std::vector <Note> notes;
 };
 
 std::vector<Notebook> notebooks;
+std::vector<Note> notes;
 
 int main () {
 
@@ -49,13 +124,21 @@ int main () {
     edp.login ();
 
     int notebookCount = edp.getNotebookCountPy ();
-    std::cout << "NotebookCount: " << notebookCount << std::endl;
     edp.getNotebookDetails ();
-    for (int i = 0; i < notebookCount; i++) {
-        notebooks[i].print ();
+
+    for (int i = 0; i < notebooks.size (); i++) {
         edp.getNotesForNotebook (notebooks[i].guid);
     }
+  
+    /* Print out insert statements */
+    for (int i = 0; i < notes.size (); i++) {
+        notes[i].createInsertStatement ();
+    }
+    for (int i = 0; i < notebooks.size (); i++) {
+        notebooks[i].createInsertStatement ();
+    }
 
+    std::cout << notes.size () << ":" << notebooks.size () << std::endl;
     return 0;
 }
 
@@ -66,10 +149,6 @@ EvernoteDataProvider::EvernoteDataProvider () {
     /* Add Evernote python libs to PYTHONPATH */
     /* Check if module is working. Instantiate it. */
     putenv ("PYTHONPATH=./:evernote-sdk-python-master/:evernote-sdk-python-master/lib/");
-    char* pPath;
-    pPath = getenv ("PYTHONPATH");
-    if (pPath!=NULL)
-        std::cout << "The current path is: " << pPath << std::endl;
 
     Py_Initialize();
     pName = PyString_FromString("interface");
@@ -196,9 +275,15 @@ bool EvernoteDataProvider::getNotesForNotebook (std::string g) {
     Py_XDECREF(pFunc);
 
     for (int i = 0; i < noteCount; i++) {
+        std::string title = "";
+        std::string guid = "";
+        std::string content = "";
+        std::string notebook_guid = "";
+        long int created;
+        long int updated;
+        
         pFunc = PyObject_GetAttrString(pModule, "getNoteForNotebook");
         /* pFunc is a new reference */
-
         if (pFunc && PyCallable_Check(pFunc)) {
             pArgs = PyTuple_New(1);
             pValue = PyInt_FromLong(i);
@@ -212,8 +297,30 @@ bool EvernoteDataProvider::getNotesForNotebook (std::string g) {
                 guid += PyString_AsString (obj);
                 Py_DECREF (obj);
                 obj = PyObject_GetAttrString (pValue, "title");
-                name += PyString_AsString (obj);
+                title += PyString_AsString (obj);
                 Py_DECREF (obj);
+                obj = PyObject_GetAttrString (pValue, "content");
+                if (obj != NULL) {
+                    content += PyString_AsString (obj);
+                    Py_DECREF (obj);
+                }
+                if (obj != NULL) {
+                    obj = PyObject_GetAttrString (pValue, "notebookGuid");
+                    notebook_guid += PyString_AsString (obj);
+                    Py_DECREF (obj);
+                }
+                if (obj != NULL) {
+                    obj = PyObject_GetAttrString (pValue, "created");
+                    created = PyInt_AsLong (obj);
+                    Py_DECREF (obj);
+                }
+                if (obj != NULL) {
+                    obj = PyObject_GetAttrString (pValue, "updated");
+                    updated = PyInt_AsLong (obj);
+                    Py_DECREF (obj);
+                }
+                Note n (title, guid, content, notebook_guid, created, updated);
+                notes.push_back (n);          
                 Py_DECREF(pValue);
             }
             else {
@@ -288,9 +395,6 @@ int EvernoteDataProvider::getNotebookDetails () {
 
         Notebook n(name, guid, isDefault, serviceCreated, serviceUpdated);
         notebooks.push_back (n);
-        /* Get Notes for this note. */
-        std::cout << n.guid << std::endl;
-        getNotesForNotebook (n.guid);
     }
     return 0;
 }

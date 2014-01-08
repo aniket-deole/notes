@@ -28,12 +28,10 @@ static std::string ReplaceString(std::string subject, const std::string& search,
 }
 
 
-NoteData::NoteData (int p_key, std::string t, std::string r, std::string b, int n_id, int create_time, int modified_time, std::string g, std::string n_guid) {
+NoteData::NoteData (int p_key, std::string t, std::string b,int create_time, int modified_time, std::string g, std::string n_guid) {
     primary_key = p_key;
     title = t;
-    remaining = r;
     body = b;
-    notebook_id = n_id;
     create_unix_time = create_time;
     modified_unix_time = modified_time;
     guid = g;
