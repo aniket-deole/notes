@@ -51,8 +51,10 @@ int main () {
     int notebookCount = edp.getNotebookCountPy ();
     std::cout << "NotebookCount: " << notebookCount << std::endl;
     edp.getNotebookDetails ();
-    for (int i = 0; i < notebookCount; i++)
+    for (int i = 0; i < notebookCount; i++) {
         notebooks[i].print ();
+        edp.getNotesForNotebook (notebooks[i].guid);
+    }
 
     return 0;
 }
@@ -158,22 +160,25 @@ int EvernoteDataProvider::getNotebookCountPy () {
     return retVal;
 }
 
-bool EvernoteDataProvider::getNotesForNotebook (std::string guid) {
+bool EvernoteDataProvider::getNotesForNotebook (std::string g) {
     int argc = 0;
     int noteCount;
+    std::string name, guid;
+    bool isDefault;
+    long int serviceUpdated, serviceCreated;
     pFunc = PyObject_GetAttrString(pModule, "getNoteCountForNotebook");
     /* pFunc is a new reference */
 
     if (pFunc && PyCallable_Check(pFunc)) {
         pArgs = PyTuple_New(1);
-        pValue = PyString_FromString(guid.c_str ());
+        pValue = PyString_FromString(g.c_str ());
         PyTuple_SetItem(pArgs, 0, pValue);
         
         pValue = PyObject_CallObject(pFunc, pArgs);
         
         Py_DECREF(pArgs);
         if (pValue != NULL) {
-            noteCount = PyInt_FromLong (pValue);
+            noteCount = PyInt_AsLong (pValue);
             Py_DECREF(pValue);
         }
         else {
@@ -190,8 +195,43 @@ bool EvernoteDataProvider::getNotesForNotebook (std::string guid) {
     }
     Py_XDECREF(pFunc);
 
+    for (int i = 0; i < noteCount; i++) {
+        pFunc = PyObject_GetAttrString(pModule, "getNoteForNotebook");
+        /* pFunc is a new reference */
+
+        if (pFunc && PyCallable_Check(pFunc)) {
+            pArgs = PyTuple_New(1);
+            pValue = PyInt_FromLong(i);
+            PyTuple_SetItem(pArgs, 0, pValue);
+            
+            pValue = PyObject_CallObject(pFunc, pArgs);
+            
+            Py_DECREF(pArgs);
+            if (pValue != NULL) {
+                PyObject* obj  = PyObject_GetAttrString (pValue, "guid");
+                guid += PyString_AsString (obj);
+                Py_DECREF (obj);
+                obj = PyObject_GetAttrString (pValue, "title");
+                name += PyString_AsString (obj);
+                Py_DECREF (obj);
+                Py_DECREF(pValue);
+            }
+            else {
+                Py_DECREF(pFunc);
+                Py_DECREF(pModule);
+                PyErr_Print();
+                fprintf(stderr,"Call failed\n");
+            }
+        }
+        else {
+            if (PyErr_Occurred())
+                PyErr_Print();
+            fprintf(stderr, "Cannot find function getNotesForNotebook\n");
+        }
+        Py_XDECREF(pFunc);        
+    }
     
-    return retVal;
+    return true;
 }
 
 int EvernoteDataProvider::getNotebookDetails () {
@@ -214,18 +254,21 @@ int EvernoteDataProvider::getNotebookDetails () {
             if (pValue != NULL) {
                 PyObject* obj  = PyObject_GetAttrString (pValue, "guid");
                 guid += PyString_AsString (obj);
+                Py_DECREF (obj);
                 obj = PyObject_GetAttrString (pValue, "name");
                 name += PyString_AsString (obj);
+                Py_DECREF (obj);
                 obj = PyObject_GetAttrString (pValue, "defaultNotebook");
                 if (obj == Py_True)
                     isDefault = true;
                 else
                     isDefault = false;
+                Py_DECREF (obj);
                 obj = PyObject_GetAttrString (pValue, "serviceCreated");
                 serviceCreated = PyLong_AsLong (obj);
+                Py_DECREF (obj);
                 obj = PyObject_GetAttrString (pValue, "serviceUpdated");
                 serviceUpdated = PyLong_AsLong (obj);
-
                 Py_DECREF (obj);
                 Py_DECREF(pValue);
             }

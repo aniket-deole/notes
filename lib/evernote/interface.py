@@ -60,8 +60,12 @@ def getNoteCountForNotebook (notebookGuid):
 
     # note is an instance of NoteMetadata
     # result_list is an instance of NotesMetadataList
-    return len (result_list)
+    return len (result_list.notes)
     
 def getNoteForNotebook (i):
     global result_list
-    return result_list[i]
+    note = result_list.notes[0]
+    idd = note.guid
+    wholeNote = note_store.getNote(idd, True, False, False, False)
+    print wholeNote
+    return result_list.notes[i]

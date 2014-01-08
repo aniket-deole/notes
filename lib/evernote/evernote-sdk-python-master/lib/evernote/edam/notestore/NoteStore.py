@@ -4139,6 +4139,7 @@ class Client(Iface):
      - withResourcesAlternateData
     """
     self.send_getNote(authenticationToken, guid, withContent, withResourcesData, withResourcesRecognition, withResourcesAlternateData)
+    print "GASDASD", guid
     return self.recv_getNote()
 
   def send_getNote(self, authenticationToken, guid, withContent, withResourcesData, withResourcesRecognition, withResourcesAlternateData):
@@ -4163,6 +4164,7 @@ class Client(Iface):
       raise x
     result = getNote_result()
     result.read(self._iprot)
+    print result
     self._iprot.readMessageEnd()
     if result.success is not None:
       return result.success
