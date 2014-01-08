@@ -19,4 +19,4 @@ test: all
 	./notes
 
 install: all
-	sudo cp notes /usr/bin/notes
+	cp notes /usr/bin/notes
