@@ -67,7 +67,7 @@ public:
     bool deleted;
     Note (std::string t, std::string g, std::string c, std::string n_g, long int c_time, long int u_time, bool d = false) {
         title = t; guid = g; content = c; notebook_guid = n_g;
-        created = c_time; updated = u_time; deleted = d;
+        created = c_time / 1000; updated = u_time / 1000; deleted = d;
     }
 
     void createInsertStatement () {
@@ -96,7 +96,7 @@ public:
     long int created;
     long int updated;
     Notebook (std::string n,std::string g,bool d ,long int c, long int u) {
-        name = n; guid = g; isDefaultNotebook = d; created = c; updated = u;
+        name = n; guid = g; isDefaultNotebook = d; created = c / 1000; updated = u / 1000;
     }
 
     void createInsertStatement () {
@@ -117,7 +117,7 @@ public:
 
 std::vector<Notebook> notebooks;
 std::vector<Note> notes;
-
+/*
 int main () {
 
     EvernoteDataProvider edp;
@@ -130,7 +130,7 @@ int main () {
         edp.getNotesForNotebook (notebooks[i].guid);
     }
   
-    /* Print out insert statements */
+    /* Print out insert statements 
     for (int i = 0; i < notes.size (); i++) {
         notes[i].createInsertStatement ();
     }
@@ -141,7 +141,7 @@ int main () {
     std::cout << notes.size () << ":" << notebooks.size () << std::endl;
     return 0;
 }
-
+*/
 EvernoteDataProvider::EvernoteDataProvider () {
     hasOAuthToken = false;
     authToken = "S=s1:U=7558a:E=14aae5ecd73:C=14356ada175:P=1cd:A=en-devtoken:V=2:H=905a30846fdad07b83592ff73da7a7c0";

@@ -42,6 +42,8 @@ DatabaseManager::DatabaseManager (Notify* a) {
 	    sqlite3_exec (db, "CREATE TABLE notes_tags_xref (note_id int, tag_id int);", NULL, 0, NULL);
 	    sqlite3_exec (db, "CREATE TABLE tags (id integer primary key, title text);", NULL, 0, NULL);
 
+	    sqlite3_exec (db, "CREATE TABLE system_parameters (parameter text unique, value text);", NULL, 0, NULL);
+
 //	    sqlite3_exec (db, "INSERT INTO notebooks values (0,'All Notebooks', 0)", NULL, 0, NULL);
 //		sqlite3_exec (db, "INSERT INTO tags values (0,'All Tags')", NULL, 0, NULL);
 
