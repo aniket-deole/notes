@@ -38,32 +38,13 @@ def login (t):
 def getNotebookCount():
     global notebooks
     global note_store
-
     note_store = client.get_note_store()
-
-    # List all of the notebooks in the user's account
     notebooks = note_store.listNotebooks()
-    print notebooks[0]
-    print notebooks[1]
-    print notebooks[2]
     return len(notebooks)
 
-def getNotebookName (i):
-    global notebooks
-    return notebooks[i].name
-
-def getNotebookGuid (i):
+def getNotebook (i):
     global notebooks
     return notebooks[i]
-
-def getNotebookServiceUpdated (i):
-    return notebooks[i].serviceUpdated
-
-def getNotebookServiceCreated (i):
-    return notebooks[i].serviceCreated
-
-def getNotebookIsDefault (i):
-    return notebooks[i].defaultNotebook
 
 def getNotesForNotebook (notebookGuida):
     global note_store

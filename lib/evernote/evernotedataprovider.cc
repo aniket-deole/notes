@@ -158,178 +158,6 @@ int EvernoteDataProvider::getNotebookCountPy () {
     return retVal;
 }
 
-std::string EvernoteDataProvider::getNotebookName (int index) {
-    int argc = 0;
-    std::string retVal = "";
-    pFunc = PyObject_GetAttrString(pModule, "getNotebookName");
-    /* pFunc is a new reference */
-
-    if (pFunc && PyCallable_Check(pFunc)) {
-        pArgs = PyTuple_New(1);
-        pValue = PyInt_FromLong(index);
-        PyTuple_SetItem(pArgs, 0, pValue);
-
-        pValue = PyObject_CallObject(pFunc, pArgs);
-        Py_DECREF(pArgs);
-        if (pValue != NULL) {
-            retVal += PyString_AsString (pValue);
-            Py_DECREF(pValue);
-        }
-        else {
-            Py_DECREF(pFunc);
-            Py_DECREF(pModule);
-            PyErr_Print();
-            fprintf(stderr,"Call failed\n");
-        }
-    }
-    else {
-        if (PyErr_Occurred())
-            PyErr_Print();
-        fprintf(stderr, "Cannot find function getNotebookName\n");
-    }
-    Py_XDECREF(pFunc);
-    return retVal;
-}
-
-std::string EvernoteDataProvider::getNotebookGuid (int index) {
-    int argc = 0;
-    std::string retVal = "";
-    pFunc = PyObject_GetAttrString(pModule, "getNotebookGuid");
-    /* pFunc is a new reference */
-
-    if (pFunc && PyCallable_Check(pFunc)) {
-        pArgs = PyTuple_New(1);
-        pValue = PyInt_FromLong(index);
-        PyTuple_SetItem(pArgs, 0, pValue);
-
-        pValue = PyObject_CallObject(pFunc, pArgs);
-        Py_DECREF(pArgs);
-        if (pValue != NULL) {
-            PyObject* obj  = PyObject_GetAttrString (pValue, "guid");
-            retVal += PyString_AsString (obj);
-            Py_DECREF(pValue);
-        }
-        else {
-            Py_DECREF(pFunc);
-            Py_DECREF(pModule);
-            PyErr_Print();
-            fprintf(stderr,"Call failed\n");
-        }
-    }
-    else {
-        if (PyErr_Occurred())
-            PyErr_Print();
-        fprintf(stderr, "Cannot find function getNotebookGuid\n");
-    }
-    Py_XDECREF(pFunc);
-    return retVal;
-}
-
-long int EvernoteDataProvider::getNotebookServiceCreated (int index) {
-    int argc = 0;
-    long int retVal = -1;
-    pFunc = PyObject_GetAttrString(pModule, "getNotebookServiceCreated");
-    /* pFunc is a new reference */
-
-    if (pFunc && PyCallable_Check(pFunc)) {
-        pArgs = PyTuple_New(1);
-        pValue = PyInt_FromLong(index);
-        PyTuple_SetItem(pArgs, 0, pValue);
-
-        pValue = PyObject_CallObject(pFunc, pArgs);
-        Py_DECREF(pArgs);
-        if (pValue != NULL) {
-            retVal = PyLong_AsLong (pValue);
-            Py_DECREF(pValue);
-        }
-        else {
-            Py_DECREF(pFunc);
-            Py_DECREF(pModule);
-            PyErr_Print();
-            fprintf(stderr,"Call failed\n");
-        }
-    }
-    else {
-        if (PyErr_Occurred())
-            PyErr_Print();
-        fprintf(stderr, "Cannot find function getNotebookServiceCreated\n");
-    }
-    Py_XDECREF(pFunc);
-    return retVal;
-}
-
-long int EvernoteDataProvider::getNotebookServiceUpdated (int index) {
-    int argc = 0;
-    long int retVal = -1;
-    pFunc = PyObject_GetAttrString(pModule, "getNotebookServiceUpdated");
-    /* pFunc is a new reference */
-
-    if (pFunc && PyCallable_Check(pFunc)) {
-        pArgs = PyTuple_New(1);
-        pValue = PyInt_FromLong(index);
-        PyTuple_SetItem(pArgs, 0, pValue);
-
-        pValue = PyObject_CallObject(pFunc, pArgs);
-        Py_DECREF(pArgs);
-        if (pValue != NULL) {
-            retVal = PyLong_AsLong (pValue);
-            Py_DECREF(pValue);
-        }
-        else {
-            Py_DECREF(pFunc);
-            Py_DECREF(pModule);
-            PyErr_Print();
-            fprintf(stderr,"Call failed\n");
-        }
-    }
-    else {
-        if (PyErr_Occurred())
-            PyErr_Print();
-        fprintf(stderr, "Cannot find function getNotebookServiceUpdated\n");
-    }
-    Py_XDECREF(pFunc);
-    return retVal;
-}
-
-bool EvernoteDataProvider::getNotebookIsDefault (int index) {
-    int argc = 0;
-    bool retVal = false;
-    pFunc = PyObject_GetAttrString(pModule, "getNotebookIsDefault");
-    /* pFunc is a new reference */
-
-    if (pFunc && PyCallable_Check(pFunc)) {
-        pArgs = PyTuple_New(1);
-        pValue = PyInt_FromLong(index);
-        PyTuple_SetItem(pArgs, 0, pValue);
-        
-        pValue = PyObject_CallObject(pFunc, pArgs);
-        if (pValue == Py_True)
-            retVal = true;
-        else
-            retVal = false;
-        
-        Py_DECREF(pArgs);
-        if (pValue != NULL) {
-            retVal = PyLong_AsLong (pValue);
-            Py_DECREF(pValue);
-        }
-        else {
-            Py_DECREF(pFunc);
-            Py_DECREF(pModule);
-            PyErr_Print();
-            fprintf(stderr,"Call failed\n");
-        }
-    }
-    else {
-        if (PyErr_Occurred())
-            PyErr_Print();
-        fprintf(stderr, "Cannot find function getNotebookIsDefault\n");
-    }
-    Py_XDECREF(pFunc);
-    return retVal;
-}
-
-
 bool EvernoteDataProvider::getNotesForNotebook (std::string name) {
     int argc = 0;
     bool retVal = false;
@@ -366,7 +194,54 @@ bool EvernoteDataProvider::getNotesForNotebook (std::string name) {
 
 int EvernoteDataProvider::getNotebookDetails () {
     for (int i = 0; i < notebookCount; i++) {
-        Notebook n(getNotebookName (i), getNotebookGuid(i), getNotebookIsDefault(i), getNotebookServiceCreated(i), getNotebookServiceUpdated(i));
+        std::string name, guid;
+        bool isDefault;
+        long int serviceUpdated, serviceCreated;
+
+        pFunc = PyObject_GetAttrString(pModule, "getNotebook");
+        /* pFunc is a new reference */
+
+        if (pFunc && PyCallable_Check(pFunc)) {
+            pArgs = PyTuple_New(1);
+            pValue = PyInt_FromLong(i);
+            PyTuple_SetItem(pArgs, 0, pValue);
+
+            pValue = PyObject_CallObject(pFunc, pArgs);
+            Py_DECREF(pArgs);
+
+            if (pValue != NULL) {
+                PyObject* obj  = PyObject_GetAttrString (pValue, "guid");
+                guid += PyString_AsString (obj);
+                obj = PyObject_GetAttrString (pValue, "name");
+                name += PyString_AsString (obj);
+                obj = PyObject_GetAttrString (pValue, "defaultNotebook");
+                if (obj == Py_True)
+                    isDefault = true;
+                else
+                    isDefault = false;
+                obj = PyObject_GetAttrString (pValue, "serviceCreated");
+                serviceCreated = PyLong_AsLong (obj);
+                obj = PyObject_GetAttrString (pValue, "serviceUpdated");
+                serviceUpdated = PyLong_AsLong (obj);
+
+                Py_DECREF (obj);
+                Py_DECREF(pValue);
+            }
+            else {
+                Py_DECREF(pFunc);
+                Py_DECREF(pModule);
+                PyErr_Print();
+                fprintf(stderr,"Call failed\n");
+            }
+        }
+        else {
+            if (PyErr_Occurred())
+                PyErr_Print();
+            fprintf(stderr, "Cannot find function getNotesForNotebook\n");
+        }
+        Py_XDECREF(pFunc);
+
+        Notebook n(name, guid, isDefault, serviceCreated, serviceUpdated);
         notebooks.push_back (n);
         /* Get Notes for this note. */
         std::cout << n.guid << std::endl;
