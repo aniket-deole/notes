@@ -458,7 +458,7 @@ void NoteListPaneView::on_menu_file_popup_delete_note () {
 
 void NoteListPaneView::noteDelete () {
   std::string note_id = selectedNote.getGuid ();
-  dbm->exec ("delete from notes where guid = " + note_id, NULL, this);
+  dbm->exec ("delete from notes where guid = '" + note_id + "'", NULL, this);
   fetchNotesForNotebook (app->lpv->getSelectedNotebookGuid ());
 }
 
