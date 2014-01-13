@@ -394,7 +394,7 @@ void NoteListPaneView::newNoteOk () {
     uuid_unparse_lower(uuid, uuid_str);
     std::string query = "INSERT INTO notes values (NULL,'";
     query += noteName->get_text ();
-    query += "', '', " + NumberToString (nbd.getPrimaryKey ()) + ", strftime ('%s','now'), strftime ('%s','now'), '";
+    query += "', '', strftime ('%s','now'), strftime ('%s','now'), '";
     query += uuid_str;
     query += "', '"+ nbd.getGuid () + "')";
 

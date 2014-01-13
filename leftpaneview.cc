@@ -349,9 +349,9 @@ void LeftPaneView::newNotebookOk () {
   // unparse (to string)
   char uuid_str[37];      // ex. "1b4e28ba-2fa1-11d2-883f-0016d3cca427" + "\0"
   uuid_unparse_lower(uuid, uuid_str);
-  std::string query = "INSERT INTO notebooks values (NULL, '" + notebookName->get_text () + "', NULL, '";
+  std::string query = "INSERT INTO notebooks values (NULL, '" + notebookName->get_text () + "','";
   query += uuid_str;
-  query += "', NULL)";
+  query += "', NULL, 0,0)";
 
   dbm->exec (query.c_str (), NULL,this);
 
