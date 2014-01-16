@@ -117,7 +117,7 @@ public:
 
 std::vector<Notebook> notebooks;
 std::vector<Note> notes;
-/*
+
 int main () {
 
     EvernoteDataProvider edp;
@@ -130,7 +130,7 @@ int main () {
         edp.getNotesForNotebook (notebooks[i].guid);
     }
   
-    /* Print out insert statements 
+    /* Print out insert statements */ 
     for (int i = 0; i < notes.size (); i++) {
         notes[i].createInsertStatement ();
     }
@@ -141,8 +141,10 @@ int main () {
     std::cout << notes.size () << ":" << notebooks.size () << std::endl;
     return 0;
 }
-*/
-EvernoteDataProvider::EvernoteDataProvider () {
+
+EvernoteDataProvider::EvernoteDataProvider (Notify* n) {
+    app = n;
+    
     hasOAuthToken = false;
     authToken = "S=s1:U=7558a:E=14aae5ecd73:C=14356ada175:P=1cd:A=en-devtoken:V=2:H=905a30846fdad07b83592ff73da7a7c0";
 
@@ -156,6 +158,9 @@ EvernoteDataProvider::EvernoteDataProvider () {
 
     pModule = PyImport_Import(pName);
     Py_DECREF(pName);
+
+
+    lastUpdateCount = 0;
 }
 
 EvernoteDataProvider::~EvernoteDataProvider () {
@@ -402,3 +407,33 @@ int EvernoteDataProvider::getNotebookDetails () {
 int EvernoteDataProvider::logout () {
 
 }
+/*
+void EvernoteDataProvider::sync () {
+    1. get Last Update Count from db. If it does not exist. Initialize it to 0.
+    2. Get AuthToken. For now, we have the sandbox evernote token.
+    // INCOMING
+    3. Check whether to full sync. i.e. First run or not.
+    // FULL SYNC
+    4. getSyncChunk for a 100 notes.
+    5. For All Notebooks
+        ProcessNotebook ()
+    6. For All Notes
+        ProcessNote ()
+    7. lastUpdateCount = UpdateCount From Server
+    // INCREMENTAL SYNC
+    8. getSyncChunk but afterUSN = lastUpdateCount.
+    9. For All Notebooks
+        ProcessNotebook ()
+    10. For All Notes 
+        ProcessNotes ()
+    11. Process Expunged Items.
+    // SEND CHANGES
+    12. For resources with dirty tags.
+        If USN == 0
+        createResource
+        else 
+        updateResource
+    13. END
+
+}
+    */

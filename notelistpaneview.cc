@@ -396,7 +396,7 @@ void NoteListPaneView::newNoteOk () {
     query += noteName->get_text ();
     query += "', '', strftime ('%s','now'), strftime ('%s','now'), '";
     query += uuid_str;
-    query += "', '"+ nbd.getGuid () + "')";
+    query += "', '"+ nbd.getGuid () + "', 0, 0)";
 
     dbm->exec (query, NULL,this);
     fetchNotesForNotebook (nbd.getGuid ());

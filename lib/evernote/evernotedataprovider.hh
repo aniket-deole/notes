@@ -30,8 +30,12 @@ private:
 	PyObject *pName, *pModule, *pDict, *pFunc;
     PyObject *pArgs, *pValue;
 
+    int lastUpdateCount;
+
+    Notify* app;
+
 public:
-	EvernoteDataProvider ();
+	EvernoteDataProvider (Notify* n);
 	~EvernoteDataProvider ();
 
 	int open ();
