@@ -23,6 +23,29 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "notebookdata.hh"
 
+class LightPopup : public Gtk::MessageDialog {
+public:
+  int popupH; int popupW;
+  ::Cairo::Context context;
+  ::Cairo::Surface surface;
+  
+  LightPopup (Gtk::Window& parent, const Glib::ustring& message, bool use_markup=false, 
+    Gtk::MessageType type=Gtk::MESSAGE_INFO, Gtk::ButtonsType buttons=Gtk::BUTTONS_OK, bool modal=false) :
+    Gtk::MessageDialog (parent, message, use_markup, type, buttons, modal) {
+      popupH = -1; popupW = -1;
+      signal_size_allocate().connect(sigc::mem_fun(*this,
+              &LightPopup::onSizeAllocate));
+
+  }
+
+  void onSizeAllocate (Gtk::Allocation& a) {
+    if (a.get_x () == popupW && a.get_y() == popupH) {
+      return;
+    }
+    popupH = a.get_y (); popupW = a.get_x ();
+  }
+};
+
 class NotebookCellRenderer : public Gtk::CellRenderer {
   public:
   Glib::PropertyProxy< int > property_id()
@@ -315,7 +338,7 @@ void LeftPaneView::setApp (Notify* a) {
 
 void LeftPaneView::newNotebook () {
 
-  popup = new Gtk::MessageDialog (*app, "Enter notebook name: ", true, Gtk::MESSAGE_OTHER, Gtk::BUTTONS_OK_CANCEL, true);
+  popup = new LightPopup (*app, "Enter notebook name: ", true, Gtk::MESSAGE_OTHER, Gtk::BUTTONS_OK_CANCEL, true);
   Gtk::Box* contentBox = popup->get_content_area ();
 
   notebookName = new Gtk::Entry ();
@@ -324,8 +347,9 @@ void LeftPaneView::newNotebook () {
   contentBox->show_all ();
   popup->set_resizable (false);
   popup->set_modal (true);
+
   int reply = popup->run ();
-  
+  popupW = -1; popupH = -1;
   if (reply == Gtk::RESPONSE_OK) {
     std::cout << "Resonse ok." << std::endl;
     newNotebookOk ();
@@ -433,7 +457,7 @@ std::string NumberToString(T pNumber)
 
 void LeftPaneView::on_menu_file_popup_edit_notebook_name() {
 
-  popup = new Gtk::MessageDialog (*app, "Enter New Name for notebook: ", true, Gtk::MESSAGE_OTHER, Gtk::BUTTONS_OK_CANCEL, true);
+  popup = new LightPopup (*app, "Enter New Name for notebook: ", true, Gtk::MESSAGE_OTHER, Gtk::BUTTONS_OK_CANCEL, true);
   Gtk::Box* contentBox = popup->get_content_area ();
 
   contentBox->pack_end (*notebookName);
@@ -459,7 +483,7 @@ void LeftPaneView::on_menu_file_popup_edit_notebook_name() {
 
 void LeftPaneView::on_menu_file_popup_delete_notebook () {
 
-  popup = new Gtk::MessageDialog (*app, "Delete Notebook ? (This will delete all notes from that notebook !", true, Gtk::MESSAGE_OTHER, Gtk::BUTTONS_OK_CANCEL, true);
+  popup = new LightPopup (*app, "Delete Notebook ? (This will delete all notes from that notebook !", true, Gtk::MESSAGE_OTHER, Gtk::BUTTONS_OK_CANCEL, true);
   Gtk::Box* contentBox = popup->get_content_area ();
   contentBox->show_all ();
   popup->set_resizable (false);

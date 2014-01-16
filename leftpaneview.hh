@@ -40,6 +40,8 @@ private:
   Notify* app;
   DatabaseManager* dbm;
 
+  int popupH, popupW;
+
 public:
     LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding = 0);
     ~LeftPaneView ();
@@ -86,6 +88,7 @@ public:
   void selectNotebookInPane (int pathIndex);
   std::string getSelectedNotebookGuid () { return selectedNotebook.getGuid (); }
   void refreshLeftPaneView ();
+
 };
 
 #endif
