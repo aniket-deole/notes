@@ -39,110 +39,11 @@ Note(contentHash='\xbbS\x8ad\x05\xd0%\x98\xf9\xa6L[\xc2\xce\x8bY',
 )
 */
 
-static std::string ReplaceString(std::string subject, const std::string& search,
-                          const std::string& replace) {
-    size_t pos = 0;
-    while ((pos = subject.find(search, pos)) != std::string::npos) {
-         subject.replace(pos, search.length(), replace);
-         pos += replace.length();
-    }
-    return subject;
-}
 
-template <typename T>
-std::string NumberToString(T pNumber)
-{
- std::ostringstream oOStrStream;
- oOStrStream << pNumber;
- return oOStrStream.str();
-}
-class Note {
-public:
-    std::string title;
-    std::string guid;
-    std::string content;
-    std::string notebook_guid;
-    long int created;
-    long int updated;
-    bool deleted;
-    Note (std::string t, std::string g, std::string c, std::string n_g, long int c_time, long int u_time, bool d = false) {
-        title = t; guid = g; content = c; notebook_guid = n_g;
-        created = c_time / 1000; updated = u_time / 1000; deleted = d;
-    }
+std::vector<evernote::Notebook> notebooks;
+std::vector<evernote::Note> notes;
 
-    void createInsertStatement () {
-        std::string query = "INSERT INTO NOTES VALUES (NULL,'";
-        query += ReplaceString (title, "'", "''");
-        query += "','";
-        query += ReplaceString (content, "'", "''");
-        query += "',";
-        query += NumberToString (created);
-        query += ",";
-        query += NumberToString (updated);
-        query += ",'";
-        query += guid;
-        query += "','";
-        query += notebook_guid;
-        query += "');";
-        std::cout << query << std::endl;        
-    }
-};
-
-class Notebook {
-public:
-    std::string name;
-    std::string guid;
-    bool isDefaultNotebook;
-    long int created;
-    long int updated;
-    Notebook (std::string n,std::string g,bool d ,long int c, long int u) {
-        name = n; guid = g; isDefaultNotebook = d; created = c / 1000; updated = u / 1000;
-    }
-
-    void createInsertStatement () {
-        std::string query = "INSERT INTO NOTEBOOKS VALUES (NULL,'";
-        query += ReplaceString (name, "'", "''");
-        query += "','";
-        query += guid;
-        query += "','";
-        /* Parent GUID should go here. */
-        query += "',";
-        query += NumberToString (created);
-        query += ",";
-        query += NumberToString (updated);
-        query += ");";
-        std::cout << query << std::endl;        
-    }
-};
-
-std::vector<Notebook> notebooks;
-std::vector<Note> notes;
-
-int main () {
-
-    EvernoteDataProvider edp;
-    edp.login ();
-
-    int notebookCount = edp.getNotebookCountPy ();
-    edp.getNotebookDetails ();
-
-    for (int i = 0; i < notebooks.size (); i++) {
-        edp.getNotesForNotebook (notebooks[i].guid);
-    }
-  
-    /* Print out insert statements */ 
-    for (int i = 0; i < notes.size (); i++) {
-        notes[i].createInsertStatement ();
-    }
-    for (int i = 0; i < notebooks.size (); i++) {
-        notebooks[i].createInsertStatement ();
-    }
-
-    std::cout << notes.size () << ":" << notebooks.size () << std::endl;
-    return 0;
-}
-
-EvernoteDataProvider::EvernoteDataProvider (Notify* n) {
+evernote::EvernoteDataProvider::EvernoteDataProvider (Notify* n) {
     app = n;
     
     hasOAuthToken = false;
@@ -150,7 +51,7 @@ EvernoteDataProvider::EvernoteDataProvider (Notify* n) {
 
     /* Add Evernote python libs to PYTHONPATH */
     /* Check if module is working. Instantiate it. */
-    putenv ("PYTHONPATH=./:evernote-sdk-python-master/:evernote-sdk-python-master/lib/");
+    putenv ("PYTHONPATH=lib/evernote/:lib/evernote/evernote-sdk-python-master/:lib/evernote/evernote-sdk-python-master/lib/");
 
     Py_Initialize();
     pName = PyString_FromString("interface");
@@ -163,25 +64,21 @@ EvernoteDataProvider::EvernoteDataProvider (Notify* n) {
     lastUpdateCount = 0;
 }
 
-EvernoteDataProvider::~EvernoteDataProvider () {
+evernote::EvernoteDataProvider::~EvernoteDataProvider () {
     Py_DECREF(pModule);
     Py_Finalize();
 }
 
-int EvernoteDataProvider::open () {
+int evernote::EvernoteDataProvider::open () {
     /* Connect using auth */
     return 0;
 }
 
-int EvernoteDataProvider::close () {
+int evernote::EvernoteDataProvider::close () {
     return 0;
 }
 
-int EvernoteDataProvider::sync () {
-    return 0;
-}
-
-int EvernoteDataProvider::login () {
+int evernote::EvernoteDataProvider::login () {
     if (pModule != NULL) {    
         pFunc = PyObject_GetAttrString(pModule, "login");
         /* pFunc is a new reference */
@@ -212,7 +109,7 @@ int EvernoteDataProvider::login () {
     }
 }
 
-int EvernoteDataProvider::getNotebookCountPy () {
+int evernote::EvernoteDataProvider::getNotebookCountPy () {
     int retVal = -1;
     if (pModule != NULL) {    
         pFunc = PyObject_GetAttrString(pModule, "getNotebookCount");
@@ -244,7 +141,7 @@ int EvernoteDataProvider::getNotebookCountPy () {
     return retVal;
 }
 
-bool EvernoteDataProvider::getNotesForNotebook (std::string g) {
+bool evernote::EvernoteDataProvider::getNotesForNotebook (std::string g) {
     int argc = 0;
     int noteCount;
     std::string name, guid;
@@ -346,7 +243,7 @@ bool EvernoteDataProvider::getNotesForNotebook (std::string g) {
     return true;
 }
 
-int EvernoteDataProvider::getNotebookDetails () {
+int evernote::EvernoteDataProvider::getNotebookDetails () {
     for (int i = 0; i < notebookCount; i++) {
         std::string name, guid;
         bool isDefault;
@@ -404,11 +301,12 @@ int EvernoteDataProvider::getNotebookDetails () {
     return 0;
 }
 
-int EvernoteDataProvider::logout () {
+int evernote::EvernoteDataProvider::logout () {
 
 }
+
+int evernote::EvernoteDataProvider::sync () {
 /*
-void EvernoteDataProvider::sync () {
     1. get Last Update Count from db. If it does not exist. Initialize it to 0.
     2. Get AuthToken. For now, we have the sandbox evernote token.
     // INCOMING
@@ -434,6 +332,6 @@ void EvernoteDataProvider::sync () {
         else 
         updateResource
     13. END
-
+*/
+    return 0;
 }
-    */

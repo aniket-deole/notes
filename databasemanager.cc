@@ -15,10 +15,15 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 #include <cstdlib>
+#include <vector>
 
 #include <uuid/uuid.h>
 
 #include "databasemanager.hh"
+#include "evernotedataprovider.hh"
+
+extern std::vector<evernote::Notebook> notebooks;
+extern std::vector<evernote::Note> notes;
 
 DatabaseManager::DatabaseManager (Notify* a) {
 	app = a;
@@ -53,11 +58,38 @@ DatabaseManager::DatabaseManager (Notify* a) {
         // unparse (to string)
         char uuid_str[37];      // ex. "1b4e28ba-2fa1-11d2-883f-0016d3cca427" + "\0"
         uuid_unparse_lower(uuid, uuid_str);
-        std::string query = "INSERT INTO notebooks values (NULL, 'FirstNotebook', NULL, '";
-        query += uuid_str;
-        query += "', NULL)";
-	    sqlite3_exec (db, query.c_str (), NULL, 0, NULL);
+        std::string q = "INSERT INTO notebooks values (NULL, 'FirstNotebook', NULL, '";
+        q += uuid_str;
+        q += "', NULL)";
+	    sqlite3_exec (db, q.c_str (), NULL, 0, NULL);
 	    sqlite3_exec (db, "COMMIT", NULL, NULL, NULL);
+
+	    /* SYNC */
+
+	    evernote::EvernoteDataProvider edp (app);
+	    edp.login ();
+
+	    int notebookCount = edp.getNotebookCountPy ();
+	    edp.getNotebookDetails ();
+
+	    for (unsigned int i = 0; i < ::notebooks.size (); i++) {
+	        edp.getNotesForNotebook (notebooks[i].guid);
+	    }
+
+	    /* Print out insert statements */ 
+	    for (unsigned int i = 0; i < ::notes.size (); i++) {
+	        std::string query = notes[i].createInsertStatement ();
+	        std::cout << query << std::endl;
+	    	sqlite3_exec (db, query.c_str (), NULL, 0, NULL);
+	    }
+	    for (unsigned int i = 0; i < ::notebooks.size (); i++) {
+	        std::string query = notebooks[i].createInsertStatement ();
+	   	 	sqlite3_exec (db, query.c_str (), NULL, 0, NULL);
+	   	 	std::cout << query << std::endl;
+	    }
+
+	    std::cout << notes.size () << ":" << notebooks.size () << std::endl;
+
 	}
 }
 
