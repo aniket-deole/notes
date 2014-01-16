@@ -26,8 +26,6 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 class LightPopup : public Gtk::MessageDialog {
 public:
   int popupH; int popupW;
-  ::Cairo::Context context;
-  ::Cairo::Surface surface;
   
   LightPopup (Gtk::Window& parent, const Glib::ustring& message, bool use_markup=false, 
     Gtk::MessageType type=Gtk::MESSAGE_INFO, Gtk::ButtonsType buttons=Gtk::BUTTONS_OK, bool modal=false) :

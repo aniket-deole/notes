@@ -18,7 +18,6 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 
-#include <Python.h>
 #include "notify.hh"
 namespace evernote {
 
@@ -116,9 +115,6 @@ private:
 	std::string authToken;
 
 	int notebookCount;
-
-	PyObject *pName, *pModule, *pDict, *pFunc;
-    PyObject *pArgs, *pValue;
 
     int lastUpdateCount;
 
