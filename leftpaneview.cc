@@ -35,8 +35,13 @@ public:
 
   LightPopup (Gtk::Window& parent, const Glib::ustring& message, bool use_markup=false, 
     Gtk::MessageType type=Gtk::MESSAGE_INFO, Gtk::ButtonsType buttons=Gtk::BUTTONS_OK, bool modal=false) :
-    Gtk::MessageDialog (parent, message, use_markup, type, buttons, modal) {
+    Gtk::MessageDialog (message, use_markup, type, buttons, false) {
       popupH = -1; popupW = -1;
+
+      Glib::RefPtr<Gdk::Window> w = get_window ();
+      if (w != NULL)
+      gdk_window_set_decorations (gtk_widget_get_window ((GtkWidget*) get_window ()->gobj ()), GDK_DECOR_BORDER);
+
       signal_size_allocate().connect(sigc::mem_fun(*this,
               &LightPopup::onSizeAllocate));
       signal_draw ().connect (sigc::mem_fun(*this, &LightPopup::drawPopup));
@@ -62,11 +67,11 @@ public:
                 // Get a pointer to our current row
                 unsigned char* row = pixels + rowIndex * width * 4;
                 
-                int zA = row[startX + 0] << ParamPrecision;
-                int zR = row[startX + 1] << ParamPrecision;
-                int zG = row[startX + 2] << ParamPrecision;
-                int zB = row[startX + 3] << ParamPrecision;
-                
+                gint zA = row[startX + 0] << ParamPrecision;
+                gint zR = row[startX + 1] << ParamPrecision;
+                gint zG = row[startX + 2] << ParamPrecision;
+                gint zB = row[startX + 3] << ParamPrecision;
+                std::cout << zA << ":" << zR << ":" << zG << ":" << zB << ":" << std::endl; 
                 // Left to Right
                 for (int index = startX + 1; index < endX; index++)
                     exponential_blur_inner (&row[index * 4], &zA, &zR, &zG, &zB, alpha);
@@ -104,8 +109,8 @@ public:
               std::cout << "RADIUS: " << radius << std::endl;
 
             double alpha = (int) ((1 << AlphaPrecision) * (1.0 - exp (-2.3 / (radius + 1.0))));
-            int height = this->popupH;
-            int width = this->popupW;
+            int height = 100;
+            int width = 100;
               std::cout << "HEIGHT: " << height << std::endl;
               std::cout << "WIDTH: " << width << std::endl;
             
@@ -119,12 +124,9 @@ public:
             unsigned char *pixels = original->get_data ();
             
 
-                exponential_blur_rows (pixels, width, height, height / 2, height, 0, width, alpha);
-                    exponential_blur_rows (pixels, width, height, 0, height / 2, 0, width, alpha);
-                // Process Columns
-                exponential_blur_columns (pixels, width, height, width / 2, width, 0, height, alpha);
+            exponential_blur_rows (pixels, width, height, 0, height, 0, width, alpha);
 
-                    exponential_blur_columns (pixels, width, height, 0, width / 2, 0, height, alpha);
+            exponential_blur_columns (pixels, width, height, 0, width, 0, height, alpha);
 
             
             original->mark_dirty ();
@@ -462,7 +464,7 @@ void LeftPaneView::setApp (Notify* a) {
 
 void LeftPaneView::newNotebook () {
 
-  popup = new LightPopup (*app, "Enter notebook name: ", true, Gtk::MESSAGE_OTHER, Gtk::BUTTONS_OK_CANCEL, true);
+  popup = new LightPopup (*app, "Enter notebook name: ", true, Gtk::MESSAGE_OTHER, Gtk::BUTTONS_OK_CANCEL, false);
   Gtk::Box* contentBox = popup->get_content_area ();
 
   notebookName = new Gtk::Entry ();
