@@ -16,6 +16,13 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 #include <cstdlib>
 #include <vector>
+#include <protocol/TBinaryProtocol.h>
+#include <transport/THttpClient.h>
+#include <transport/TSSLSocket.h>
+
+#include "UserStore.h"
+#include "NoteStore.h"
+
 #include "evernotedataprovider.hh"
 
 /*
@@ -40,14 +47,28 @@ Note(contentHash='\xbbS\x8ad\x05\xd0%\x98\xf9\xa6L[\xc2\xce\x8bY',
 */
 
 
-std::vector<evernote::Notebook> notebooks;
-std::vector<evernote::Note> notes;
+std::vector<evernote::Notebook> gNotebooks;
+std::vector<evernote::Note> gNotes;
 
 evernote::EvernoteDataProvider::EvernoteDataProvider (Notify* n) {
     app = n;
     
     hasOAuthToken = false;
     authToken = "S=s1:U=7558a:E=14aae5ecd73:C=14356ada175:P=1cd:A=en-devtoken:V=2:H=905a30846fdad07b83592ff73da7a7c0";
+
+    std::string site = "sandbox.evernote.com";
+    boost::shared_ptr<apache::thrift::transport::THttpClient> auth_http( new apache::thrift::transport::THttpClient("sandbox.evernote.com", 80, "/edam/user") );
+    auth_http->open();
+    boost::shared_ptr<apache::thrift::protocol::TBinaryProtocol> userStoreProt( new apache::thrift::protocol::TBinaryProtocol(auth_http) );
+    evernote::edam::UserStoreClient userStore(userStoreProt, userStoreProt );
+
+    std::string  noteStoreUrl = "";
+    userStore.getNoteStoreUrl (noteStoreUrl, authToken);
+    auth_http->close();   
+    std::cout << noteStoreUrl << std::endl;
+
+    noteStoreUrl = "/shard/s1/notestore";
+
 
     lastUpdateCount = 0;
 }
@@ -99,7 +120,7 @@ int evernote::EvernoteDataProvider::sync () {
     7. lastUpdateCount = UpdateCount From Server
     // INCREMENTAL SYNC
     8. getSyncChunk but afterUSN = lastUpdateCount.
-    9. For All Notebooks
+ 2   9. For All Notebooks
         ProcessNotebook ()
     10. For All Notes 
         ProcessNotes ()
@@ -111,6 +132,54 @@ int evernote::EvernoteDataProvider::sync () {
         else 
         updateResource
     13. END
-*/
+*/ 
+    std::string noteStoreUrl = "/shard/s1/notestore";
+
+    boost::shared_ptr<apache::thrift::transport::TSSLSocketFactory> sslSocketFactory = boost::shared_ptr<apache::thrift::transport::TSSLSocketFactory>(new apache::thrift::transport::TSSLSocketFactory());;
+
+    boost::shared_ptr<apache::thrift::transport::TSocket> sslSocket = sslSocketFactory->createSocket("sandbox.evernote.com", 443);
+    boost::shared_ptr<apache::thrift::transport::TBufferedTransport> bufferedTransport(new apache::thrift::transport::TBufferedTransport(sslSocket));
+    boost::shared_ptr<apache::thrift::transport::THttpClient> userStoreHttpClient = boost::shared_ptr<apache::thrift::transport::THttpClient>(new apache::thrift::transport::THttpClient(bufferedTransport, "sandbox.evernote.com", noteStoreUrl));
+
+    userStoreHttpClient->open();
+
+    boost::shared_ptr<apache::thrift::protocol::TBinaryProtocol> noteStoreProt(new apache::thrift::protocol::TBinaryProtocol(userStoreHttpClient) );
+    evernote::edam::NoteStoreClient noteStore(noteStoreProt, noteStoreProt );
+
+    std::vector<evernote::edam::Notebook> notebooks;
+    std::vector<evernote::edam::Note> notes;
+
+    noteStore.listNotebooks(notebooks, authToken);
+
+    evernote::edam::NoteList notesMetadataList;
+
+
+    for (unsigned int i = 0; i < notebooks.size (); i++) {
+      std::cout << notebooks[i].guid << std::endl;
+      evernote::Notebook n(notebooks[i].name, notebooks[i].guid, notebooks[i].defaultNotebook, notebooks[i].serviceCreated, notebooks[i].serviceUpdated);
+      gNotebooks.push_back (n);
+    }
+    evernote::edam::NoteFilter noteFilter;
+
+    noteStore.findNotes (notesMetadataList, authToken, noteFilter, 0, 20);
+
+    for (unsigned int i = 0; i < notesMetadataList.notes.size (); i++) {
+        evernote::edam::Note note = notesMetadataList.notes[i];
+        std::cout << note.guid << std::endl;
+        std::cout << "==========================" << std::endl;
+        std::string content;
+        noteStore.getNoteContent (content, authToken, note.guid);
+        evernote::Note n(note.title, note.guid, content, note.notebookGuid, note.created, note.updated);
+        gNotes.push_back (n);
+        std::cout << content << std::endl;
+        std::cout << "==========================" << std::endl;
+    }
+
+    userStoreHttpClient->flush ();
+    userStoreHttpClient->close();
+    userStoreHttpClient->close();
+
+    std::cout << notebooks.size () << notesMetadataList.notes.size () << std::endl;
+
     return 0;
 }

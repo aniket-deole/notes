@@ -22,8 +22,8 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "databasemanager.hh"
 #include "evernotedataprovider.hh"
 
-extern std::vector<evernote::Notebook> notebooks;
-extern std::vector<evernote::Note> notes;
+extern std::vector<evernote::Notebook> gNotebooks;
+extern std::vector<evernote::Note> gNotes;
 
 DatabaseManager::DatabaseManager (Notify* a) {
 	app = a;
@@ -69,26 +69,21 @@ DatabaseManager::DatabaseManager (Notify* a) {
 	    evernote::EvernoteDataProvider edp (app);
 	    edp.login ();
 
-	    int notebookCount = edp.getNotebookCountPy ();
-	    edp.getNotebookDetails ();
-
-	    for (unsigned int i = 0; i < ::notebooks.size (); i++) {
-	        edp.getNotesForNotebook (notebooks[i].guid);
-	    }
+        edp.sync ();
 
 	    /* Print out insert statements */ 
-	    for (unsigned int i = 0; i < ::notes.size (); i++) {
-	        std::string query = notes[i].createInsertStatement ();
+	    for (unsigned int i = 0; i < ::gNotes.size (); i++) {
+	        std::string query = gNotes[i].createInsertStatement ();
 	        std::cout << query << std::endl;
 	    	sqlite3_exec (db, query.c_str (), NULL, 0, NULL);
 	    }
-	    for (unsigned int i = 0; i < ::notebooks.size (); i++) {
-	        std::string query = notebooks[i].createInsertStatement ();
+	    for (unsigned int i = 0; i < ::gNotebooks.size (); i++) {
+	        std::string query = gNotebooks[i].createInsertStatement ();
 	   	 	sqlite3_exec (db, query.c_str (), NULL, 0, NULL);
 	   	 	std::cout << query << std::endl;
 	    }
 
-	    std::cout << notes.size () << ":" << notebooks.size () << std::endl;
+	    std::cout << gNotes.size () << ":" << gNotebooks.size () << std::endl;
 
 	}
 }
