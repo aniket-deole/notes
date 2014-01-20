@@ -26,7 +26,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 int AlphaPrecision = 16;
 int ParamPrecision = 7;
-
+/*
 class LightPopup : public Gtk::MessageDialog {
 public:
   int popupH; int popupW;
@@ -171,7 +171,7 @@ public:
         }
         
 };
-
+*/
 class NotebookCellRenderer : public Gtk::CellRenderer {
   public:
   Glib::PropertyProxy< int > property_id()
@@ -464,7 +464,7 @@ void LeftPaneView::setApp (Notify* a) {
 
 void LeftPaneView::newNotebook () {
 
-  popup = new LightPopup (*app, "Enter notebook name: ", true, Gtk::MESSAGE_OTHER, Gtk::BUTTONS_OK_CANCEL, false);
+  popup = new Gtk::MessageDialog (*app, "Enter notebook name: ", true, Gtk::MESSAGE_OTHER, Gtk::BUTTONS_OK_CANCEL, false);
   Gtk::Box* contentBox = popup->get_content_area ();
 
   notebookName = new Gtk::Entry ();
@@ -583,7 +583,7 @@ std::string NumberToString(T pNumber)
 
 void LeftPaneView::on_menu_file_popup_edit_notebook_name() {
 
-  popup = new LightPopup (*app, "Enter New Name for notebook: ", true, Gtk::MESSAGE_OTHER, Gtk::BUTTONS_OK_CANCEL, true);
+  popup = new Gtk::MessageDialog (*app, "Enter New Name for notebook: ", true, Gtk::MESSAGE_OTHER, Gtk::BUTTONS_OK_CANCEL, true);
   Gtk::Box* contentBox = popup->get_content_area ();
 
   contentBox->pack_end (*notebookName);
@@ -609,7 +609,7 @@ void LeftPaneView::on_menu_file_popup_edit_notebook_name() {
 
 void LeftPaneView::on_menu_file_popup_delete_notebook () {
 
-  popup = new LightPopup (*app, "Delete Notebook ? (This will delete all notes from that notebook !", true, Gtk::MESSAGE_OTHER, Gtk::BUTTONS_OK_CANCEL, true);
+  popup = new Gtk::MessageDialog (*app, "Delete Notebook ? (This will delete all notes from that notebook !", true, Gtk::MESSAGE_OTHER, Gtk::BUTTONS_OK_CANCEL, true);
   Gtk::Box* contentBox = popup->get_content_area ();
   contentBox->show_all ();
   popup->set_resizable (false);
