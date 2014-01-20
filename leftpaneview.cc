@@ -24,9 +24,9 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "notebookdata.hh"
 
+/*
 int AlphaPrecision = 16;
 int ParamPrecision = 7;
-/*
 class LightPopup : public Gtk::MessageDialog {
 public:
   int popupH; int popupW;
@@ -236,15 +236,15 @@ LeftPaneView::LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
   set_size_request (200, -1);
 
   //Add the TreeView, inside a ScrolledWindow, with the button underneath:
-  m_ScrolledWindow.add(m_TreeView);
+  m_ScrolledWindow.add(m_TreeView_Notebooks);
   std::string cssProperties = 
-".m_TreeView {"
+".m_TreeView_Notebooks {"
 "background-color: #34393D;"
 "border-radius: 0;"
 "color: white;"
 "}"
 ""
-".m_TreeView:selected, .m_TreeView:prelight:selected, .m_TreeView.category-expander:hover {"
+".m_TreeView_Notebooks:selected, .m_TreeView_Notebooks:prelight:selected, .m_TreeView_Notebooks.category-expander:hover {"
 "color: white;"
 "border-style: solid;"
 "border-width: 1px 0 1px 0;"
@@ -255,14 +255,14 @@ LeftPaneView::LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 "border-color: #BBB;"
 "}"
 ""
-".m_TreeView:selected:backdrop, .m_TreeView:prelight:selected:backdrop {"
+".m_TreeView_Notebooks:selected:backdrop, .m_TreeView_Notebooks:prelight:selected:backdrop {"
 "background-image: -gtk-gradient (linear,left top, left bottom, from (alpha (#000, 0.08)), to (alpha (#000, 0.04)));"
 "-unico-border-gradient: -gtk-gradient (linear, left top, left bottom, from (alpha (#000, 0.19)), to (alpha (#fff, 0.25)));"
 "-unico-inner-stroke-gradient: -gtk-gradient (linear, left top, left bottom, from (alpha (#000, 0.03)), to (alpha (#000, 0.10)));"
 "border-color: #BBB;"
 "}"
 ""
-".m_TreeView:prelight, .m_TreeView:hover {"
+".m_TreeView_Notebooks:prelight, .m_TreeView_Notebooks:hover {"
 "color: white;"
 "border-style: solid;"
 "border-width: 1px 0 1px 0;"
@@ -273,7 +273,7 @@ LeftPaneView::LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 "}";
 
 
-  addCss (&m_TreeView, "m_TreeView", cssProperties);
+  addCss (&m_TreeView_Notebooks, "m_TreeView_Notebooks", cssProperties);
 
   //Only show the scrollbars when they are necessary:
   m_ScrolledWindow.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
@@ -282,11 +282,11 @@ LeftPaneView::LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 
   //Create the Tree model:
   m_refTreeModel = Gtk::TreeStore::create(m_Columns);
-  m_TreeView.set_model(m_refTreeModel);
-  m_TreeView.set_headers_visible (false);
-  m_TreeView.set_show_expanders (false);
+  m_TreeView_Notebooks.set_model(m_refTreeModel);
+  m_TreeView_Notebooks.set_headers_visible (false);
+  m_TreeView_Notebooks.set_show_expanders (false);
   //All the items to be reordered with drag-and-drop:
-  m_TreeView.set_reorderable(false);
+  m_TreeView_Notebooks.set_reorderable(false);
 
   //Fill the TreeView's model
   notebooksRow = *(m_refTreeModel->append());
@@ -295,36 +295,21 @@ LeftPaneView::LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
   NotebookData* nbd = new NotebookData (-1, "Notebooks", "", "", 0, 0);
   notebooksRow[m_Columns.m_notebook_data] = *nbd;
 
-  tagsRow = *(m_refTreeModel->append());
-  tagsRow[m_Columns.m_col_id] = 2;
-  tagsRow[m_Columns.m_col_name] = "Tags";
-  nbd = new NotebookData (-1, "Tags", "", "", 0, 0);
-  tagsRow[m_Columns.m_notebook_data] = *nbd;
-/*
-  childrow = *(m_refTreeModel->append(row.children()));
-  childrow[m_Columns.m_col_id] = 13;
-  childrow[m_Columns.m_col_name] = "\tTag1";
-
-  childrow = *(m_refTreeModel->append(row.children()));
-  childrow[m_Columns.m_col_id] = 14;
-  childrow[m_Columns.m_col_name] = "\tTag2";
-*/
-
-  m_TreeView.append_column(*create_column (m_Columns.m_col_id, m_Columns.m_notebook_data));
+  m_TreeView_Notebooks.append_column(*create_column (m_Columns.m_col_id, m_Columns.m_notebook_data));
 
   //Connect signal:
-  m_TreeView.signal_row_expanded().connect(sigc::mem_fun(*this,
+  m_TreeView_Notebooks.signal_row_expanded().connect(sigc::mem_fun(*this,
               &LeftPaneView::on_treeview_row_expanded) );
 
-//  m_TreeView.signal_row_activated().connect(sigc::mem_fun(*this,
+//  m_TreeView_Notebooks.signal_row_activated().connect(sigc::mem_fun(*this,
 //              &LeftPaneView::on_treeview_row_activated) );
 
-  Glib::RefPtr<Gtk::TreeSelection> ts = m_TreeView.get_selection ();
+  Glib::RefPtr<Gtk::TreeSelection> ts = m_TreeView_Notebooks.get_selection ();
 
   ts->signal_changed().connect(sigc::mem_fun(*this,
               &LeftPaneView::on_treeview_row_changed) );
 
-  m_TreeView.signal_button_press_event ().connect_notify (sigc::mem_fun(*this,
+  m_TreeView_Notebooks.signal_button_press_event ().connect_notify (sigc::mem_fun(*this,
               &LeftPaneView::on_treeview_button_release_event) );
 
   /* Select the All Notes item by default */ 
@@ -355,33 +340,29 @@ void LeftPaneView::on_treeview_row_changed () {
   if (!dbInitialized)
     return;
 
-  Glib::RefPtr<Gtk::TreeSelection> ts = m_TreeView.get_selection ();
+  Glib::RefPtr<Gtk::TreeSelection> ts = m_TreeView_Notebooks.get_selection ();
   Gtk::TreeModel::iterator iter = ts->get_selected ();
   Glib::RefPtr<Gtk::TreeModel> tm = ts->get_model ();
 
   if (iter) {
     Gtk::TreeModel::Path path = tm->get_path (iter);
     if (path.size () == 1) {
-      if (notebookListSelected && path[0] == 0)
+      if (path[0] == 0)
         ts->unselect_all ();
       else
         ts->select (Gtk::TreeModel::Path (selectedPath));
       
       /* Expand tree */
-      if (m_TreeView.row_expanded (path)) {
-        m_TreeView.collapse_row (path);
+      if (m_TreeView_Notebooks.row_expanded (path)) {
+        m_TreeView_Notebooks.collapse_row (path);
       } else {
-        m_TreeView.expand_to_path (path);
+        m_TreeView_Notebooks.expand_to_path (path);
         ts->select (Gtk::TreeModel::Path (selectedPath));
       }
     } else {
 
       std::cout << "Tree Child Clicked." << std::endl;
       selectedPath = tm->get_string (iter);
-      if (path[0] == 1)
-        notebookListSelected = false;
-      else
-        notebookListSelected = true;
 
       /* Callback to fill up the notelistpane. */
       Gtk::TreeModel::Row row = *iter;
@@ -407,12 +388,11 @@ void LeftPaneView::setDatabaseManager (DatabaseManager* d) {
   childrow[m_Columns.m_notebook_data] = *nbd;
 
   dbm->exec ("select * from notebooks where id > 0 order by title", &fillNotebooksCallback,this);
-  dbm->exec ("select * from tags", &fillTagsCallback,this);
-  m_TreeView.expand_all ();
-  m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0:0"));
+  m_TreeView_Notebooks.expand_all ();
+  m_TreeView_Notebooks.get_selection ()->select (Gtk::TreeModel::Path ("0:0"));
   selectedPath = "0:0";
   
-  Glib::RefPtr<Gtk::TreeSelection> ts = m_TreeView.get_selection ();
+  Glib::RefPtr<Gtk::TreeSelection> ts = m_TreeView_Notebooks.get_selection ();
   Gtk::TreeModel::iterator iter = ts->get_selected ();
   Glib::RefPtr<Gtk::TreeModel> tm = ts->get_model ();
 
@@ -514,12 +494,6 @@ void LeftPaneView::newNotebookOk () {
   NotebookData* nbd = new NotebookData (-1, "Notebooks","","", 0, 0);
   notebooksRow[m_Columns.m_notebook_data] = *nbd;
 
-  tagsRow = *(m_refTreeModel->append());
-  tagsRow[m_Columns.m_col_id] = 2;
-  tagsRow[m_Columns.m_col_name] = "Tags";
-  nbd = new NotebookData (-1, "Tags", "","",0 ,0);
-  tagsRow[m_Columns.m_notebook_data] = *nbd;
-
   nbd = new NotebookData (0, "All Notebooks", "","", 0, 0);
 
   Gtk::TreeModel::Row childrow = *(m_refTreeModel->append(notebooksRow.children()));
@@ -528,9 +502,8 @@ void LeftPaneView::newNotebookOk () {
   childrow[m_Columns.m_notebook_data] = *nbd;
 
   dbm->exec ("select * from notebooks where id > 0 order by title", &fillNotebooksCallback,this);
-  dbm->exec ("select * from tags", &fillTagsCallback,this);
-  m_TreeView.expand_all ();
-  m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0:0"));
+  m_TreeView_Notebooks.expand_all ();
+  m_TreeView_Notebooks.get_selection ()->select (Gtk::TreeModel::Path ("0:0"));
   selectedPath = "0:0";
   notebookListSelected = true;
 }
@@ -542,12 +515,12 @@ void LeftPaneView::on_treeview_button_release_event (GdkEventButton* event) {
       std::cout << "Single right click on the tree view." << std::endl;
 
 
-  Glib::RefPtr<Gtk::TreeSelection> ts = m_TreeView.get_selection ();
+  Glib::RefPtr<Gtk::TreeSelection> ts = m_TreeView_Notebooks.get_selection ();
   Gtk::TreeModel::iterator iter = ts->get_selected ();
   Glib::RefPtr<Gtk::TreeModel> tm = ts->get_model ();
 
   Gtk::TreeModel::Path path;
-     m_TreeView.get_path_at_pos ((gint) event->x, (gint) event->y, path);
+     m_TreeView_Notebooks.get_path_at_pos ((gint) event->x, (gint) event->y, path);
     if (path.size () == 2) {
       selectedPath = tm->get_string (iter);
       if (path[0] == 1)
@@ -648,12 +621,6 @@ void LeftPaneView::notebookEdit () {
   NotebookData* nbd = new NotebookData (-1, "Notebooks", "","", 0, 0);
   notebooksRow[m_Columns.m_notebook_data] = *nbd;
 
-  tagsRow = *(m_refTreeModel->append());
-  tagsRow[m_Columns.m_col_id] = 2;
-  tagsRow[m_Columns.m_col_name] = "Tags";
-  nbd = new NotebookData (-1, "Tags", "","", 0, 0);
-  tagsRow[m_Columns.m_notebook_data] = *nbd;
-
   nbd = new NotebookData (0, "All Notebooks", "","", 0, 0);
 
   Gtk::TreeModel::Row childrow = *(m_refTreeModel->append(notebooksRow.children()));
@@ -662,9 +629,8 @@ void LeftPaneView::notebookEdit () {
   childrow[m_Columns.m_notebook_data] = *nbd;
 
   dbm->exec ("select * from notebooks where id > 0 order by title", &fillNotebooksCallback,this);
-  dbm->exec ("select * from tags", &fillTagsCallback,this);
-  m_TreeView.expand_all ();
-  m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0:0"));
+  m_TreeView_Notebooks.expand_all ();
+  m_TreeView_Notebooks.get_selection ()->select (Gtk::TreeModel::Path ("0:0"));
   selectedPath = "0:0";
   notebookListSelected = true;
 }
@@ -684,12 +650,6 @@ void LeftPaneView::notebookDelete () {
   NotebookData* nbd = new NotebookData (-1, "Notebooks", "","", 0, 0);
   notebooksRow[m_Columns.m_notebook_data] = *nbd;
 
-  tagsRow = *(m_refTreeModel->append());
-  tagsRow[m_Columns.m_col_id] = 2;
-  tagsRow[m_Columns.m_col_name] = "Tags";
-  nbd = new NotebookData (-1, "Tags", "", "", 0, 0);
-  tagsRow[m_Columns.m_notebook_data] = *nbd;
-
   nbd = new NotebookData (0, "All Notebooks", "", "", 0, 0);
 
   Gtk::TreeModel::Row childrow = *(m_refTreeModel->append(notebooksRow.children()));
@@ -698,9 +658,8 @@ void LeftPaneView::notebookDelete () {
   childrow[m_Columns.m_notebook_data] = *nbd;
 
   dbm->exec ("select * from notebooks where id > 0 order by title", &fillNotebooksCallback,this);
-  dbm->exec ("select * from tags", &fillTagsCallback,this);
-  m_TreeView.expand_all ();
-  m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0:0"));
+  m_TreeView_Notebooks.expand_all ();
+  m_TreeView_Notebooks.get_selection ()->select (Gtk::TreeModel::Path ("0:0"));
   selectedPath = "0:0";
   notebookListSelected = true;
 }
@@ -710,7 +669,7 @@ void LeftPaneView::notebookDeleteCancel () {
 }
 
 void LeftPaneView::selectNotebookInPane (int pathIndex) {
-  m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0:" + NumberToString (pathIndex + 1)));
+  m_TreeView_Notebooks.get_selection ()->select (Gtk::TreeModel::Path ("0:" + NumberToString (pathIndex + 1)));
 } 
 
 void LeftPaneView::refreshLeftPaneView () {
@@ -722,12 +681,6 @@ void LeftPaneView::refreshLeftPaneView () {
   NotebookData* nbd = new NotebookData (-1, "Notebooks", "", "", 0, 0);
   notebooksRow[m_Columns.m_notebook_data] = *nbd;
 
-  tagsRow = *(m_refTreeModel->append());
-  tagsRow[m_Columns.m_col_id] = 2;
-  tagsRow[m_Columns.m_col_name] = "Tags";
-  nbd = new NotebookData (-1, "Tags", "","", 0, 0);
-  tagsRow[m_Columns.m_notebook_data] = *nbd;
-
   nbd = new NotebookData (0, "All Notebooks", "", "", 0, 0);
 
   Gtk::TreeModel::Row childrow = *(m_refTreeModel->append(notebooksRow.children()));
@@ -735,9 +688,8 @@ void LeftPaneView::refreshLeftPaneView () {
   childrow[m_Columns.m_col_name] = "All Notebooks";
   childrow[m_Columns.m_notebook_data] = *nbd;
   dbm->exec ("select * from notebooks where id > 0 order by title", &fillNotebooksCallback,this);
-  dbm->exec ("select * from tags", &fillTagsCallback,this);
-  m_TreeView.expand_all ();
-  m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0:0"));
+  m_TreeView_Notebooks.expand_all ();
+  m_TreeView_Notebooks.get_selection ()->select (Gtk::TreeModel::Path ("0:0"));
   selectedPath = "0:0";
   notebookListSelected = true;
 }

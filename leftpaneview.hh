@@ -27,7 +27,8 @@ class Notify;
 class LeftPaneView : public Gtk::Box {
 private:
 	int a;
-  Gtk::TreeView* treeView;
+  Gtk::TreeView* treeView_notebooks;
+  Gtk::TreeView* treeView_tags;
   Gtk::TreeModel::Row notebooksRow;
   Gtk::TreeModel::Row tagsRow;
   void on_treeview_row_expanded (const Gtk::TreeModel::iterator& iter, Gtk::TreeModel::Path path);
@@ -65,7 +66,7 @@ public:
   ModelColumns m_Columns;
 
   Gtk::ScrolledWindow m_ScrolledWindow;
-  Gtk::TreeView m_TreeView;
+  Gtk::TreeView m_TreeView_Notebooks;
   Glib::RefPtr<Gtk::TreeStore> m_refTreeModel;
 
   void setDatabaseManager (DatabaseManager* d);
