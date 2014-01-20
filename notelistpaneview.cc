@@ -277,7 +277,7 @@ void NoteListPaneView::fetchNotesForNotebook (std::string n_guid) {
   m_refTreeModel->clear ();
  
   std::string query;
-  if (n_guid.empty ())
+  if (n_guid.empty () || n_guid == "_")
     query = "select * from notes order by modified_time desc, id";
   else
     query = "select * from notes where notebook_guid = '" + n_guid + "' order by modified_time desc, id";

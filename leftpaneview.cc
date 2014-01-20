@@ -380,7 +380,7 @@ LeftPaneView::~LeftPaneView () {
 
 void LeftPaneView::setDatabaseManager (DatabaseManager* d) {
   dbm = d;  
-  NotebookData* nbd = new NotebookData (0, "All Notebooks", "", "", 0, 0);
+  NotebookData* nbd = new NotebookData (0, "All Notebooks", "_", "", 0, 0);
 
   Gtk::TreeModel::Row childrow = *(m_refTreeModel->append(notebooksRow.children()));
   childrow[m_Columns.m_col_id] = 0;
@@ -494,7 +494,7 @@ void LeftPaneView::newNotebookOk () {
   NotebookData* nbd = new NotebookData (-1, "Notebooks","","", 0, 0);
   notebooksRow[m_Columns.m_notebook_data] = *nbd;
 
-  nbd = new NotebookData (0, "All Notebooks", "","", 0, 0);
+  nbd = new NotebookData (0, "All Notebooks", "_","", 0, 0);
 
   Gtk::TreeModel::Row childrow = *(m_refTreeModel->append(notebooksRow.children()));
   childrow[m_Columns.m_col_id] = 0;
@@ -610,6 +610,9 @@ void LeftPaneView::notebookEdit () {
   std::string notebook_name = notebookName->get_text ();
   std::string notebook_id = selectedNotebook.getGuid ();
 
+  if (notebook_id == "_")
+  	return;
+
   dbm->exec ("update notebooks set title = '" + notebook_name + "' where guid = '" + notebook_id + "'", NULL, this);
 
   m_refTreeModel->clear ();
@@ -621,7 +624,7 @@ void LeftPaneView::notebookEdit () {
   NotebookData* nbd = new NotebookData (-1, "Notebooks", "","", 0, 0);
   notebooksRow[m_Columns.m_notebook_data] = *nbd;
 
-  nbd = new NotebookData (0, "All Notebooks", "","", 0, 0);
+  nbd = new NotebookData (0, "All Notebooks", "_","", 0, 0);
 
   Gtk::TreeModel::Row childrow = *(m_refTreeModel->append(notebooksRow.children()));
   childrow[m_Columns.m_col_id] = 0;
@@ -638,6 +641,8 @@ void LeftPaneView::notebookEdit () {
 
 void LeftPaneView::notebookDelete () {
   std::string notebook_id = selectedNotebook.getGuid ();
+  if (notebook_id == "_")
+  	return;
   dbm->exec ("delete from notes where notebook_guid = '" + notebook_id + "'", NULL, this);
   dbm->exec ("delete from notebooks where guid = '" + notebook_id + "'", NULL, this);
 
@@ -650,7 +655,7 @@ void LeftPaneView::notebookDelete () {
   NotebookData* nbd = new NotebookData (-1, "Notebooks", "","", 0, 0);
   notebooksRow[m_Columns.m_notebook_data] = *nbd;
 
-  nbd = new NotebookData (0, "All Notebooks", "", "", 0, 0);
+  nbd = new NotebookData (0, "All Notebooks", "_", "", 0, 0);
 
   Gtk::TreeModel::Row childrow = *(m_refTreeModel->append(notebooksRow.children()));
   childrow[m_Columns.m_col_id] = 0;
@@ -681,7 +686,7 @@ void LeftPaneView::refreshLeftPaneView () {
   NotebookData* nbd = new NotebookData (-1, "Notebooks", "", "", 0, 0);
   notebooksRow[m_Columns.m_notebook_data] = *nbd;
 
-  nbd = new NotebookData (0, "All Notebooks", "", "", 0, 0);
+  nbd = new NotebookData (0, "All Notebooks", "_", "", 0, 0);
 
   Gtk::TreeModel::Row childrow = *(m_refTreeModel->append(notebooksRow.children()));
   childrow[m_Columns.m_col_id] = 0;
