@@ -23,6 +23,37 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 class DatabaseManager;
 class Notify;
 
+class NotebookTreeStore : public Gtk::TreeStore {
+protected:
+  NotebookTreeStore();
+
+public:
+
+  //Tree model columns:
+  class ModelColumns : public Gtk::TreeModel::ColumnRecord
+  {
+  public:
+
+    ModelColumns()
+    { add(m_col_id); add(m_col_name); add (m_notebook_data);  add(m_col_draggable); add(m_col_receivesdrags); }
+
+    Gtk::TreeModelColumn<int> m_col_id;
+    Gtk::TreeModelColumn<Glib::ustring> m_col_name;
+    Gtk::TreeModelColumn<NotebookData> m_notebook_data;
+    Gtk::TreeModelColumn<bool> m_col_draggable;
+    Gtk::TreeModelColumn<bool> m_col_receivesdrags;
+  };
+
+  ModelColumns m_Columns;
+
+  static Glib::RefPtr<NotebookTreeStore> create();
+
+protected:
+  //Overridden virtual functions:
+  virtual bool row_draggable_vfunc(const Gtk::TreeModel::Path& path) const;
+  virtual bool row_drop_possible_vfunc(const Gtk::TreeModel::Path& dest, const Gtk::SelectionData& selection_data) const;
+
+};
 
 class LeftPaneView : public Gtk::Box {
 private:
@@ -50,24 +81,9 @@ public:
 
   bool dbInitialized;
 
-  //Tree model columns:
-  class ModelColumns : public Gtk::TreeModel::ColumnRecord
-  {
-  public:
-
-    ModelColumns()
-    { add(m_col_id); add(m_col_name); add (m_notebook_data); }
-
-    Gtk::TreeModelColumn<int> m_col_id;
-    Gtk::TreeModelColumn<Glib::ustring> m_col_name;
-    Gtk::TreeModelColumn<NotebookData> m_notebook_data;
-  };
-
-  ModelColumns m_Columns;
-
   Gtk::ScrolledWindow m_ScrolledWindow;
   Gtk::TreeView m_TreeView_Notebooks;
-  Glib::RefPtr<Gtk::TreeStore> m_refTreeModel;
+  Glib::RefPtr<NotebookTreeStore> m_refTreeModel;
 
   void setDatabaseManager (DatabaseManager* d);
   void setApp (Notify* a);
