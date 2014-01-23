@@ -155,10 +155,11 @@ int evernote::EvernoteDataProvider::sync () {
 
 
     for (unsigned int i = 0; i < notebooks.size (); i++) {
-      std::cout << notebooks[i].guid << std::endl;
+      std::cout << notebooks[i].guid << ":" << notebooks[i].stack << std::endl;
       evernote::Notebook n(notebooks[i].name, notebooks[i].guid, notebooks[i].defaultNotebook, notebooks[i].serviceCreated, notebooks[i].serviceUpdated);
       gNotebooks.push_back (n);
     }
+    std::cout << "==========================" << std::endl;
     evernote::edam::NoteFilter noteFilter;
 
     noteStore.findNotes (notesMetadataList, authToken, noteFilter, 0, 20);

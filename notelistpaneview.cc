@@ -249,7 +249,7 @@ int NoteListPaneView::fillNotesCallback (void* nlpv, int argc, char **argv, char
   NoteData n1 (atoi(argv[0]), argv[1], argv[2], atoi(argv[3]), atoi (argv[4]), argv[5], argv[6]);
   row[p->m_Columns.m_note_data] = n1;
   
-  std::cout << "NoteListPaneView::fillNotesCallback PKey: " << atoi(argv[0]) << std::endl;
+//  std::cout << "NoteListPaneView::fillNotesCallback PKey: " << atoi(argv[0]) << std::endl;
   
   return 0;
 }
