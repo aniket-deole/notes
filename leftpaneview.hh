@@ -22,8 +22,11 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class DatabaseManager;
 class Notify;
+class LeftPaneView;
 
 class NotebookTreeStore : public Gtk::TreeStore {
+private:
+  LeftPaneView* lpv;
 protected:
   NotebookTreeStore();
 
@@ -46,7 +49,7 @@ public:
 
   ModelColumns m_Columns;
 
-  static Glib::RefPtr<NotebookTreeStore> create();
+  static Glib::RefPtr<NotebookTreeStore> create(LeftPaneView* l);
 
 protected:
   //Overridden virtual functions:
@@ -73,12 +76,16 @@ private:
   DatabaseManager* dbm;
 
   int popupH, popupW;
+  bool dragEnded;
+
 
 public:
     LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding = 0);
     ~LeftPaneView ();
 
 
+  NotebookData* notebookBeingDragged;
+  NotebookData* notebookDestination;
   bool dbInitialized;
 
   Gtk::ScrolledWindow m_ScrolledWindow;
@@ -105,7 +112,10 @@ public:
   void selectNotebookInPane (int pathIndex);
   std::string getSelectedNotebookGuid () { return selectedNotebook.getGuid (); }
   void refreshLeftPaneView ();
+  void nnDragFinished(const Glib::RefPtr< Gdk::DragContext >&   context);
+  void nnDragStarted(const Glib::RefPtr< Gdk::DragContext >&   context);
 
+  void updateParentGuid (std::string, std::string);
 };
 
 #endif

@@ -41,6 +41,7 @@ public:
   int getPrimaryKey () { return primary_key; }
   std::string getTitle () { return title; }
   std::string getGuid () { return guid; }
+  std::string getParentGuid () { return parent_guid; }
   void setGuid (std::string g) { guid = g; }
 };
 
