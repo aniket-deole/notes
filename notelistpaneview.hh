@@ -16,6 +16,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef _NOTELISTPANEVIEW_HH_
 #define _NOTELISTPANEVIEW_HH_
 
+#include <vector>
 #include <gtkmm.h>
 #include "notedata.hh"
 #include "notebookdata.hh"
@@ -84,6 +85,7 @@ public:
   void setDatabaseManager (DatabaseManager* d);
   static int fillNotesCallback (void*,int,char**,char**);
   void fetchNotesForNotebook (std::string);
+  void fetchNotesForNotebooks (std::vector<std::string>);
   void on_treeview_row_activated (const Gtk::TreePath&, Gtk::TreeViewColumn* const&);
   void on_treeview_row_changed ();
   void on_treeview_button_release_event (GdkEventButton* event);

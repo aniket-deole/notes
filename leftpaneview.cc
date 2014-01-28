@@ -24,6 +24,11 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "notebookdata.hh"
 
+/**
+  Context: Stacks Almost Working. Check saveNote. it fails when stack is selected.
+  May be we will have to create a new ds for stacks.
+**/
+
 /*
 int AlphaPrecision = 16;
 int ParamPrecision = 7;
@@ -307,10 +312,10 @@ class NotebookCellRenderer : public Gtk::CellRenderer {
       font_from.set_weight (Pango::WEIGHT_SEMIBOLD);
       cr->move_to (10, cell_area.get_y () + 3);
     } else {
-      if (property_notebook_.get_value ().getParentGuid ().empty ()) {
-        cr->move_to (10, cell_area.get_y () + 3);  
+      if (property_notebook_.get_value ().getStack ().empty ()) {
+        cr->move_to (10, cell_area.get_y () + 3); 
       } else {
-        cr->move_to (25, cell_area.get_y () + 3);
+        cr->move_to (25, cell_area.get_y () + 3); 
       }
       font_from.set_weight (Pango::WEIGHT_NORMAL);
     }
@@ -396,7 +401,7 @@ LeftPaneView::LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
   m_refTreeModel = NotebookTreeStore::create(this);
   m_TreeView_Notebooks.set_model(m_refTreeModel);
   m_TreeView_Notebooks.set_headers_visible (false);
-  m_TreeView_Notebooks.set_show_expanders (true);
+  m_TreeView_Notebooks.set_show_expanders (false);
   //All the items to be reordered with drag-and-drop:
   m_TreeView_Notebooks.set_reorderable(false);
 
@@ -488,9 +493,12 @@ void LeftPaneView::on_treeview_row_changed () {
       /* Callback to fill up the notelistpane. */
       Gtk::TreeModel::Row row = *iter;
   //  app->npv->setWebViewContent (n.getSummary ());
+
       selectedNotebook = row[m_refTreeModel->m_Columns.m_notebook_data];
+
+      /*
       if (selectedNotebook.getParentGuid () != "") {
-       /* Expand tree */
+        Expand tree 
         if (m_TreeView_Notebooks.row_expanded (path)) {
           m_TreeView_Notebooks.collapse_row (path);
         } else {
@@ -498,8 +506,23 @@ void LeftPaneView::on_treeview_row_changed () {
           ts->select (Gtk::TreeModel::Path (selectedPath));
         } 
       }
-      app->nlpv->fetchNotesForNotebook (selectedNotebook.getGuid ());
-      std::cout << "LeftPaneView::on_treeview_row_changed Name: " << row[m_refTreeModel->m_Columns.m_col_id] << ", PKey: " << row[m_refTreeModel->m_Columns.m_col_name] << std::endl;
+      */
+      if (row [m_refTreeModel->m_Columns.m_col_is_stack]) {
+        selectedNotebookGuids.clear ();
+        Gtk::TreeModel::Children children = row.children ();
+        selectedNotebookGuids.clear ();
+        for (unsigned int i = 0; i < children.size (); i++) {
+          Gtk::TreeModel::Row cr = children[i];
+          NotebookData notebookDataItem = cr[m_refTreeModel->m_Columns.m_notebook_data];
+          selectedNotebookGuids.push_back (notebookDataItem.getGuid ());  
+        }
+        return;
+      } else {
+        selectedNotebookGuids.clear ();
+        selectedNotebookGuids.push_back (selectedNotebook.getGuid ());
+        app->nlpv->fetchNotesForNotebook (selectedNotebook.getGuid ());
+        std::cout << "LeftPaneView::on_treeview_row_changed Name: " << row[m_refTreeModel->m_Columns.m_col_id] << ", PKey: " << row[m_refTreeModel->m_Columns.m_col_name] << std::endl;
+      }
     }
   }
 }
@@ -518,38 +541,76 @@ int LeftPaneView::fillNotebooksCallback (void* lpv, int argc, char **argv, char 
   LeftPaneView* p = (LeftPaneView*) lpv;
 
   std::string notebookName = "";
+  std::string stack = "";
   int notebookId = atoi (argv[0]);
   notebookName += argv[1];
-  /* id integer primary key, title text unique, guid text, parent_guid text, created_time datetime, modified_time datetime */
+  stack += (argv[3] == NULL ? "" : argv[3]);
+  /* id integer primary key, title text unique, guid text, stack text, created_time datetime, modified_time datetime */
   NotebookData* nbd = new NotebookData (atoi (argv[0]), argv[1], argv[2], (argv[3] == NULL ? "" : argv[3]), atoi (argv[4]), atoi (argv[5]));
 
-  Gtk::TreeModel::Children children = p->notebooksRow.children ();
-
-  if (!nbd->getParentGuid ().empty ()) {
-    for (unsigned int i = 0; i < children.size (); i++) {
-      std::cout << children[i] << std::endl;
-      Gtk::TreeModel::Row cr = children[i];
-      std::cout << cr[p->m_refTreeModel->m_Columns.m_col_name] << std::endl;
-      NotebookData notebookDataItem = cr[p->m_refTreeModel->m_Columns.m_notebook_data];
-      if (notebookDataItem.getGuid () == nbd->getParentGuid ()) {
-          Gtk::TreeModel::Row ccr = *(p->m_refTreeModel->append(cr.children ()));
-          ccr[p->m_refTreeModel->m_Columns.m_col_id] = notebookId;
-          ccr[p->m_refTreeModel->m_Columns.m_col_name] = notebookName;
-          ccr[p->m_refTreeModel->m_Columns.m_notebook_data] = *nbd;
-          ccr[p->m_refTreeModel->m_Columns.m_col_draggable] = true;
-          ccr[p->m_refTreeModel->m_Columns.m_col_receivesdrags] = false;
-          return 0;
+  if (!stack.empty ()) {
+    bool stackExists = false;
+    for (unsigned int i = 0; i < p->stacks.size (); i++) {
+      if (stack == p->stacks[i]) {
+        stackExists = true;
+        break;
       }
     }
-  }
-  Gtk::TreeModel::Row childrow = *(p->m_refTreeModel->append(p->notebooksRow.children()));
-  childrow[p->m_refTreeModel->m_Columns.m_col_id] = notebookId;
-  childrow[p->m_refTreeModel->m_Columns.m_col_name] = notebookName;
-  childrow[p->m_refTreeModel->m_Columns.m_notebook_data] = *nbd;
-  childrow[p->m_refTreeModel->m_Columns.m_col_draggable] = true;
-  childrow[p->m_refTreeModel->m_Columns.m_col_receivesdrags] = true;
-  std::cout << "NotebooksRow Size: " << p->notebooksRow.children ().size () << std::endl;
+    if (stackExists) {
+      Gtk::TreeModel::Children children = p->notebooksRow.children ();
+      /* Get Row and add a child row. */
+      for (unsigned int i = 0; i < children.size (); i++) {
+        std::cout << children[i] << std::endl;
+        Gtk::TreeModel::Row cr = children[i];
+        std::cout << cr[p->m_refTreeModel->m_Columns.m_col_name] << std::endl;
+        NotebookData notebookDataItem = cr[p->m_refTreeModel->m_Columns.m_notebook_data];
+        if (notebookDataItem.getTitle () == stack) {
+            Gtk::TreeModel::Row ccr = *(p->m_refTreeModel->append(cr.children ()));
+            ccr[p->m_refTreeModel->m_Columns.m_col_id] = notebookId;
+            ccr[p->m_refTreeModel->m_Columns.m_col_name] = notebookName;
+            ccr[p->m_refTreeModel->m_Columns.m_notebook_data] = *nbd;
+            ccr[p->m_refTreeModel->m_Columns.m_col_draggable] = true;
+            ccr[p->m_refTreeModel->m_Columns.m_col_receivesdrags] = false;
+            ccr[p->m_refTreeModel->m_Columns.m_col_is_stack] = false;
+            return 0;
+        }
+      }
+    } else {
+      /* Create a new Row with the name of the stack, and add this notebook as a child. */
+      NotebookData* nbdStack = new NotebookData (0, stack, stack, "", 0, 0);
+      Gtk::TreeModel::Row childrow = *(p->m_refTreeModel->append(p->notebooksRow.children()));
+      childrow[p->m_refTreeModel->m_Columns.m_col_id] = -2 + (p->stacks.size ());
+      childrow[p->m_refTreeModel->m_Columns.m_col_name] = stack;
+      childrow[p->m_refTreeModel->m_Columns.m_notebook_data] = *nbdStack;
+      childrow[p->m_refTreeModel->m_Columns.m_col_draggable] = false;
+      childrow[p->m_refTreeModel->m_Columns.m_col_receivesdrags] = true;
+      childrow[p->m_refTreeModel->m_Columns.m_col_is_stack] = true;
+      
+      Gtk::TreeModel::Row ccr = *(p->m_refTreeModel->append(childrow.children ()));
+      ccr[p->m_refTreeModel->m_Columns.m_col_id] = notebookId;
+      ccr[p->m_refTreeModel->m_Columns.m_col_name] = notebookName;
+      ccr[p->m_refTreeModel->m_Columns.m_notebook_data] = *nbd;
+      ccr[p->m_refTreeModel->m_Columns.m_col_draggable] = true;
+      ccr[p->m_refTreeModel->m_Columns.m_col_receivesdrags] = true;
+      ccr[p->m_refTreeModel->m_Columns.m_col_is_stack] = false;
 
+      p->stacks.push_back (stack);
+
+      std::cout << "NotebooksRow Size: " << p->notebooksRow.children ().size () << std::endl;
+    }
+  } else {
+
+    Gtk::TreeModel::Children children = p->notebooksRow.children ();
+  
+    Gtk::TreeModel::Row childrow = *(p->m_refTreeModel->append(p->notebooksRow.children()));
+    childrow[p->m_refTreeModel->m_Columns.m_col_id] = notebookId;
+    childrow[p->m_refTreeModel->m_Columns.m_col_name] = notebookName;
+    childrow[p->m_refTreeModel->m_Columns.m_notebook_data] = *nbd;
+    childrow[p->m_refTreeModel->m_Columns.m_col_draggable] = true;
+    childrow[p->m_refTreeModel->m_Columns.m_col_receivesdrags] = true;
+    childrow[p->m_refTreeModel->m_Columns.m_col_is_stack] = false;
+    std::cout << "NotebooksRow Size: " << p->notebooksRow.children ().size () << std::endl;
+  }
   return 0;
 }
 
@@ -557,8 +618,10 @@ void LeftPaneView::nnDragFinished(  const Glib::RefPtr< Gdk::DragContext >&   co
   std::cout << "Drag Finished." << &context << std::endl;
   std::cout << notebookBeingDragged->getGuid () << ":" << notebookDestination->getGuid() << ":" << std::endl;
 
-  /* Update ParentNotebook GUIDs */
-  updateParentGuid (notebookBeingDragged->getGuid (), notebookDestination->getGuid ());
+  /* show popup to get stack name */
+
+  /* Update stacks */
+  updateParentGuid (notebookBeingDragged->getGuid (), notebookDestination->getGuid (), "New");
 
   if (dragEnded)
     return;
@@ -672,7 +735,21 @@ void LeftPaneView::on_treeview_button_release_event (GdkEventButton* event) {
          
         std::cout << "LeftPaneView::on_treeview_button_release_event Name: " << row[m_refTreeModel->m_Columns.m_col_id] << ", PKey: " << selectedNotebook.getTitle () << std::endl;
         m_Menu_Popup.popup(event->button, event->time);
-        app->nlpv->fetchNotesForNotebook (selectedNotebook.getGuid ());
+
+        if (row [m_refTreeModel->m_Columns.m_col_is_stack]) {
+          Gtk::TreeModel::Children children = row.children ();
+          selectedNotebookGuids.clear ();
+          for (unsigned int i = 0; i < children.size (); i++) {
+            Gtk::TreeModel::Row cr = children[i];
+            NotebookData notebookDataItem = cr[m_refTreeModel->m_Columns.m_notebook_data];
+            selectedNotebookGuids.push_back (notebookDataItem.getGuid ());  
+          }
+          return;
+        } else {
+          selectedNotebookGuids.clear ();
+          selectedNotebookGuids.push_back (selectedNotebook.getGuid ());
+          app->nlpv->fetchNotesForNotebook (selectedNotebook.getGuid ());  
+        }        
       }
     }
 
@@ -681,23 +758,39 @@ void LeftPaneView::on_treeview_button_release_event (GdkEventButton* event) {
       Gtk::TreeModel::iterator iter = ts->get_selected ();
       Glib::RefPtr<Gtk::TreeModel> tm = ts->get_model ();
       Gtk::TreeModel::Path path;
-     m_TreeView_Notebooks.get_path_at_pos ((gint) event->x, (gint) event->y, path);
+      m_TreeView_Notebooks.get_path_at_pos ((gint) event->x, (gint) event->y, path);
 
       std::cout << "Event Button: " << event->button << std::endl;
       std::cout << "Path: " << path << std::endl;
       if (path.size () == 1) {
         return;
       }
-      /* We expand the tree if required. */
 
-      /* Expand tree */
+      /* We get the children of this stack */
+      Gtk::TreeModel::Row row = *(tm->get_iter (path));
+      Gtk::TreeModel::Children children = row.children ();
+      std::string query = "select * from notes where notebook_guid = '";
+      std::vector <std::string> childGuids;
+      /* Get Row and add a child row. */
+      for (unsigned int i = 0; i < children.size (); i++) {
+        Gtk::TreeModel::Row cr = children[i];
+        NotebookData notebookDataItem = cr[m_refTreeModel->m_Columns.m_notebook_data];
+        childGuids.push_back (notebookDataItem.getGuid ());
+      }
+
+      if (children.size () != 0) {
+        app->nlpv->fetchNotesForNotebooks (childGuids);
+      }
+
+
+      /* We expand the tree if required. 
       if (m_TreeView_Notebooks.row_expanded (path)) {
         m_TreeView_Notebooks.collapse_row (path);
       } else {
         m_TreeView_Notebooks.expand_to_path (path);
         ts->select (Gtk::TreeModel::Path (selectedPath));
       }
-
+      */
     }
 
 }
@@ -737,7 +830,7 @@ void LeftPaneView::on_menu_file_popup_edit_notebook_name() {
 
 void LeftPaneView::on_menu_file_popup_delete_notebook () {
 
-  popup = new Gtk::MessageDialog (*app, "Delete Notebook ? (This will delete all notes from that notebook !", true, Gtk::MESSAGE_OTHER, Gtk::BUTTONS_OK_CANCEL, true);
+  popup = new Gtk::MessageDialog (*app, "Delete Notebook ? (This will delete all notes from that notebook !)", true, Gtk::MESSAGE_OTHER, Gtk::BUTTONS_OK_CANCEL, true);
   Gtk::Box* contentBox = popup->get_content_area ();
   contentBox->show_all ();
   popup->set_resizable (false);
@@ -769,6 +862,7 @@ void LeftPaneView::notebookEdit () {
   	return;
 
   dbm->exec ("update notebooks set title = '" + notebook_name + "' where guid = '" + notebook_id + "'", NULL, this);
+  dbm->exec ("update notebooks set parent_guid = '"+ notebook_name + "' where parent_guid = '" + notebook_id + "'", NULL, this);
   refreshLeftPaneView ();
 }
 
@@ -777,8 +871,12 @@ void LeftPaneView::notebookDelete () {
   std::string notebook_id = selectedNotebook.getGuid ();
   if (notebook_id == "_")
   	return;
+
+
+  /* Ugly but works for now */
   dbm->exec ("delete from notes where notebook_guid = '" + notebook_id + "'", NULL, this);
   dbm->exec ("delete from notebooks where guid = '" + notebook_id + "'", NULL, this);
+  dbm->exec ("update notebooks set parent_guid = '' where parent_guid = '" + notebook_id + "'", NULL, this);
 
   refreshLeftPaneView ();
 }
@@ -796,7 +894,7 @@ void LeftPaneView::refreshLeftPaneView () {
   notebooksRow = *(m_refTreeModel->append());
   notebooksRow[m_refTreeModel->m_Columns.m_col_id] = 0;
   notebooksRow[m_refTreeModel->m_Columns.m_col_name] = "Notebooks";
-  /* id integer primary key, title text unique, guid text, parent_guid text, created_time datetime, modified_time datetime */
+  /* id integer primary key, title text unique, guid text, stack text, created_time datetime, modified_time datetime */
   NotebookData* nbd = new NotebookData (-1, "Notebooks", "", "", 0, 0);
   notebooksRow[m_refTreeModel->m_Columns.m_notebook_data] = *nbd;
   notebooksRow[m_refTreeModel->m_Columns.m_col_draggable] = false;
@@ -811,17 +909,16 @@ void LeftPaneView::refreshLeftPaneView () {
   childrow[m_refTreeModel->m_Columns.m_col_draggable] = false;
   childrow[m_refTreeModel->m_Columns.m_col_receivesdrags] = false;
   
-  dbm->exec ("select * from notebooks where id > 0 and parent_guid == '' order by title  ", &fillNotebooksCallback,this);
-  dbm->exec ("select * from notebooks where id > 0 and parent_guid <> '' order by title  ", &fillNotebooksCallback,this);
-  dbm->exec ("select * from notebooks where id > 0 and parent_guid == '' order by title  ", &fillNotebooksCallback,this);
-  dbm->exec ("select * from notebooks where id > 0 and parent_guid <> '' order by title  ", &fillNotebooksCallback,this);
-  m_TreeView_Notebooks.expand_all ();
+  stacks.clear ();
+
+  dbm->exec ("select * from notebooks where id > 0 order by title  ", &fillNotebooksCallback,this);
+   m_TreeView_Notebooks.expand_all ();
   m_TreeView_Notebooks.get_selection ()->select (Gtk::TreeModel::Path ("0:0"));
   selectedPath = "0:0";
   notebookListSelected = true;
 }
 
-void LeftPaneView::updateParentGuid (std::string child, std::string parent) {
-   dbm->exec ("update notebooks set parent_guid = '" + parent + "' where guid = '" + child + "'", NULL, this);
+void LeftPaneView::updateParentGuid (std::string child, std::string child2, std::string stack) {
+   dbm->exec ("update notebooks set parent_guid = '" + stack + "' where guid = '" + child + "' or guid = '" + child2 + "'", NULL, this);
    refreshLeftPaneView ();
 }

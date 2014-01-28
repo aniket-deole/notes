@@ -307,6 +307,49 @@ void NoteListPaneView::fetchNotesForNotebook (std::string n_guid) {
   }
 }
 
+
+void NoteListPaneView::fetchNotesForNotebooks (std::vector<std::string> guids) {
+  m_refTreeModel->clear ();
+ 
+  std::string query;
+  query = "select * from notes where notebook_guid = ";
+  for (unsigned int i = 0; i < guids.size (); i++) {
+    query += "'";
+    query += guids[i];
+    query += "'";
+    if (i != (guids.size () -1)) {
+      query += " or notebook_guid = ";
+    }
+  }
+  query += " order by modified_time desc, id";
+
+  std::cout << query << std::endl;
+  if (dbm)
+    dbm->exec (query, & fillNotesCallback, this);
+  
+  m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0"));
+  Glib::RefPtr<Gtk::TreeSelection> ts = m_TreeView.get_selection ();
+  Gtk::TreeModel::iterator iter = ts->get_selected ();
+  if (iter) {
+    Gtk::TreeModel::Row row = *iter;
+
+    NoteData n = row[m_Columns.m_note_data];
+    app->npv->setNote (n);
+    app->npv->enableButtons ();
+    m_TreeView.set_cursor (Gtk::TreeModel::Path ("0"));
+    m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0"));
+  } else {
+    if (app && !guids.empty ())
+      if (app->npv) {
+        app->npv->setWebViewContent ("Click the new note button to create a note.");
+        app->npv->setNoteTitleEntryText ("Untitled");
+        app->npv->disableButtons ();
+
+      }
+  }
+}
+
+
 static Gtk::TreeViewColumn* create_column2 (Gtk::TreeModelColumn<int> tmc, Gtk::TreeModelColumn<NotebookData> n) {
   NotebookCellRenderer2* ncr = new NotebookCellRenderer2 ();
   Gtk::TreeViewColumn* c = Gtk::manage (new Gtk::TreeViewColumn ("Notebooks", *ncr));
@@ -459,7 +502,7 @@ void NoteListPaneView::on_menu_file_popup_delete_note () {
 void NoteListPaneView::noteDelete () {
   std::string note_id = selectedNote.getGuid ();
   dbm->exec ("delete from notes where guid = '" + note_id + "'", NULL, this);
-  fetchNotesForNotebook (app->lpv->getSelectedNotebookGuid ());
+  fetchNotesForNotebooks (app->lpv->selectedNotebookGuids);
 }
 
 void NoteListPaneView::noteSearch (std::string str) {

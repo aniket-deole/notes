@@ -22,27 +22,32 @@ private:
    
   std::string title;
   std::string guid;
-  std::string parent_guid;
+  std::string stack;
   long int created;
   long int updated;
+
+  bool isStack;
+
 public:
 
   NotebookData () {}
   /* id integer primary key, title text unique, guid text, parent_guid text, created_time datetime, modified_time datetime */
-  NotebookData (int p_key, std::string t, std::string g, std::string p_g, long int c_time, long int u_time) {
+  NotebookData (int p_key, std::string t, std::string g, std::string s, long int c_time, long int u_time, bool i_s = false) {
     primary_key = p_key;
     title = t;
+    stack = s;
     guid = g;
-    parent_guid = p_g;
     created = c_time;
     updated = u_time;
+    isStack = i_s;
   }
 
   int getPrimaryKey () { return primary_key; }
   std::string getTitle () { return title; }
   std::string getGuid () { return guid; }
-  std::string getParentGuid () { return parent_guid; }
+  std::string getStack () { return stack; }
   void setGuid (std::string g) { guid = g; }
+  bool getIsStack () { return isStack; }
 };
 
 

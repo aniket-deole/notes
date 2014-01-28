@@ -281,7 +281,7 @@ void NotePaneView::saveNote () {
 	std::cout << "saved: " << "update notes set title = '" + title + "', body = '" + body + "' where guid = '" << nd.getGuid () << "'" << std::endl;
   	dbm->exec ("update notes set title = '" + title + "', body = '" + body + "', modified_time = strftime('%s','now') where guid = '" + (nd.getGuid ()) + "'", NULL, this);
 
-  	app->nlpv->fetchNotesForNotebook (app->lpv->getSelectedNotebookGuid ());
+  	app->nlpv->fetchNotesForNotebooks (app->lpv->selectedNotebookGuids);
 }
 
 void NotePaneView::boldButtonCallback() {

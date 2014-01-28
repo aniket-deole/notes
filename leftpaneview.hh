@@ -16,6 +16,8 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef _LEFTPANEVIEW_HH_
 #define _LEFTPANEVIEW_HH_
 
+#include <vector>
+
 #include <gtkmm.h>
 #include "databasemanager.hh"
 #include "notebookdata.hh"
@@ -38,13 +40,15 @@ public:
   public:
 
     ModelColumns()
-    { add(m_col_id); add(m_col_name); add (m_notebook_data);  add(m_col_draggable); add(m_col_receivesdrags); }
+    { add(m_col_id); add(m_col_name); add (m_notebook_data);  add(m_col_draggable); add(m_col_receivesdrags);
+      add (m_col_is_stack); }
 
     Gtk::TreeModelColumn<int> m_col_id;
     Gtk::TreeModelColumn<Glib::ustring> m_col_name;
     Gtk::TreeModelColumn<NotebookData> m_notebook_data;
     Gtk::TreeModelColumn<bool> m_col_draggable;
     Gtk::TreeModelColumn<bool> m_col_receivesdrags;
+    Gtk::TreeModelColumn<bool> m_col_is_stack;
   };
 
   ModelColumns m_Columns;
@@ -78,11 +82,11 @@ private:
   int popupH, popupW;
   bool dragEnded;
 
+  std::vector<std::string> stacks;
 
 public:
     LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding = 0);
     ~LeftPaneView ();
-
 
   NotebookData* notebookBeingDragged;
   NotebookData* notebookDestination;
@@ -107,6 +111,7 @@ public:
   Gtk::Menu m_Menu_Popup;
   void notebookEdit () ;
   NotebookData selectedNotebook;
+  std::vector<std::string> selectedNotebookGuids;
   void notebookDelete ();
   void notebookDeleteCancel ();
   void selectNotebookInPane (int pathIndex);
@@ -115,7 +120,7 @@ public:
   void nnDragFinished(const Glib::RefPtr< Gdk::DragContext >&   context);
   void nnDragStarted(const Glib::RefPtr< Gdk::DragContext >&   context);
 
-  void updateParentGuid (std::string, std::string);
+  void updateParentGuid (std::string, std::string, std::string stack);
 };
 
 #endif
