@@ -232,7 +232,7 @@ NotebookTreeStore::row_drop_possible_vfunc(const Gtk::TreeModel::Path& dest,
   {
     //The user wants to move something to the top-level.
     //Let's always allow that.
-    return false;
+    return true;
   }
   else
   {
@@ -577,7 +577,7 @@ int LeftPaneView::fillNotebooksCallback (void* lpv, int argc, char **argv, char 
       }
     } else {
       /* Create a new Row with the name of the stack, and add this notebook as a child. */
-      NotebookData* nbdStack = new NotebookData (0, stack, stack, "", 0, 0);
+      NotebookData* nbdStack = new NotebookData (0, stack, stack, "", 0, 0, true);
       Gtk::TreeModel::Row childrow = *(p->m_refTreeModel->append(p->notebooksRow.children()));
       childrow[p->m_refTreeModel->m_Columns.m_col_id] = -2 + (p->stacks.size ());
       childrow[p->m_refTreeModel->m_Columns.m_col_name] = stack;
@@ -615,16 +615,58 @@ int LeftPaneView::fillNotebooksCallback (void* lpv, int argc, char **argv, char 
 }
 
 void LeftPaneView::nnDragFinished(  const Glib::RefPtr< Gdk::DragContext >&   context) {
+  if (dragEnded)
+    return;
+
   std::cout << "Drag Finished." << &context << std::endl;
   std::cout << notebookBeingDragged->getGuid () << ":" << notebookDestination->getGuid() << ":" << std::endl;
 
-  /* show popup to get stack name */
-
-  /* Update stacks */
-  updateParentGuid (notebookBeingDragged->getGuid (), notebookDestination->getGuid (), "New");
-
-  if (dragEnded)
+  if (!notebookDestination->getStack ().empty ()) {
+    updateParentGuid (notebookBeingDragged->getGuid (), notebookDestination->getGuid (), notebookDestination->getStack ());
+    dragEnded = true;
     return;
+  }
+
+  if (notebookDestination->getIsStack ()) {
+    updateParentGuid (notebookBeingDragged->getGuid (), notebookDestination->getGuid (), notebookDestination->getTitle ());
+    dragEnded = true;
+    return;
+  }
+
+  if (notebookDestination->getGuid().empty ()) {
+    std::cout << "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX: Removed Stack from notebook." << std::endl;
+    updateParentGuid (notebookBeingDragged->getGuid (), notebookDestination->getGuid (), "");
+    dragEnded = true;
+    return;  
+  }
+
+  /* show popup to get stack name */
+  popup = new Gtk::MessageDialog (*app, "Enter notebook stack name: ", true, Gtk::MESSAGE_OTHER, Gtk::BUTTONS_OK_CANCEL, false);
+  Gtk::Box* contentBox = popup->get_content_area ();
+
+  notebookName = new Gtk::Entry ();
+  contentBox->pack_end (*notebookName);
+
+  contentBox->show_all ();
+  popup->set_resizable (false);
+  popup->set_modal (true);
+
+  int reply = popup->run ();
+  popupW = -1; popupH = -1;
+  if (reply == Gtk::RESPONSE_OK) {
+    std::cout << "Resonse ok." << std::endl;
+    popup->hide ();
+    /* Update stacks */
+    if (!notebookName->get_text().empty ()) {
+      updateParentGuid (notebookBeingDragged->getGuid (), notebookDestination->getGuid (), notebookName->get_text ());
+    }
+  } else if (reply == Gtk::RESPONSE_CANCEL) {
+    std::cout << "Resonse cancel." << std::endl;
+    popup->hide ();
+  } else {
+    std::cout << "Resonse else." << std::endl;
+    popup->hide ();
+  }
   dragEnded = true;
 }
 
@@ -762,7 +804,7 @@ void LeftPaneView::on_treeview_button_release_event (GdkEventButton* event) {
 
       std::cout << "Event Button: " << event->button << std::endl;
       std::cout << "Path: " << path << std::endl;
-      if (path.size () == 1) {
+      if (path.size () < 2) {
         return;
       }
 
