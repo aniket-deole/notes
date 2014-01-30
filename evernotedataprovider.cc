@@ -54,23 +54,8 @@ evernote::EvernoteDataProvider::EvernoteDataProvider (Notify* n) {
     app = n;
     
     hasOAuthToken = false;
-    authToken = "S=s1:U=7558a:E=14aae5ecd73:C=14356ada175:P=1cd:A=en-devtoken:V=2:H=905a30846fdad07b83592ff73da7a7c0";
-
-    std::string site = "sandbox.evernote.com";
-    boost::shared_ptr<apache::thrift::transport::THttpClient> auth_http( new apache::thrift::transport::THttpClient("sandbox.evernote.com", 80, "/edam/user") );
-    auth_http->open();
-    boost::shared_ptr<apache::thrift::protocol::TBinaryProtocol> userStoreProt( new apache::thrift::protocol::TBinaryProtocol(auth_http) );
-    evernote::edam::UserStoreClient userStore(userStoreProt, userStoreProt );
-
-    std::string  noteStoreUrl = "";
-    userStore.getNoteStoreUrl (noteStoreUrl, authToken);
-    auth_http->close();   
-    std::cout << noteStoreUrl << std::endl;
-
-    noteStoreUrl = "/shard/s1/notestore";
-
-
-    lastUpdateCount = 0;
+//    authToken = "S=s1:U=7558a:E=14aae5ecd73:C=14356ada175:P=1cd:A=en-devtoken:V=2:H=905a30846fdad07b83592ff73da7a7c0";
+    authToken = "";
 }
 
 evernote::EvernoteDataProvider::~EvernoteDataProvider () {
@@ -78,6 +63,8 @@ evernote::EvernoteDataProvider::~EvernoteDataProvider () {
 
 int evernote::EvernoteDataProvider::open () {
     /* Connect using auth */
+
+
     return 0;
 }
 
@@ -133,7 +120,27 @@ int evernote::EvernoteDataProvider::sync () {
         updateResource
     13. END
 */ 
-    std::string noteStoreUrl = "/shard/s1/notestore";
+
+    app->dbm->exec ("insert into system_parameters values ('evernote_auth_token', 'S=s1:U=7558a:E=14aae5ecd73:C=14356ada175:P=1cd:A=en-devtoken:V=2:H=905a30846fdad07b83592ff73da7a7c0')",
+            NULL, this);
+//    app->dbm->exec ("insert into system_parameters values ('evernote_last_update_count', '0');", NULL, this);
+
+    /* Get auth_token from the db */
+    app->dbm->exec ("select value from system_parameters where parameter = 'evernote_auth_token'", &fetchAuthTokenFromDbCallback, this);
+
+    std::string site = "sandbox.evernote.com";
+    boost::shared_ptr<apache::thrift::transport::THttpClient> auth_http( new apache::thrift::transport::THttpClient("sandbox.evernote.com", 80, "/edam/user") );
+    auth_http->open();
+    boost::shared_ptr<apache::thrift::protocol::TBinaryProtocol> userStoreProt( new apache::thrift::protocol::TBinaryProtocol(auth_http) );
+    evernote::edam::UserStoreClient userStore(userStoreProt, userStoreProt );
+
+
+    std::string  noteStoreUrl = "";
+    userStore.getNoteStoreUrl (noteStoreUrl, authToken);
+    auth_http->close();   
+    std::cout << noteStoreUrl << std::endl;
+
+    noteStoreUrl = "/shard/s1/notestore";
 
     boost::shared_ptr<apache::thrift::transport::TSSLSocketFactory> sslSocketFactory = boost::shared_ptr<apache::thrift::transport::TSSLSocketFactory>(new apache::thrift::transport::TSSLSocketFactory());;
 
@@ -149,6 +156,29 @@ int evernote::EvernoteDataProvider::sync () {
     std::vector<evernote::edam::Notebook> notebooks;
     std::vector<evernote::edam::Note> notes;
 
+    evernote::edam::SyncState syncState;
+    noteStore.getSyncState (syncState, authToken);
+
+    int updateCount = syncState.updateCount;
+
+    lastUpdateCount = -1;
+ 
+
+    app->dbm->exec ("select value from system_parameters where parameter = 'evernote_last_update_count'", &fetchLastUpdateCountFromDb, this);
+ 
+    if (lastUpdateCount == -1) {
+        app->dbm->exec ("insert into system_parameters values ('evernote_last_update_count', '0');", NULL, this);
+        lastUpdateCount = 0;
+    }
+
+    if (lastUpdateCount == updateCount) {
+        userStoreHttpClient->flush ();
+        userStoreHttpClient->close();
+        userStoreHttpClient->close();
+
+        return 0;
+    }
+
     noteStore.listNotebooks(notebooks, authToken);
 
     evernote::edam::NoteList notesMetadataList;
@@ -159,28 +189,60 @@ int evernote::EvernoteDataProvider::sync () {
       evernote::Notebook n(notebooks[i].name, notebooks[i].guid, notebooks[i].defaultNotebook, notebooks[i].serviceCreated, notebooks[i].serviceUpdated);
       gNotebooks.push_back (n);
     }
-    std::cout << "==========================" << std::endl;
+//    std::cout << "==========================" << std::endl;
     evernote::edam::NoteFilter noteFilter;
 
     noteStore.findNotes (notesMetadataList, authToken, noteFilter, 0, 20);
 
     for (unsigned int i = 0; i < notesMetadataList.notes.size (); i++) {
         evernote::edam::Note note = notesMetadataList.notes[i];
-        std::cout << note.guid << std::endl;
-        std::cout << "==========================" << std::endl;
+//        std::cout << note.guid << std::endl;
+//        std::cout << "==========================" << std::endl;
         std::string content;
         noteStore.getNoteContent (content, authToken, note.guid);
         evernote::Note n(note.title, note.guid, content, note.notebookGuid, note.created, note.updated);
         gNotes.push_back (n);
-        std::cout << content << std::endl;
-        std::cout << "==========================" << std::endl;
+//        std::cout << content << std::endl;
+//        std::cout << "==========================" << std::endl;
     }
+
+    for (unsigned int i = 0; i < ::gNotes.size (); i++) {
+        std::string query = gNotes[i].createInsertStatement ();
+        //          std::cout << query << std::endl;
+        app->dbm->exec (query, NULL, this);
+    }
+    for (unsigned int i = 0; i < ::gNotebooks.size (); i++) {
+        std::string query = gNotebooks[i].createInsertStatement ();
+        app->dbm->exec (query, NULL, this);
+    //          std::cout << query << std::endl;
+    }
+
 
     userStoreHttpClient->flush ();
     userStoreHttpClient->close();
     userStoreHttpClient->close();
 
+    app->lpv->refreshLeftPaneView ();
+
     std::cout << notebooks.size () << notesMetadataList.notes.size () << std::endl;
 
+    app->dbm->exec ("update system_parameters set value = '" + NumberToString (updateCount) + "' where parameter = 'evernote_last_update_count';", NULL, this);
+
+    return 0;
+}
+
+int evernote::EvernoteDataProvider::fetchAuthTokenFromDbCallback (void* edp, int argc, char **argv, char **azColName)  {
+    evernote::EvernoteDataProvider* p = (evernote::EvernoteDataProvider*) edp;
+    p->authToken = "";
+    std::cout << argv[0] << std::endl;
+    p->authToken += argv[0];
+    return 0;
+}
+
+int evernote::EvernoteDataProvider::fetchLastUpdateCountFromDb (void* edp, int argc, char **argv, char **azColName)  {
+    evernote::EvernoteDataProvider* p = (evernote::EvernoteDataProvider*) edp;
+
+    std::cout << argv[0] << std::endl;
+    p->lastUpdateCount = atoi (argv[0]);
     return 0;
 }

@@ -6,7 +6,7 @@ TGT=notes
 OBJS= main.o notify.o windowbody.o maintoolbar.o leftpaneview.o notelistpaneview.o notepaneview.o databasemanager.o notedata.o evernotedataprovider.o
 
 all : ${OBJS}
-	${CPP} ${CFLAGS} -o ${TGT} ${OBJS} `pkg-config sigc++-2.0 gtk+-3.0 gtkmm-3.0 webkitgtk-3.0 sqlite3 uuid --libs` lib/evernote.a lib/libthrift.a -Ilib/ -Ilib/thrift/ -lssl -lcrypto -lpthread
+	${CPP} ${CFLAGS} -o ${TGT} ${OBJS} `pkg-config sigc++-2.0 gtk+-3.0 gtkmm-3.0 webkitgtk-3.0 sqlite3 uuid --libs` lib/evernote_lib.a lib/libthrift.a -Ilib/ -Ilib/thrift/ -lssl -lcrypto -lpthread
 
 %.o : %.cc
 	${CPP} ${CFLAGS} -c $<

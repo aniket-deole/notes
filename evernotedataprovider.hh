@@ -156,6 +156,10 @@ public:
 
 	int getNotebookCount () { return notebookCount; }
 	void setNotebookCount (int a) { notebookCount = a; }
+
+    static int fetchAuthTokenFromDbCallback (void* edp, int argc, char **argv, char **azColName);
+    static int fetchLastUpdateCountFromDb (void* edp, int argc, char** argv, char** azColName);
+
 };
 
 }

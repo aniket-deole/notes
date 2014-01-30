@@ -24,9 +24,14 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "notelistpaneview.hh"
 #include "notepaneview.hh"
 #include "databasemanager.hh"
+#include "evernotedataprovider.hh"
 
 class WindowBody;
 class DatabaseManager;
+
+namespace evernote {
+	class EvernoteDataProvider;
+}
 
 class Notify : public Gtk::Window {
 public:
@@ -38,6 +43,7 @@ public:
 	NotePaneView* npv;
 
 	DatabaseManager* dbm;
+	evernote::EvernoteDataProvider* edp;
 	
 protected:
 	void on_button_clicked();

@@ -31,6 +31,7 @@ private:
     bool maximized;
 
     Gtk::ToolButton* maximizeButton;
+    Gtk::ToolButton* syncButton;
 public:
     MainToolbar ();
     ~MainToolbar ();
@@ -41,6 +42,7 @@ public:
     void searchCallback ();
     void searchEntryClicked ();
     void maximizeClicked ();
+    void syncButtonClicked ();
 };
 
 #endif

@@ -73,6 +73,13 @@ MainToolbar::MainToolbar () {
   ti = Gtk::manage (new Gtk::SeparatorToolItem ());
   add (*ti);
 
+  syncButton = Gtk::manage(new Gtk::ToolButton());
+  syncButton->set_size_request (40, 40);
+  syncButton->set_label ("Sync");
+  syncButton->signal_clicked().connect (sigc::mem_fun(*this,
+              &MainToolbar::syncButtonClicked));
+  add (*syncButton);
+
   maximizeButton = Gtk::manage(new Gtk::ToolButton());
   maximizeButton->set_size_request (40, 40);
   maximizeButton->set_label ("Maximize");
@@ -128,4 +135,9 @@ void MainToolbar::maximizeClicked () {
     maximized = true;
     maximizeButton->set_label ("Restore");
   }
+}
+
+void MainToolbar::syncButtonClicked () {
+  app->edp->sync ();
+  std::cout << "Sync" << std::endl;
 }

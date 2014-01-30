@@ -27,7 +27,7 @@ extern std::vector<evernote::Note> gNotes;
 
 DatabaseManager::DatabaseManager (Notify* a) {
 	app = a;
-
+	a->dbm = this;
 	db = 0;
 
 	char* path = getenv ("HOME");
@@ -65,22 +65,21 @@ DatabaseManager::DatabaseManager (Notify* a) {
 	    sqlite3_exec (db, "COMMIT", NULL, NULL, NULL);
 
 	    /* SYNC */
+//	    evernote::EvernoteDataProvider edp (a);
+//	    edp.login ();
 
-	    evernote::EvernoteDataProvider edp (app);
-	    edp.login ();
-
-        edp.sync ();
+//        edp.sync ();
 
 	    /* Print out insert statements */ 
 	    for (unsigned int i = 0; i < ::gNotes.size (); i++) {
 	        std::string query = gNotes[i].createInsertStatement ();
-	        std::cout << query << std::endl;
+//	        std::cout << query << std::endl;
 	    	sqlite3_exec (db, query.c_str (), NULL, 0, NULL);
 	    }
 	    for (unsigned int i = 0; i < ::gNotebooks.size (); i++) {
 	        std::string query = gNotebooks[i].createInsertStatement ();
 	   	 	sqlite3_exec (db, query.c_str (), NULL, 0, NULL);
-	   	 	std::cout << query << std::endl;
+//	   	 	std::cout << query << std::endl;
 	    }
 
 	    std::cout << gNotes.size () << ":" << gNotebooks.size () << std::endl;
