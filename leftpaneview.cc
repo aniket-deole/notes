@@ -262,8 +262,13 @@ NotebookTreeStore::row_drop_possible_vfunc(const Gtk::TreeModel::Path& dest,
       {
         Row sourceRow = *iter;
         NotebookData nbd = row[m_Columns.m_notebook_data];
-        std::cout << nbd.getGuid () << std::endl;
+        NotebookData sNbd = sourceRow[m_Columns.m_notebook_data];
+        std::cout << nbd.getGuid () << ":" << sNbd.getGuid () << std::endl;
+        if (nbd.getGuid () == sNbd.getGuid ()) {
+          return false;
+        }
         lpv->notebookDestination = new NotebookData (row[m_Columns.m_notebook_data]);
+
       }
       return receives_drags;
     }
@@ -663,9 +668,11 @@ void LeftPaneView::nnDragFinished(  const Glib::RefPtr< Gdk::DragContext >&   co
   } else if (reply == Gtk::RESPONSE_CANCEL) {
     std::cout << "Resonse cancel." << std::endl;
     popup->hide ();
+    refreshLeftPaneView ();
   } else {
     std::cout << "Resonse else." << std::endl;
     popup->hide ();
+    refreshLeftPaneView ();
   }
   dragEnded = true;
 }
