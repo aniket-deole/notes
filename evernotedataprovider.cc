@@ -181,7 +181,7 @@ int evernote::EvernoteDataProvider::sync () {
 
     noteStore.listNotebooks(notebooks, authToken);
 
-    evernote::edam::NoteList notesMetadataList;
+    evernote::edam::NotesMetadataList notesMetadataList;
 
 
     for (unsigned int i = 0; i < notebooks.size (); i++) {
@@ -191,16 +191,34 @@ int evernote::EvernoteDataProvider::sync () {
     }
 //    std::cout << "==========================" << std::endl;
     evernote::edam::NoteFilter noteFilter;
+    evernote::edam::NotesMetadataResultSpec nmrs;
+    nmrs.includeTitle = true;
+    nmrs.__isset.includeTitle = true;
+    nmrs.includeCreated = true;
+    nmrs.__isset.includeCreated = true;
+    nmrs.includeUpdated = true;
+    nmrs.__isset.includeUpdated = true;
+    nmrs.includeNotebookGuid = true;
+    nmrs.__isset.includeNotebookGuid = true;
 
-    noteStore.findNotes (notesMetadataList, authToken, noteFilter, 0, 20);
+    noteStore.findNotesMetadata (notesMetadataList, authToken, noteFilter, 0, 20, nmrs);
 
     for (unsigned int i = 0; i < notesMetadataList.notes.size (); i++) {
-        evernote::edam::Note note = notesMetadataList.notes[i];
-//        std::cout << note.guid << std::endl;
+        evernote::edam::NoteMetadata noteMetadata = notesMetadataList.notes[i];
+//        std::cout << noteMetadata.guid << std::endl;
 //        std::cout << "==========================" << std::endl;
         std::string content;
-        noteStore.getNoteContent (content, authToken, note.guid);
-        evernote::Note n(note.title, note.guid, content, note.notebookGuid, note.created, note.updated);
+        noteStore.getNoteContent (content, authToken, noteMetadata.guid);
+        
+        evernote::edam::Note evernoteNote;
+        noteStore.getNote (evernoteNote, authToken, noteMetadata.guid, false, true, false, false);
+        std::vector<evernote::edam::Resource> resourcesList = evernoteNote.resources;
+        std::cout << "Resources #" << resourcesList.size () << std::endl;
+        for (unsigned int j = 0; j < resourcesList.size (); j++) {
+            std::cout << "ResourceMime:" << resourcesList[j].mime << std::endl;
+        }
+
+        evernote::Note n(noteMetadata.title, noteMetadata.guid, content, noteMetadata.notebookGuid, noteMetadata.created, noteMetadata.updated);
         gNotes.push_back (n);
 //        std::cout << content << std::endl;
 //        std::cout << "==========================" << std::endl;
