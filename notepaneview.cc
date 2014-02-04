@@ -21,11 +21,52 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding) {
 	set_orientation (Gtk::ORIENTATION_VERTICAL);
-	/* Toolbar */
+
 	Gtk::Box* toolbarBox = Gtk::manage (new Gtk::Box ());
 	
+	notebookButton = Gtk::manage (new Gtk::Button ());
+    Gtk::Image* img = Gtk::manage (new Gtk::Image ("img/notebook.png"));
+    notebookButton->set_image (*img);
+	toolbarBox->pack_start (*notebookButton, false, false , 0);
+	addCss (notebookButton, "notebookButton", " .notebookButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
+	notebookButton->set_size_request (30, 30);
+
+	notebookName = Gtk::manage (new Gtk::Entry ());
+	notebookName->set_text ("aniket's notebook");
+	notebookName->set_has_frame (false);
+	notebookName->set_editable (false);
+	notebookName->set_can_focus (false);
+	addCss (notebookName, "notebookName", ".notebookName {\n color:#000;\n font: OpenSans light 8; padding-top:10px;padding-bottom:10px; "
+								" background-image:none; background-color:white;\n}\n"
+								".noteTitle:selected {    background-color: #34393D; color:white ; }");
+	toolbarBox->pack_start (*notebookName, false, false , 0);
+	
+	Gtk::Label* label = Gtk::manage (new Gtk::Label ("Delete"));
+	addCss (label, "label", ".label {padding-right:10px; font: OpenSans light 8; color:#000;}");
+	toolbarBox->pack_end (*label, false, false , 0);
+	
+	label = Gtk::manage (new Gtk::Label ("Info"));
+	addCss (label, "label", ".label {padding-right:10px; font: OpenSans light 8; color:#000;}");
+	toolbarBox->pack_end (*label, false, false , 0);
+	
+	label = Gtk::manage (new Gtk::Label ("Share"));
+	addCss (label, "label", ".label {padding-right:10px; font: OpenSans light 8; color:#000;}");
+	toolbarBox->pack_end (*label, false, false , 0);
+
+	label = Gtk::manage (new Gtk::Label ("Reminder"));
+	addCss (label, "label", ".label {padding-right:10px; font: OpenSans light 8; color:#000;}");
+	toolbarBox->pack_end (*label, false, false , 0);
+
+	toolbarBox->set_size_request (30, -1);	
+	Gtk::EventBox* eventBoxTop = Gtk::manage (new Gtk::EventBox ());
+	eventBoxTop->add (*toolbarBox);
+
+
+	/* Toolbar */
+	toolbarBox = Gtk::manage (new Gtk::Box ());
+	
 	boldButton = Gtk::manage (new Gtk::Button ());
-    Gtk::Image* img = Gtk::manage (new Gtk::Image ("img/bold.png"));
+    img = Gtk::manage (new Gtk::Image ("img/bold.png"));
     boldButton->set_image (*img);
   	boldButton->signal_clicked().connect(
     		sigc::mem_fun(*this, &NotePaneView::boldButtonCallback) );
@@ -129,11 +170,15 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 	addCss (clistButton, "clistButton", " .clistButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
 	clistButton->set_size_request (30, 30);	
 
-	toolbarBox->set_size_request (30, -1);	
-	Gtk::EventBox* eventBox = Gtk::manage (new Gtk::EventBox ());
-	eventBox->add (*toolbarBox);
-	addCss (eventBox, "eventBox", ".eventBox { background-image:none; background-color:white;\n}\n");
-	pack_start (*eventBox, false, false, 0);
+	Gtk::EventBox* eventBoxBot = Gtk::manage (new Gtk::EventBox ());
+	eventBoxBot->add (*toolbarBox);
+	
+	addCss (eventBoxBot, "eventBoxBot", ".eventBoxBot { background-image:none; background-color:white;\n}\n");
+	addCss (eventBoxTop, "eventBoxTop", ".eventBoxTop { background-image:none; background-color:white;\n}\n");
+	pack_start (*eventBoxTop, false, false, 0);
+	Gtk::Separator* sepTopmost = Gtk::manage (new Gtk::Separator (Gtk::ORIENTATION_HORIZONTAL));
+	pack_start (*sepTopmost, false, false, 0);
+	pack_start (*eventBoxBot, false, false, 0);
 
 	Gtk::Separator* sepTop = Gtk::manage (new Gtk::Separator (Gtk::ORIENTATION_HORIZONTAL));
 	pack_start (*sepTop, false, false, 0);
@@ -210,6 +255,7 @@ void NotePaneView::setDatabaseManager (DatabaseManager* d) {
 void NotePaneView::setNote (NoteData n) {
 	setWebViewContent (n.getBody ());
 	setNoteTitleEntryText (n.getTitle ());
+	notebookName->set_text (n.getNotebookGuid ());
 	nd = n;
 }
 

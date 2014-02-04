@@ -51,6 +51,9 @@ private:
 	Gtk::Button* ulistButton;
 	Gtk::Button* clistButton;
 
+	Gtk::Button* notebookButton;
+	Gtk::Entry* notebookName;
+
 public:
 	NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding = 0);
 	~NotePaneView ();
