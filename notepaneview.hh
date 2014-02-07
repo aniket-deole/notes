@@ -61,6 +61,7 @@ public:
 	void setDatabaseManager (DatabaseManager* d);
 	void setWebViewContent (std::string);
 	void setNoteTitleEntryText (std::string);
+	void setNoteNotebookTitleEntryText (std::string);
 	void setNote (NoteData n);
 	void newNote ();
 	void disableButtons ();

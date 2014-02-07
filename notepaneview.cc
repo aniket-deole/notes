@@ -66,8 +66,8 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 	toolbarBox = Gtk::manage (new Gtk::Box ());
 	
 	boldButton = Gtk::manage (new Gtk::Button ());
-    img = Gtk::manage (new Gtk::Image ("img/bold.png"));
-    boldButton->set_image (*img);
+    img = Gtk::manage (new Gtk::Image ("format-text-bold"));
+	boldButton->set_image (*img);
   	boldButton->signal_clicked().connect(
     		sigc::mem_fun(*this, &NotePaneView::boldButtonCallback) );
 	toolbarBox->pack_start (*boldButton, false, false , 0);
@@ -255,7 +255,7 @@ void NotePaneView::setDatabaseManager (DatabaseManager* d) {
 void NotePaneView::setNote (NoteData n) {
 	setWebViewContent (n.getBody ());
 	setNoteTitleEntryText (n.getTitle ());
-	notebookName->set_text (n.getNotebookGuid ());
+	notebookName->set_text (n.getNotebookName ());
 	nd = n;
 }
 
@@ -263,6 +263,9 @@ void NotePaneView::setNoteTitleEntryText (std::string content) {
 	noteTitle->set_text (content);
 }
 
+void NotePaneView::setNoteNotebookTitleEntryText (std::string content) {
+	notebookName->set_text (content);
+}
 void NotePaneView::setWebViewContent (std::string content) {
 	webkit_web_view_load_string (webview, content.c_str (), "text/html", NULL, NULL);
 }

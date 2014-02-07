@@ -234,7 +234,7 @@ NoteListPaneView::~NoteListPaneView () {
 
 void NoteListPaneView::setDatabaseManager (DatabaseManager* d) {
   dbm = d;
-  dbm->exec ("select * from notes order by modified_time desc, id", &fillNotesCallback,this);
+  dbm->exec ("select a.id, a.title, a.body, a.created_time, a.modified_time, a.guid, a.notebook_guid, a.usn, a.dirty, b.title from notes a, notebooks b where a.notebook_guid = b.guid order by a.modified_time desc, a.id", &fillNotesCallback,this);
   m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0"));
 }
 
@@ -246,7 +246,8 @@ int NoteListPaneView::fillNotesCallback (void* nlpv, int argc, char **argv, char
   row[p->m_Columns.m_col_id] = 1;
   row[p->m_Columns.m_col_name] = "id";
   /*id integer primary key, title text, body text, created_time datetime, modified_time datetime, guid text, notebook_guid text*/
-  NoteData n1 (atoi(argv[0]), argv[1], argv[2], atoi(argv[3]), atoi (argv[4]), argv[5], argv[6]);
+  /* a.id, a.title, a.body, a.created_time, a.modified_time, a.guid, a.notebook_guid, a.usn, a.dirty, b.title */
+  NoteData n1 (atoi(argv[0]), argv[1], argv[2], atoi(argv[3]), atoi (argv[4]), argv[5], argv[6], argv[9]);
   row[p->m_Columns.m_note_data] = n1;
   
 //  std::cout << "NoteListPaneView::fillNotesCallback PKey: " << atoi(argv[0]) << std::endl;
@@ -278,9 +279,9 @@ void NoteListPaneView::fetchNotesForNotebook (std::string n_guid) {
  
   std::string query;
   if (n_guid.empty () || n_guid == "_")
-    query = "select * from notes order by modified_time desc, id";
+    query = "select a.id, a.title, a.body, a.created_time, a.modified_time, a.guid, a.notebook_guid, a.usn, a.dirty, b.title from notes a, notebooks b where a.notebook_guid = b.guid order by a.modified_time desc, a.id";
   else
-    query = "select * from notes where notebook_guid = '" + n_guid + "' order by modified_time desc, id";
+    query = "select a.id, a.title, a.body, a.created_time, a.modified_time, a.guid, a.notebook_guid, a.usn, a.dirty, b.title from notes a, notebooks b where a.notebook_guid = b.guid and a.notebook_guid = '" + n_guid + "' order by a.modified_time desc, a.id";
   std::cout << query << std::endl;
   if (dbm)
     dbm->exec (query, & fillNotesCallback, this);
@@ -301,6 +302,7 @@ void NoteListPaneView::fetchNotesForNotebook (std::string n_guid) {
       if (app->npv) {
         app->npv->setWebViewContent ("Click the new note button to create a note.");
         app->npv->setNoteTitleEntryText ("Untitled");
+        app->npv->setNoteNotebookTitleEntryText ("");
         app->npv->disableButtons ();
 
       }
@@ -312,16 +314,16 @@ void NoteListPaneView::fetchNotesForNotebooks (std::vector<std::string> guids) {
   m_refTreeModel->clear ();
  
   std::string query;
-  query = "select * from notes where notebook_guid = ";
+  query = "select a.id, a.title, a.body, a.created_time, a.modified_time, a.guid, a.notebook_guid, a.usn, a.dirty, b.title from notes a, notebooks b where a.notebook_guid = b.guid and a.notebook_guid = ";
   for (unsigned int i = 0; i < guids.size (); i++) {
     query += "'";
     query += guids[i];
     query += "'";
     if (i != (guids.size () -1)) {
-      query += " or notebook_guid = ";
+      query += " or a.notebook_guid = ";
     }
   }
-  query += " order by modified_time desc, id";
+  query += " order by a.modified_time desc, a.id";
 
   std::cout << query << std::endl;
   if (dbm)
@@ -343,6 +345,7 @@ void NoteListPaneView::fetchNotesForNotebooks (std::vector<std::string> guids) {
       if (app->npv) {
         app->npv->setWebViewContent ("Click the new note button to create a note.");
         app->npv->setNoteTitleEntryText ("Untitled");
+        app->npv->setNoteNotebookTitleEntryText ("");
         app->npv->disableButtons ();
 
       }
@@ -509,7 +512,8 @@ void NoteListPaneView::noteSearch (std::string str) {
     m_refTreeModel->clear ();
  
   std::string query;
-  query = "select * from notes where title like '%" + str + "%' or body like '%" + str + "%' order by modified_time desc, id";
+  query = "select a.id, a.title, a.body, a.created_time, a.modified_time, a.guid, a.notebook_guid, a.usn, a.dirty, b.title from notes a, notebooks b where a.notebook_guid = b.guid ";
+  query += "where a.title like '%" + str + "%' or a.body like '%" + str + "%' order by a.modified_time desc, a.id";
 
   std::cout << query << std::endl;
   if (dbm)
@@ -530,6 +534,7 @@ void NoteListPaneView::noteSearch (std::string str) {
       if (app->npv) {
         app->npv->setWebViewContent ("Click the new note button to create a note.");
         app->npv->setNoteTitleEntryText ("Untitled");
+        app->npv->setNoteNotebookTitleEntryText ("");
         app->npv->disableButtons ();
       }
   }
