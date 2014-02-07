@@ -314,13 +314,17 @@ void NoteListPaneView::fetchNotesForNotebooks (std::vector<std::string> guids) {
   m_refTreeModel->clear ();
  
   std::string query;
-  query = "select a.id, a.title, a.body, a.created_time, a.modified_time, a.guid, a.notebook_guid, a.usn, a.dirty, b.title from notes a, notebooks b where a.notebook_guid = b.guid and a.notebook_guid = ";
-  for (unsigned int i = 0; i < guids.size (); i++) {
-    query += "'";
-    query += guids[i];
-    query += "'";
-    if (i != (guids.size () -1)) {
-      query += " or a.notebook_guid = ";
+  if (guids.empty () || (guids.size () == 1 && guids[0] == "_")) {
+    query = "select a.id, a.title, a.body, a.created_time, a.modified_time, a.guid, a.notebook_guid, a.usn, a.dirty, b.title from notes a, notebooks b where a.notebook_guid = b.guid ";
+  } else {
+    query = "select a.id, a.title, a.body, a.created_time, a.modified_time, a.guid, a.notebook_guid, a.usn, a.dirty, b.title from notes a, notebooks b where a.notebook_guid = b.guid and a.notebook_guid = ";
+    for (unsigned int i = 0; i < guids.size (); i++) {
+      query += "'";
+      query += guids[i];
+      query += "'";
+      if (i != (guids.size () -1)) {
+        query += " or a.notebook_guid = ";
+      }
     }
   }
   query += " order by a.modified_time desc, a.id";
@@ -531,11 +535,11 @@ void NoteListPaneView::noteSearch (std::string str) {
     m_TreeView.set_cursor (Gtk::TreeModel::Path ("0"));
     m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0"));
   } else {
-      if (app->npv) {
-        app->npv->setWebViewContent ("Click the new note button to create a note.");
-        app->npv->setNoteTitleEntryText ("Untitled");
-        app->npv->setNoteNotebookTitleEntryText ("");
-        app->npv->disableButtons ();
-      }
-  }
+    if (app->npv) {
+      app->npv->setWebViewContent ("Click the new note button to create a note.");
+      app->npv->setNoteTitleEntryText ("Untitled");
+      app->npv->setNoteNotebookTitleEntryText ("");
+      app->npv->disableButtons ();
+    }
+}
 }
