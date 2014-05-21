@@ -22,3 +22,5 @@ Current TODO Stuff: <br>
 9. Check details with respect to adding full screen / no disturbance mode to text window.<br>
 10.Fix Maximize / Restore buttons, when window is dragged to the edge.<br>
 11.Add Application Name to the middle of HeaderBar hack.<br>
+====
+I'm currently working on a C++ library that encapsulates the Thrift library so that the implementation is easier and cleaner. Check it out here. https://github.com/aniket-deole/libevernote
