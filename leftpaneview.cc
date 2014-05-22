@@ -307,7 +307,7 @@ class NotebookCellRenderer : public Gtk::CellRenderer {
     Gtk::CellRenderer(), 
     property_id_(*this, "id"),
     property_notebook_(*this, "notebook") {
-    set_fixed_size (-1, 20);
+    set_fixed_size (1, 20);
   }
 
   Pango::Rectangle* renderNotebook (const ::Cairo::RefPtr< ::Cairo::Context >& cr, Gtk::Widget& widget, const Gdk::Rectangle& background_area, const Gdk::Rectangle& cell_area, Pango::Rectangle* pr, int id) {

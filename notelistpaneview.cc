@@ -60,7 +60,7 @@ class NoteCellRenderer : public Gtk::CellRenderer {
     Gtk::CellRenderer(), 
     property_id_(*this, "id"),
     property_note_(*this, "note") {
-    set_fixed_size (-1, 65);
+    set_fixed_size (1, 65);
   }
 
   Pango::Rectangle* renderNote (const ::Cairo::RefPtr< ::Cairo::Context >& cr, Gtk::Widget& widget, const Gdk::Rectangle& background_area, const Gdk::Rectangle& cell_area, Pango::Rectangle* pr, int id) {
