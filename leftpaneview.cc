@@ -29,154 +29,6 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
   May be we will have to create a new ds for stacks.
 **/
 
-/*
-int AlphaPrecision = 16;
-int ParamPrecision = 7;
-class LightPopup : public Gtk::MessageDialog {
-public:
-  int popupH; int popupW;
-  ::Cairo::RefPtr< ::Cairo::Context > cairoContext;
-  ::Cairo::RefPtr< ::Cairo::Surface > cairoSurface; 
-
-  LightPopup (Gtk::Window& parent, const Glib::ustring& message, bool use_markup=false, 
-    Gtk::MessageType type=Gtk::MESSAGE_INFO, Gtk::ButtonsType buttons=Gtk::BUTTONS_OK, bool modal=false) :
-    Gtk::MessageDialog (message, use_markup, type, buttons, false) {
-      popupH = -1; popupW = -1;
-
-      Glib::RefPtr<Gdk::Window> w = get_window ();
-      if (w != NULL)
-      gdk_window_set_decorations (gtk_widget_get_window ((GtkWidget*) get_window ()->gobj ()), GDK_DECOR_BORDER);
-
-      signal_size_allocate().connect(sigc::mem_fun(*this,
-              &LightPopup::onSizeAllocate));
-      signal_draw ().connect (sigc::mem_fun(*this, &LightPopup::drawPopup));
-
-  }
-
-  static inline void exponential_blur_inner (unsigned char* pixel, gint* zA, gint* zR, gint* zG, gint* zB, int alpha) {
-        
-            *zA += (alpha * ((pixel[0] << ParamPrecision) - *zA)) >> AlphaPrecision;
-            *zR += (alpha * ((pixel[1] << ParamPrecision) - *zR)) >> AlphaPrecision;
-            *zG += (alpha * ((pixel[2] << ParamPrecision) - *zG)) >> AlphaPrecision;
-            *zB += (alpha * ((pixel[3] << ParamPrecision) - *zB)) >> AlphaPrecision;
-            
-            pixel[0] = (unsigned char) (*zA >> ParamPrecision);
-            pixel[1] = (unsigned char) (*zR >> ParamPrecision);
-            pixel[2] = (unsigned char) (*zG >> ParamPrecision);
-            pixel[3] = (unsigned char) (*zB >> ParamPrecision);
-  }
-        void exponential_blur_rows (unsigned char* pixels, int width, int height, int startRow, int endRow, int startX, int endX, int alpha) {
-        
-            for (int rowIndex = startRow; rowIndex < endRow; rowIndex++) {
-            std::cout << "BLURROWS" << std::endl;
-                // Get a pointer to our current row
-                unsigned char* row = pixels + rowIndex * width * 4;
-                
-                gint zA = row[startX + 0] << ParamPrecision;
-                gint zR = row[startX + 1] << ParamPrecision;
-                gint zG = row[startX + 2] << ParamPrecision;
-                gint zB = row[startX + 3] << ParamPrecision;
-                std::cout << zA << ":" << zR << ":" << zG << ":" << zB << ":" << std::endl; 
-                // Left to Right
-                for (int index = startX + 1; index < endX; index++)
-                    exponential_blur_inner (&row[index * 4], &zA, &zR, &zG, &zB, alpha);
-                
-                // Right to Left
-                for (int index = endX - 2; index >= startX; index--)
-                    exponential_blur_inner (&row[index * 4], &zA, &zR, &zG, &zB, alpha);
-            }
-        }
-        void exponential_blur_columns (unsigned char* pixels, int width, int height, int startCol, int endCol, int startY, int endY, int alpha) {
-        
-            for (int columnIndex = startCol; columnIndex < endCol; columnIndex++) {
-                // blur columns
-                unsigned char* column = pixels + columnIndex * 4;
-                
-                int zA = column[0] << ParamPrecision;
-                int zR = column[1] << ParamPrecision;
-                int zG = column[2] << ParamPrecision;
-                int zB = column[3] << ParamPrecision;
-                
-                // Top to Bottom
-                for (int index = width * (startY + 1); index < (endY - 1) * width; index += width)
-                    exponential_blur_inner (&column[index * 4], &zA, &zR, &zG, &zB, alpha);
-                
-                // Bottom to Top
-                for (int index = (endY - 2) * width; index >= startY; index -= width)
-                    exponential_blur_inner (&column[index * 4], &zA, &zR, &zG, &zB, alpha);
-            }
-        }
-        void exponential_blur (double radius) {
-        
-            if (radius < 1)
-                return;
-            
-              std::cout << "RADIUS: " << radius << std::endl;
-
-            double alpha = (int) ((1 << AlphaPrecision) * (1.0 - exp (-2.3 / (radius + 1.0))));
-            int height = 100;
-            int width = 100;
-              std::cout << "HEIGHT: " << height << std::endl;
-              std::cout << "WIDTH: " << width << std::endl;
-            
-            Cairo::RefPtr< ::Cairo::ImageSurface > original = Cairo::ImageSurface::create (Cairo::FORMAT_ARGB32, width, height);
-            Cairo::RefPtr< ::Cairo::Context > cr = Cairo::Context::create (original);
-            
-            cr->set_operator (Cairo::OPERATOR_SOURCE);
-            cr->set_source (cairoSurface, 0, 0);
-            cr->paint ();
-            
-            unsigned char *pixels = original->get_data ();
-            
-
-            exponential_blur_rows (pixels, width, height, 0, height, 0, width, alpha);
-
-            exponential_blur_columns (pixels, width, height, 0, width, 0, height, alpha);
-
-            
-            original->mark_dirty ();
-            
-            cairoContext->set_operator (Cairo::OPERATOR_SOURCE);
-            cairoContext->set_source (original, 0, 0);
-            cairoContext->paint ();
-            cairoContext->set_operator (Cairo::OPERATOR_OVER);
-        }
-  void onSizeAllocate (Gtk::Allocation& a) {
-   if (a.get_x () == popupW && a.get_y() == popupH) {
-      return;
-    }
-    popupH = 100; popupW = 100;
-    std::cout << "LightWindow: onSizeAllocat: " << popupH << std::endl;
-
-    cairoSurface = Cairo::ImageSurface::create (Cairo::FORMAT_ARGB32, popupW, popupH);
-    cairoContext = Cairo::Context::create (cairoSurface);
-    get_style_context ()->add_class ("content-view");
-    int SHADOW_BLUR = 15;
-    int SHADOW_X    = 0;
-    int SHADOW_Y    = 0;
-    double SHADOW_ALPHA = 0.3;  
-    int popupW = SHADOW_BLUR + SHADOW_X;
-    int popupH = SHADOW_BLUR + SHADOW_Y;
-    int width  = popupW - 2 * SHADOW_BLUR + SHADOW_X;
-    int height = popupH - 2 * SHADOW_BLUR + SHADOW_Y;
-
-    cairoContext->rectangle (popupW, popupH, width, height);
-
-    cairoContext->set_source_rgba (0, 0, 0, SHADOW_ALPHA);
-    cairoContext->fill ();
-    exponential_blur (SHADOW_BLUR / 2.0);
-    this->get_style_context ()->render_activity (cairoContext,
-                                                   popupW, popupH, width, height);
-
-  }
-          bool drawPopup (const ::Cairo::RefPtr< ::Cairo::Context>& cr) {
-            cr->set_source (cairoSurface, 0, 0);
-            cr->paint ();
-            return false;
-        }
-        
-};
-*/
 
 NotebookTreeStore::NotebookTreeStore()
 {
@@ -326,7 +178,7 @@ class NotebookCellRenderer : public Gtk::CellRenderer {
     }
     Glib::RefPtr <Pango::Layout> layout_from = widget.create_pango_layout ("");
     layout_from->set_font_description (font_from);
-    layout_from->set_markup ("<span foreground='#FFF'>" + property_notebook_.get_value ().getTitle () + "</span>");
+    layout_from->set_markup ("<span foreground='#444'>" + property_notebook_.get_value ().getTitle () + "</span>");
     layout_from->set_width(210 * Pango::SCALE);
     layout_from->show_in_cairo_context (cr);
     return pr;
@@ -358,44 +210,10 @@ LeftPaneView::LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
   set_size_request (200, -1);
 
   //Add the TreeView, inside a ScrolledWindow, with the button underneath:
+
+  Glib::RefPtr<Gtk::StyleContext> sc = m_TreeView_Notebooks.get_style_context(); 
+  sc->add_class("source-list");
   m_ScrolledWindow.add(m_TreeView_Notebooks);
-  std::string cssProperties = 
-".m_TreeView_Notebooks {"
-"background-color: #34393D;"
-"border-radius: 0;"
-"color: white;"
-"}"
-""
-".m_TreeView_Notebooks:selected, .m_TreeView_Notebooks:prelight:selected, .m_TreeView_Notebooks.category-expander:hover {"
-"color: white;"
-"border-style: solid;"
-"border-width: 1px 0 1px 0;"
-"-unico-inner-stroke-width: 1px 0 1px 0;"
-"background-image: -gtk-gradient (linear, left top, left bottom, from (alpha (#000, 0.11)), to (alpha (#000, 0.07)));"
-"-unico-border-gradient: -gtk-gradient (linear, left top, left bottom, from (alpha (#fff, 0.070)), to (alpha (#fff, 0.10)));"
-"-unico-inner-stroke-gradient: -gtk-gradient (linear, left top, left bottom, from (alpha (#000, 0.03)), to (alpha (#000, 0.10)));"
-"border-color: #BBB;"
-"}"
-""
-".m_TreeView_Notebooks:selected:backdrop, .m_TreeView_Notebooks:prelight:selected:backdrop {"
-"background-image: -gtk-gradient (linear,left top, left bottom, from (alpha (#000, 0.08)), to (alpha (#000, 0.04)));"
-"-unico-border-gradient: -gtk-gradient (linear, left top, left bottom, from (alpha (#000, 0.19)), to (alpha (#fff, 0.25)));"
-"-unico-inner-stroke-gradient: -gtk-gradient (linear, left top, left bottom, from (alpha (#000, 0.03)), to (alpha (#000, 0.10)));"
-"border-color: #BBB;"
-"}"
-""
-".m_TreeView_Notebooks:prelight, .m_TreeView_Notebooks:hover {"
-"color: white;"
-"border-style: solid;"
-"border-width: 1px 0 1px 0;"
-"-unico-inner-stroke-width: 1px 0 1px 0;"
-"background-image: -gtk-gradient (linear, left top, left bottom, from (alpha (#FFF, 0.2)), to (alpha (#FFF, 0.2)));"
-"-unico-border-gradient: -gtk-gradient (linear, left top, left bottom, from (alpha (#fff, 0.3)), to (alpha (#fff, 0.30)));"
-"border-color: #BBB;"
-"}";
-
-
-  addCss (&m_TreeView_Notebooks, "m_TreeView_Notebooks", cssProperties);
 
   //Only show the scrollbars when they are necessary:
   m_ScrolledWindow.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
