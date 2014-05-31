@@ -20,12 +20,18 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 Notify::Notify() {
 	/** Window Related Properties **/
 	set_default_size (960, 540);
+    mainToolbar = new MainToolbar ();
+    mainToolbar->setApp (this);
+
+    set_titlebar(*mainToolbar);
 
     windowBody = Gtk::manage (new WindowBody (false, 0, Gtk::PACK_SHRINK));
 
+	set_title("Notes For Linux");
+
 	add(*windowBody);
 	show_all ();
-	gdk_window_set_decorations (gtk_widget_get_window ((GtkWidget*) gobj ()), GDK_DECOR_BORDER);
+//	gdk_window_set_decorations (gtk_widget_get_window ((GtkWidget*) gobj ()), GDK_DECOR_BORDER);
 
 	edp = new evernote::EvernoteDataProvider (this);
 

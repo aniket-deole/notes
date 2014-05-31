@@ -21,6 +21,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "windowbody.hh"
 #include "leftpaneview.hh"
+#include "maintoolbar.hh"
 #include "notelistpaneview.hh"
 #include "notepaneview.hh"
 #include "databasemanager.hh"
@@ -38,6 +39,7 @@ public:
 	Notify ();
 	virtual ~Notify ();
 
+    MainToolbar* mainToolbar;
 	LeftPaneView* lpv;
 	NoteListPaneView* nlpv;
 	NotePaneView* npv;

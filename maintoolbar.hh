@@ -21,17 +21,14 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class Notify;
 
-class MainToolbar : public Gtk::Toolbar {
+class MainToolbar : public Gtk::HeaderBar {
 private:
     int a;
     Notify* app;
     Gtk::Entry* searchEntry;
 
     bool searchEntryActive;
-    bool maximized;
 
-    Gtk::ToolButton* maximizeButton;
-    Gtk::ToolButton* syncButton;
 public:
     MainToolbar ();
     ~MainToolbar ();
@@ -41,8 +38,6 @@ public:
     void newNotebook ();
     void searchCallback ();
     void searchEntryClicked ();
-    void maximizeClicked ();
-    void syncButtonClicked ();
 };
 
 #endif

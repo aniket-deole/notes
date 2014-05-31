@@ -22,40 +22,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 MainToolbar::MainToolbar () {
-
- //Create the toolbar and add it to a container widget:
-  Gtk::ToolButton* button = Gtk::manage(new Gtk::ToolButton());
-  // TODO Change this later to set_icon_widget
-//  button->set_icon_name("dialog-cancel");
-  button->set_size_request (40, 40);
-  button->set_label ("Close");
-  button->signal_clicked().connect(sigc::mem_fun(*this,
-              &MainToolbar::exitNotify) );
-  add(*button);
-
-  Gtk::SeparatorToolItem* sti = Gtk::manage (new Gtk::SeparatorToolItem ());
-  sti->set_expand (false);
-  sti->set_draw (true);
-  add (*sti);
-
-  button = Gtk::manage(new Gtk::ToolButton());
-  button->set_size_request (40, 40);
-  button->set_label ("New Note");
-  button->signal_clicked().connect(sigc::mem_fun(*this,
-              &MainToolbar::newNote) );
-  add(*button);
-
-  button = Gtk::manage(new Gtk::ToolButton());
-  button->set_size_request (40, 40);
-  button->set_label ("New Notebook");
-  button->signal_clicked().connect(sigc::mem_fun(*this,
-              &MainToolbar::newNotebook) );
-  add(*button);
-
-  Gtk::ToolItem* ti = Gtk::manage (new Gtk::ToolItem ());
-  ti->set_expand (true);
-  add (*ti);
-
+/*
   Gtk::ToolItem* searchEntryContainer = Gtk::manage (new Gtk::ToolItem ());
 
   searchEntry = Gtk::manage (new Gtk::Entry ());
@@ -69,36 +36,11 @@ MainToolbar::MainToolbar () {
   addCss (searchEntry, "searchEntry", ".searchEntry { color: #888; \n}\n");
   searchEntryContainer->add (*searchEntry);
   add (*searchEntryContainer);
-
-  ti = Gtk::manage (new Gtk::SeparatorToolItem ());
-  add (*ti);
-
-  syncButton = Gtk::manage(new Gtk::ToolButton());
-  syncButton->set_size_request (40, 40);
-  syncButton->set_label ("Sync");
-  syncButton->signal_clicked().connect (sigc::mem_fun(*this,
-              &MainToolbar::syncButtonClicked));
-  add (*syncButton);
-
-  syncButton = Gtk::manage(new Gtk::ToolButton());
-  syncButton->set_size_request (40, 40);
-  syncButton->set_label ("Settings");
-  syncButton->signal_clicked().connect (sigc::mem_fun(*this,
-              &MainToolbar::syncButtonClicked));
-  add (*syncButton);
-
-  maximizeButton = Gtk::manage(new Gtk::ToolButton());
-  maximizeButton->set_size_request (40, 40);
-  maximizeButton->set_label ("Maximize");
-  maximizeButton->signal_clicked().connect (sigc::mem_fun(*this,
-              &MainToolbar::maximizeClicked));
-  add (*maximizeButton);
-
+*/
 	Glib::RefPtr<Gtk::StyleContext> sc = get_style_context(); 
 	sc->add_class("primary-toolbar");
 
-  maximized = false;
-
+  set_show_close_button();
   show_all ();
 }
 
@@ -130,21 +72,4 @@ void MainToolbar::searchEntryClicked () {
    searchEntry->set_text ("");
    searchEntryActive = true;
   }
-}
-
-void MainToolbar::maximizeClicked () {
-  if (maximized) {
-    app->unmaximize ();
-    maximized = false;
-    maximizeButton->set_label ("Maximize");
-  }else{
-    app->maximize ();
-    maximized = true;
-    maximizeButton->set_label ("Restore");
-  }
-}
-
-void MainToolbar::syncButtonClicked () {
-  app->edp->sync ();
-  std::cout << "Sync" << std::endl;
 }
