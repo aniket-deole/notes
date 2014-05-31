@@ -305,11 +305,13 @@ void LeftPaneView::on_treeview_row_changed () {
       if (m_TreeView_Notebooks.row_expanded (path)) {
         m_TreeView_Notebooks.collapse_row (path);
       } else {
-        m_TreeView_Notebooks.expand_to_path (path);
+        m_TreeView_Notebooks.expand_all ();
         ts->select (Gtk::TreeModel::Path (selectedPath));
       }
+      std::cout << "Tree Header Clicked." << std::endl;
     } else {
 
+      Gtk::TreeModel::Path path = tm->get_path (iter);
       std::cout << "Tree Child Clicked." << std::endl;
       selectedPath = tm->get_string (iter);
 
@@ -339,6 +341,7 @@ void LeftPaneView::on_treeview_row_changed () {
           NotebookData notebookDataItem = cr[m_refTreeModel->m_Columns.m_notebook_data];
           selectedNotebookGuids.push_back (notebookDataItem.getGuid ());  
         }
+        m_TreeView_Notebooks.row_expanded (path);
         return;
       } else {
         selectedNotebookGuids.clear ();
