@@ -45,7 +45,6 @@ public:
 	NotePaneView* npv;
 
 	DatabaseManager* dbm;
-	evernote::EvernoteDataProvider* edp;
 	
 protected:
 	void on_button_clicked();

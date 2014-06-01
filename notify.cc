@@ -33,8 +33,6 @@ Notify::Notify() {
 	show_all ();
 //	gdk_window_set_decorations (gtk_widget_get_window ((GtkWidget*) gobj ()), GDK_DECOR_BORDER);
 
-	edp = new evernote::EvernoteDataProvider (this);
-
     dbm = new DatabaseManager (this);
 
     windowBody->setApp (this);
