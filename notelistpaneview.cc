@@ -517,7 +517,7 @@ void NoteListPaneView::noteSearch (std::string str) {
  
   std::string query;
   query = "select a.id, a.title, a.body, a.created_time, a.modified_time, a.guid, a.notebook_guid, a.usn, a.dirty, b.title from notes a, notebooks b where a.notebook_guid = b.guid ";
-  query += "where a.title like '%" + str + "%' or a.body like '%" + str + "%' order by a.modified_time desc, a.id";
+  query += "and (a.title like '%" + str + "%' or a.body like '%" + str + "%') order by a.modified_time desc, a.id";
 
   std::cout << query << std::endl;
   if (dbm)
