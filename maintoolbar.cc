@@ -22,25 +22,32 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 MainToolbar::MainToolbar () {
-/*
-  Gtk::ToolItem* searchEntryContainer = Gtk::manage (new Gtk::ToolItem ());
+
+  collapsedHeaderBar = false;
+
+  collapseHeaderBar = Gtk::manage (new Gtk::Button ());
+  collapseHeaderBar->set_image_from_icon_name ("zoom-out",  Gtk::ICON_SIZE_SMALL_TOOLBAR);
+  collapseHeaderBar->signal_clicked().connect (
+      sigc::mem_fun(*this, &MainToolbar::toggleHeaderBarCallback));
+  pack_end (*collapseHeaderBar);
+
+  addCss (collapseHeaderBar, "collapseHeaderBar", " .collapseHeaderBar {\n background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px; -unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
 
   searchEntry = Gtk::manage (new Gtk::Entry ());
   searchEntry->set_text ("");
-  searchEntry->set_icon_from_icon_name ("system-search");
+  searchEntry->set_icon_from_icon_name ("edit-find");
   searchEntry->signal_changed ().connect (sigc::mem_fun (*this, 
             &MainToolbar::searchCallback));
   searchEntry->signal_activate ().connect (sigc::mem_fun (*this,
             &MainToolbar::searchEntryClicked));
   searchEntryActive = false;
   addCss (searchEntry, "searchEntry", ".searchEntry { color: #888; \n}\n");
-  searchEntryContainer->add (*searchEntry);
-  add (*searchEntryContainer);
-*/
+  pack_end (*searchEntry);
+
 	Glib::RefPtr<Gtk::StyleContext> sc = get_style_context(); 
 	sc->add_class("primary-toolbar");
 
-  set_show_close_button();
+  set_show_close_button(true);
   show_all ();
 }
 
@@ -71,5 +78,20 @@ void MainToolbar::searchEntryClicked () {
   if (!searchEntryActive) {
    searchEntry->set_text ("");
    searchEntryActive = true;
+  }
+}
+
+void MainToolbar::toggleHeaderBarCallback () {
+  Glib::RefPtr<Gtk::StyleContext> sc = get_style_context(); 
+  if (collapsedHeaderBar == true) {
+    sc->add_class("header-bar");
+    collapsedHeaderBar = false;
+    searchEntry->show ();
+    collapseHeaderBar->set_image_from_icon_name ("zoom-out",  Gtk::ICON_SIZE_SMALL_TOOLBAR);
+  } else {
+    sc->remove_class("header-bar");
+    collapsedHeaderBar = true;
+    searchEntry->hide ();
+    collapseHeaderBar->set_image_from_icon_name ("zoom-in",  Gtk::ICON_SIZE_SMALL_TOOLBAR);
   }
 }

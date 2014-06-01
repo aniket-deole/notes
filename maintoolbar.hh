@@ -28,7 +28,8 @@ private:
     Gtk::Entry* searchEntry;
 
     bool searchEntryActive;
-
+    bool collapsedHeaderBar;
+    Gtk::Button* collapseHeaderBar;
 public:
     MainToolbar ();
     ~MainToolbar ();
@@ -38,6 +39,7 @@ public:
     void newNotebook ();
     void searchCallback ();
     void searchEntryClicked ();
+    void toggleHeaderBarCallback ();
 };
 
 #endif
