@@ -30,6 +30,8 @@ private:
     bool searchEntryActive;
     bool collapsedHeaderBar;
     Gtk::Button* collapseHeaderBar;
+    Gtk::Button* newNoteButton;
+    Gtk::Button* newNotebookButton;
 public:
     MainToolbar ();
     ~MainToolbar ();

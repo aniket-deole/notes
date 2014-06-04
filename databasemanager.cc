@@ -20,10 +20,6 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <uuid/uuid.h>
 
 #include "databasemanager.hh"
-#include "evernotedataprovider.hh"
-
-extern std::vector<evernote::Notebook> gNotebooks;
-extern std::vector<evernote::Note> gNotes;
 
 DatabaseManager::DatabaseManager (Notify* a) {
 	app = a;
@@ -63,26 +59,6 @@ DatabaseManager::DatabaseManager (Notify* a) {
         q += "', NULL)";
 	    sqlite3_exec (db, q.c_str (), NULL, 0, NULL);
 	    sqlite3_exec (db, "COMMIT", NULL, NULL, NULL);
-
-	    /* SYNC */
-//	    evernote::EvernoteDataProvider edp (a);
-//	    edp.login ();
-
-//        edp.sync ();
-
-	    /* Print out insert statements */ 
-	    for (unsigned int i = 0; i < ::gNotes.size (); i++) {
-	        std::string query = gNotes[i].createInsertStatement ();
-//	        std::cout << query << std::endl;
-	    	sqlite3_exec (db, query.c_str (), NULL, 0, NULL);
-	    }
-	    for (unsigned int i = 0; i < ::gNotebooks.size (); i++) {
-	        std::string query = gNotebooks[i].createInsertStatement ();
-	   	 	sqlite3_exec (db, query.c_str (), NULL, 0, NULL);
-//	   	 	std::cout << query << std::endl;
-	    }
-
-	    std::cout << gNotes.size () << ":" << gNotebooks.size () << std::endl;
 
 	}
 }

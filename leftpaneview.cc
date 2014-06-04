@@ -527,11 +527,17 @@ void LeftPaneView::setApp (Notify* a) {
 
 void LeftPaneView::newNotebook () {
 
-  popup = new Gtk::MessageDialog (*app, "Enter notebook name: ", true, Gtk::MESSAGE_OTHER, Gtk::BUTTONS_OK_CANCEL, false);
+  popup = new Gtk::MessageDialog (*app, "Enter Notebook Name", true, Gtk::MESSAGE_OTHER, Gtk::BUTTONS_OK_CANCEL, false);
   Gtk::Box* contentBox = popup->get_content_area ();
 
+
+  Gtk::Box* firstBox = Gtk::manage (new Gtk::Box ());
+
   notebookName = new Gtk::Entry ();
-  contentBox->pack_end (*notebookName);
+  firstBox->pack_start (*notebookName, true, false, 0);
+  firstBox->set_size_request (400, -1);
+  contentBox->set_size_request (-1, -1);
+  contentBox->add (*firstBox);
 
   contentBox->show_all ();
   popup->set_resizable (false);
@@ -625,7 +631,6 @@ void LeftPaneView::on_treeview_button_release_event (GdkEventButton* event) {
 
     } else if (event->button == 1) { 
       Glib::RefPtr<Gtk::TreeSelection> ts = m_TreeView_Notebooks.get_selection ();
-      Gtk::TreeModel::iterator iter = ts->get_selected ();
       Glib::RefPtr<Gtk::TreeModel> tm = ts->get_model ();
       Gtk::TreeModel::Path path;
       m_TreeView_Notebooks.get_path_at_pos ((gint) event->x, (gint) event->y, path);
@@ -674,10 +679,14 @@ std::string NumberToString(T pNumber)
 
 void LeftPaneView::on_menu_file_popup_edit_notebook_name() {
 
-  popup = new Gtk::MessageDialog (*app, "Enter New Name for notebook: ", true, Gtk::MESSAGE_OTHER, Gtk::BUTTONS_OK_CANCEL, true);
+  popup = new Gtk::MessageDialog (*app, "Enter new name for Notebook", true, Gtk::MESSAGE_OTHER, Gtk::BUTTONS_OK_CANCEL, true);
   Gtk::Box* contentBox = popup->get_content_area ();
+  Gtk::Box* firstBox = Gtk::manage (new Gtk::Box ());
 
-  contentBox->pack_end (*notebookName);
+  firstBox->pack_start (*notebookName, true, false, 0);
+  firstBox->set_size_request (400, -1);
+  contentBox->set_size_request (-1, -1);
+  contentBox->add (*firstBox);
 
   contentBox->show_all ();
   popup->set_resizable (false);

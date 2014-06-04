@@ -23,6 +23,18 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 MainToolbar::MainToolbar () {
 
+  newNoteButton = Gtk::manage (new Gtk::Button ());
+  newNoteButton->set_image_from_icon_name ("document-new", Gtk::ICON_SIZE_LARGE_TOOLBAR);
+  newNoteButton->signal_clicked ().connect (
+    sigc::mem_fun (*this, &MainToolbar::newNote));
+  pack_start (*newNoteButton);
+
+  newNotebookButton = Gtk::manage (new Gtk::Button ());
+  newNotebookButton->set_image_from_icon_name ("address-book-new", Gtk::ICON_SIZE_LARGE_TOOLBAR);
+  newNotebookButton->signal_clicked ().connect (
+    sigc::mem_fun (*this, &MainToolbar::newNotebook));
+  pack_start (*newNotebookButton);
+
   collapsedHeaderBar = false;
 
   collapseHeaderBar = Gtk::manage (new Gtk::Button ());
@@ -87,10 +99,14 @@ void MainToolbar::toggleHeaderBarCallback () {
     sc->add_class("header-bar");
     collapsedHeaderBar = false;
     searchEntry->show ();
+    newNoteButton->show ();
+    newNotebookButton->show ();
     collapseHeaderBar->set_image_from_icon_name ("zoom-out",  Gtk::ICON_SIZE_SMALL_TOOLBAR);
   } else {
     sc->remove_class("header-bar");
     collapsedHeaderBar = true;
+    newNoteButton->hide ();
+    newNotebookButton->hide ();
     searchEntry->hide ();
     collapseHeaderBar->set_image_from_icon_name ("zoom-in",  Gtk::ICON_SIZE_SMALL_TOOLBAR);
   }

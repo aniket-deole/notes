@@ -372,12 +372,16 @@ void NoteListPaneView::newNote () {
   popup->show_all ();
 */
 
-  popup = new Gtk::MessageDialog (*app, "Enter note title: ", true, Gtk::MESSAGE_OTHER, Gtk::BUTTONS_OK_CANCEL, true);
+  popup = new Gtk::MessageDialog (*app, "Select Notebook and Enter Note Title", true, Gtk::MESSAGE_OTHER, Gtk::BUTTONS_OK_CANCEL, true);
   Gtk::Box* contentBox = popup->get_content_area ();
+
+  Gtk::Box* firstBox = Gtk::manage (new Gtk::Box ());
+  Gtk::Box* secondBox = Gtk::manage (new Gtk::Box ());
 
   noteName = new Gtk::Entry ();
   noteName->set_text ("Untitled");
-  contentBox->pack_end (*noteName);
+  firstBox->pack_start (*noteName, true, false, 0);
+  firstBox->set_size_request (400, -1);
 
   m_refTreeModel_notebooks = Gtk::TreeStore::create(m_Columns_notebooks);
 //  m_Combo.append_column(*create_column2 (m_Columns_notebooks.m_col_id, m_Columns_notebooks.m_notebook_data));
@@ -385,8 +389,18 @@ void NoteListPaneView::newNote () {
 
   dbm->exec ("select * from notebooks where id > 0 order by title", &fillNotebooksCallback,this);
   m_Combo.set_active (0);
-  contentBox->pack_end (m_Combo);
+  contentBox->set_size_request (-1, -1);
+  secondBox->pack_start (m_Combo, true, false, 0);
+  secondBox->set_size_request (400, -1);
+
+  contentBox->add (*secondBox);
+  contentBox->add (*firstBox);
+
   contentBox->show_all ();
+
+
+  addCss (contentBox, "contentBox", ".contentBox { padding-left:15px; margin-left:50px; \n}\n");
+
   popup->set_resizable (false);
   popup->set_modal (true);
   int reply = popup->run ();
