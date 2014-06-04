@@ -424,10 +424,7 @@ int LeftPaneView::fillNotebooksCallback (void* lpv, int argc, char **argv, char 
 
       std::cout << "NotebooksRow Size: " << p->notebooksRow.children ().size () << std::endl;
     }
-  } else {
-
-    Gtk::TreeModel::Children children = p->notebooksRow.children ();
-  
+  } else {  
     Gtk::TreeModel::Row childrow = *(p->m_refTreeModel->append(p->notebooksRow.children()));
     childrow[p->m_refTreeModel->m_Columns.m_col_id] = notebookId;
     childrow[p->m_refTreeModel->m_Columns.m_col_name] = notebookName;

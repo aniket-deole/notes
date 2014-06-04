@@ -43,7 +43,7 @@ MainToolbar::MainToolbar () {
       sigc::mem_fun(*this, &MainToolbar::toggleHeaderBarCallback));
   pack_end (*collapseHeaderBar);
 
-  addCss (collapseHeaderBar, "collapseHeaderBar", " .collapseHeaderBar {\n background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px; -unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
+  addCss (collapseHeaderBar, "collapseHeaderBar", " .collapseHeaderBar {\n  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px; -unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
 
   searchEntry = Gtk::manage (new Gtk::Entry ());
   searchEntry->set_text ("");

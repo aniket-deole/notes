@@ -32,7 +32,7 @@ std::string NumberToString(T pNumber)
  oOStrStream << pNumber;
  return oOStrStream.str();
 }
-
+/*
 static std::string ReplaceString(std::string subject, const std::string& search,
                           const std::string& replace) {
     size_t pos = 0;
@@ -42,7 +42,7 @@ static std::string ReplaceString(std::string subject, const std::string& search,
     }
     return subject;
 }
-
+*/
 class NoteCellRenderer : public Gtk::CellRenderer {
   public:
   Glib::PropertyProxy< int > property_id()
@@ -356,7 +356,7 @@ void NoteListPaneView::fetchNotesForNotebooks (std::vector<std::string> guids) {
   }
 }
 
-
+/*
 static Gtk::TreeViewColumn* create_column2 (Gtk::TreeModelColumn<int> tmc, Gtk::TreeModelColumn<NotebookData> n) {
   NotebookCellRenderer2* ncr = new NotebookCellRenderer2 ();
   Gtk::TreeViewColumn* c = Gtk::manage (new Gtk::TreeViewColumn ("Notebooks", *ncr));
@@ -364,6 +364,7 @@ static Gtk::TreeViewColumn* create_column2 (Gtk::TreeModelColumn<int> tmc, Gtk::
   c->add_attribute(*ncr, "notebook", n);
   return c;
 }
+*/
 void NoteListPaneView::newNote () {
 
 /*
@@ -482,7 +483,6 @@ void NoteListPaneView::on_treeview_button_release_event (GdkEventButton* event) 
 
 
   Glib::RefPtr<Gtk::TreeSelection> ts = m_TreeView.get_selection ();
-  Gtk::TreeModel::iterator iter = ts->get_selected ();
   Glib::RefPtr<Gtk::TreeModel> tm = ts->get_model ();
 
   Gtk::TreeModel::Path path;
