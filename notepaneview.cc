@@ -66,7 +66,7 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 	toolbarBox = Gtk::manage (new Gtk::Box ());
 	
 	boldButton = Gtk::manage (new Gtk::Button ());
-    img = Gtk::manage (new Gtk::Image ("format-text-bold"));
+    img = Gtk::manage (new Gtk::Image ("img/bold.png"));
 	boldButton->set_image (*img);
   	boldButton->signal_clicked().connect(
     		sigc::mem_fun(*this, &NotePaneView::boldButtonCallback) );
@@ -102,7 +102,7 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 	strikeButton->set_size_request (30, 30);
 
 	clearFormattingButton = Gtk::manage (new Gtk::Button ());
-    img = Gtk::manage (new Gtk::Image ("img/clearFormatting.png"));
+    img = Gtk::manage (new Gtk::Image ("img/strikethrough.png"));
     clearFormattingButton->set_image (*img);
   	clearFormattingButton->signal_clicked().connect(
     		sigc::mem_fun(*this, &NotePaneView::clearFormattingButtonCallback) );
@@ -139,6 +139,33 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 	toolbarBox->pack_start (*justifyButton, false, false , 0);
 	addCss (justifyButton, "justifyButton", " .justifyButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
 	justifyButton->set_size_request (30, 30);	
+
+	justifyCenterButton = Gtk::manage (new Gtk::Button ());
+    img = Gtk::manage (new Gtk::Image ("img/justify.png"));
+    justifyCenterButton->set_image (*img);
+  	justifyCenterButton->signal_clicked().connect(
+    		sigc::mem_fun(*this, &NotePaneView::justifyCenterButtonCallback));
+	toolbarBox->pack_start (*justifyCenterButton, false, false , 0);
+	addCss (justifyCenterButton, "justifyCenterButton", " .justifyCenterButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
+	justifyCenterButton->set_size_request (30, 30);	
+
+	justifyRightButton = Gtk::manage (new Gtk::Button ());
+    img = Gtk::manage (new Gtk::Image ("img/justify.png"));
+    justifyRightButton->set_image (*img);
+  	justifyRightButton->signal_clicked().connect(
+    		sigc::mem_fun(*this, &NotePaneView::justifyRightButtonCallback));
+	toolbarBox->pack_start (*justifyRightButton, false, false , 0);
+	addCss (justifyRightButton, "justifyRightButton", " .justifyRightButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
+	justifyRightButton->set_size_request (30, 30);	
+
+	justifyFullButton = Gtk::manage (new Gtk::Button ());
+    img = Gtk::manage (new Gtk::Image ("img/justify.png"));
+    justifyFullButton->set_image (*img);
+  	justifyFullButton->signal_clicked().connect(
+    		sigc::mem_fun(*this, &NotePaneView::justifyFullButtonCallback));
+	toolbarBox->pack_start (*justifyFullButton, false, false , 0);
+	addCss (justifyFullButton, "justifyFullButton", " .justifyFullButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
+	justifyFullButton->set_size_request (30, 30);	
 
 	separatorVertical = Gtk::manage (new Gtk::Separator (Gtk::ORIENTATION_VERTICAL));
 	toolbarBox->pack_start (*separatorVertical, false, false, 0);
@@ -373,7 +400,22 @@ void NotePaneView::tabInButtonCallback() {
 }
 void NotePaneView::justifyButtonCallback() {
     WebKitDOMDocument* dom = webkit_web_view_get_dom_document (webview);
-    webkit_dom_document_exec_command (dom, "outdent", false, "");
+    webkit_dom_document_exec_command (dom, "justifyLeft", false, "");
+    gtk_widget_grab_focus (GTK_WIDGET (webview));
+}
+void NotePaneView::justifyCenterButtonCallback() {
+    WebKitDOMDocument* dom = webkit_web_view_get_dom_document (webview);
+    webkit_dom_document_exec_command (dom, "justifyCenter", false, "");
+    gtk_widget_grab_focus (GTK_WIDGET (webview));
+}
+void NotePaneView::justifyRightButtonCallback() {
+    WebKitDOMDocument* dom = webkit_web_view_get_dom_document (webview);
+    webkit_dom_document_exec_command (dom, "justifyRight", false, "");
+    gtk_widget_grab_focus (GTK_WIDGET (webview));
+}
+void NotePaneView::justifyFullButtonCallback() {
+    WebKitDOMDocument* dom = webkit_web_view_get_dom_document (webview);
+    webkit_dom_document_exec_command (dom, "justifyFull", false, "");
     gtk_widget_grab_focus (GTK_WIDGET (webview));
 }
 void NotePaneView::olistButtonCallback() {

@@ -47,6 +47,9 @@ private:
 	Gtk::Button* tabOutButton;
 	Gtk::Button* tabInButton;
 	Gtk::Button* justifyButton;
+	Gtk::Button* justifyCenterButton;
+	Gtk::Button* justifyRightButton;
+	Gtk::Button* justifyFullButton;
 	Gtk::Button* olistButton;
 	Gtk::Button* ulistButton;
 	Gtk::Button* clistButton;
@@ -77,6 +80,9 @@ public:
 	void tabOutButtonCallback();
 	void tabInButtonCallback();
 	void justifyButtonCallback();
+	void justifyCenterButtonCallback();
+	void justifyRightButtonCallback();
+	void justifyFullButtonCallback ();
 	void olistButtonCallback();
 	void ulistButtonCallback();
 	void clistButtonCallback();
