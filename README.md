@@ -20,8 +20,12 @@ libsqlite3-dev libssl-dev libcrypto++-dev libsigc++-2.0-dev libgtk-3-dev libgtkm
 Steps for installing prerequisites on Ubuntu 14.04:
 ---------------------------------------------------
 sudo apt-get install build-essential
+
 sudo ln -s /usr/include/gtkmm-3.0 /usr/include/gtkmm
+
 sudo apt-get install libsqlite3-dev libssl-dev libcrypto++-dev libsigc++-2.0-dev libgtk-3-dev libgtkmm-3.0-dev libwebkitgtk-3.0-dev uuid-dev libuuid1
+
+======
 
 Current TODO Stuff: <br/>
 1. Create Package for distribution. <br/>
