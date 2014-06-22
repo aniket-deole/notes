@@ -101,12 +101,16 @@ void MainToolbar::toggleHeaderBarCallback () {
     searchEntry->show ();
     newNoteButton->show ();
     newNotebookButton->show ();
+		app->lpv->show();
+		app->nlpv->show();
     collapseHeaderBar->set_image_from_icon_name ("zoom-out",  Gtk::ICON_SIZE_SMALL_TOOLBAR);
   } else {
     sc->remove_class("header-bar");
     collapsedHeaderBar = true;
     newNoteButton->hide ();
     newNotebookButton->hide ();
+		app->lpv->hide();
+		app->nlpv->hide();
     searchEntry->hide ();
     collapseHeaderBar->set_image_from_icon_name ("zoom-in",  Gtk::ICON_SIZE_SMALL_TOOLBAR);
   }
