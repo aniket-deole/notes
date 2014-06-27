@@ -53,6 +53,7 @@ private:
 	Gtk::Button* olistButton;
 	Gtk::Button* ulistButton;
 	Gtk::Button* clistButton;
+	Gtk::Button* exportPdfButton;
 
 	Gtk::Button* notebookButton;
 	Gtk::Entry* notebookName;
@@ -86,5 +87,6 @@ public:
 	void olistButtonCallback();
 	void ulistButtonCallback();
 	void clistButtonCallback();
+	void exportPdfButtonCallback();
 };
 #endif
