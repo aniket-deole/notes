@@ -13,7 +13,6 @@ You should have received a copy of the GNU General Public License along
 with this program.  If not, see <http://www.gnu.org/licenses/>.
 ***/
 #include <iostream>
-#include <fstream>
 #include "notepaneview.hh"
 /*
  * This files contains C Code as I was not able to find a good C++ gtkmm e
@@ -53,12 +52,17 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 	label = Gtk::manage (new Gtk::Label ("Share"));
 	addCss (label, "label", ".label {padding-right:10px; font: OpenSans light 8; color:#000;}");
 	toolbarBox->pack_end (*label, false, false , 0);
-
+#if HASPDF
 	exportPdfButton = Gtk::manage (new Gtk::Button ("Export PDF"));
 	addCss (exportPdfButton, "exportPdfButton", " .exportPdfButton{\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0; padding-right:10px; font: OpenSans light 8; color:#000;}");
   exportPdfButton->signal_clicked().connect(
     		sigc::mem_fun(*this, &NotePaneView::exportPdfButtonCallback) );
 	toolbarBox->pack_end (*exportPdfButton, false, false , 0);
+#else
+	label = Gtk::manage (new Gtk::Label ("Reminder"));
+	addCss (label, "label", ".label {padding-right:10px; font: OpenSans light 8; color:#000;}");
+	toolbarBox->pack_end (*label, false, false , 0);
+#endif /* HASPDF */
 
 //  ex_label->signal_clicked().connect(
 //  sigc::mem_fun(*this, &NotePaneView::saveNote) );
@@ -355,14 +359,18 @@ std::string NumberToString(T pNumber)
 void NotePaneView::saveNote () {
 
 	std::string body = "";
-	std::ofstream temp_html_file;
-	std::string temp_file_name = "/tmp/temp_"+nd.getGuid()+".html";
-	temp_html_file.open(temp_file_name.c_str());
 	webkit_web_view_execute_script (webview, "document.title=document.documentElement.innerHTML;");
 	body.append (webkit_web_frame_get_title ((webkit_web_view_get_main_frame (webview))));
 	body = replaceSingleQuote (body);
+
+#if HASPDF
+	// Create temporary file for saving to PDF
+	std::ofstream temp_html_file;
+	std::string temp_file_name = "/tmp/temp_"+nd.getGuid()+".html";
+	temp_html_file.open(temp_file_name.c_str());
 	temp_html_file << body;
 	temp_html_file.close();
+#endif /* HASPDF */
 	std::string title = replaceSingleQuote (noteTitle->get_text ());
 	std::cout << "saved: " << "update notes set title = '" + title + "', body = '" + body + "' where guid = '" << nd.getGuid () << "'" << std::endl;
   	dbm->exec ("update notes set title = '" + title + "', body = '" + body + "', modified_time = strftime('%s','now') where guid = '" + (nd.getGuid ()) + "'", NULL, this);
@@ -443,6 +451,7 @@ void NotePaneView::clistButtonCallback() {
     webkit_dom_document_exec_command (dom, "insertHTML", false, "<input type='checkbox'></input>");
     gtk_widget_grab_focus (GTK_WIDGET (webview));
 }
+#if HASPDF
 void NotePaneView::exportPdfButtonCallback() {
 //    WebKitDOMDocument* dom = webkit_web_view_get_dom_document (webview);
 //    webkit_dom_document_exec_command (dom, "insertHTML", false, "<input type='checkbox'></input>");
@@ -450,3 +459,4 @@ void NotePaneView::exportPdfButtonCallback() {
 
 			std::cout << "Export Pdf Button clicked!" << std::endl;
 }
+#endif /* HASPDF */

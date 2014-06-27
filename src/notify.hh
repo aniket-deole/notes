@@ -18,7 +18,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <gtkmm/button.h>
 #include <gtkmm/window.h>
-
+#include "porting.hh"
 #include "windowbody.hh"
 #include "leftpaneview.hh"
 #include "maintoolbar.hh"

@@ -20,7 +20,10 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <webkit/webkit.h>
 #include "notedata.hh"
 #include "databasemanager.hh"
-
+#if HASPDF
+#include <fstream>
+#include <pdf.h>
+#endif /* HASPDF */
 class DatabaseManager;
 class LeftPaneView;
 
@@ -53,8 +56,9 @@ private:
 	Gtk::Button* olistButton;
 	Gtk::Button* ulistButton;
 	Gtk::Button* clistButton;
+#if HASPDF
 	Gtk::Button* exportPdfButton;
-
+#endif /* HASPDF */
 	Gtk::Button* notebookButton;
 	Gtk::Entry* notebookName;
 
@@ -87,6 +91,8 @@ public:
 	void olistButtonCallback();
 	void ulistButtonCallback();
 	void clistButtonCallback();
+#if HASPDF
 	void exportPdfButtonCallback();
+#endif /* HASPDF */
 };
 #endif
