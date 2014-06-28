@@ -11,6 +11,7 @@ This will not work in elementaryOS Luna anymore because of the GTK+3.10 requirem
 [Ghatage 28-June-2014]  Update: Adding the export to PDF feature, to build with it, just set env var WITHPDF to 1.
                                 unset it to build as usual.
                                 Will need wkhtmltopdf (https://github.com/wkhtmltopdf/wkhtmltopdf) installed.
+                                
 [Ghatage 22-June-2014]  Update: Works well on Ubuntu 14.04 without any theme issues.
 
 Installation Guide
