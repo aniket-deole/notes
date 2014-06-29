@@ -363,7 +363,7 @@ void NotePaneView::saveNote () {
 	body.append (webkit_web_frame_get_title ((webkit_web_view_get_main_frame (webview))));
 	body = replaceSingleQuote (body);
 
-#if HASPDF
+#if 0
 	// Create temporary file for saving to PDF
 	std::ofstream temp_html_file;
 	std::string temp_file_name = "/tmp/temp_"+nd.getGuid()+".html";
@@ -452,11 +452,107 @@ void NotePaneView::clistButtonCallback() {
     gtk_widget_grab_focus (GTK_WIDGET (webview));
 }
 #if HASPDF
+/* Print out loading progress information */
+void progress_changed(wkhtmltopdf_converter * c, int p) {
+	printf("%3d%%\r",p);
+	fflush(stdout);
+}
+
+/* Print loading phase information */
+void phase_changed(wkhtmltopdf_converter * c) {
+	int phase = wkhtmltopdf_current_phase(c);
+	printf("%s\n", wkhtmltopdf_phase_description(c, phase));
+}
+
+/* Print a message to stderr when an error occures */
+void error(wkhtmltopdf_converter * c, const char * msg) {
+	fprintf(stderr, "Error: %s\n", msg);
+}
+
+/* Print a message to stderr when a warning is issued */
+void warning(wkhtmltopdf_converter * c, const char * msg) {
+	fprintf(stderr, "Warning: %s\n", msg);
+}
+
 void NotePaneView::exportPdfButtonCallback() {
 //    WebKitDOMDocument* dom = webkit_web_view_get_dom_document (webview);
 //    webkit_dom_document_exec_command (dom, "insertHTML", false, "<input type='checkbox'></input>");
 //    gtk_widget_grab_focus (GTK_WIDGET (webview));
 
-			std::cout << "Export Pdf Button clicked!" << std::endl;
+	std::cout << "Export Pdf Button clicked!" << std::endl;
+	std::cout << "Current node guid: "<< nd.getGuid() << std::endl;
+	wkhtmltopdf_global_settings * gs;
+	wkhtmltopdf_object_settings * os;
+	wkhtmltopdf_converter * c;
+
+	std::string body = "";
+	webkit_web_view_execute_script (webview, "document.title=document.documentElement.innerHTML;");
+	body.append (webkit_web_frame_get_title ((webkit_web_view_get_main_frame (webview))));
+	body = replaceSingleQuote (body);
+	std::ofstream temp_html_file;
+	std::string temp_file_name = "/tmp/temp_"+nd.getGuid()+".html";
+	temp_html_file.open(temp_file_name.c_str());
+	temp_html_file << body;
+	temp_html_file.close();
+
+	/* Init wkhtmltopdf in graphics less mode */
+	wkhtmltopdf_init(false);
+	std::string note_name = "/tmp/temp_" + nd.getGuid() + ".html";
+	std::string note_title = noteTitle->get_text ()+".pdf";
+	/*
+	 * Create a global settings object used to store options that are not
+	 * related to input objects, note that control of this object is parsed to
+	 * the converter later, which is then responsible for freeing it
+	 */
+	gs = wkhtmltopdf_create_global_settings();
+	/* We want the result to be storred in the file called test.pdf */
+	wkhtmltopdf_set_global_setting(gs, "out", note_title.c_str());
+
+	/*
+	 * Create a input object settings object that is used to store settings
+	 * related to a input object, note again that control of this object is parsed to
+	 * the converter later, which is then responsible for freeing it
+	 */
+	os = wkhtmltopdf_create_object_settings();
+	/* We want to convert to convert the qstring documentation page */
+	// wkhtmltopdf_set_object_setting(os, "page", "http://www.google.com");
+	// wkhtmltopdf_set_object_setting(os, "page", "/tmp/temp_5bac4912-faa3-11e3-aa14-000c29ee52ed.html");
+	wkhtmltopdf_set_object_setting(os, "page", note_name.c_str());
+
+	/* Create the actual converter object used to convert the pages */
+	c = wkhtmltopdf_create_converter(gs);
+
+	/* Call the progress_changed function when progress changes */
+	wkhtmltopdf_set_progress_changed_callback(c, progress_changed);
+
+	/* Call the phase _changed function when the phase changes */
+	wkhtmltopdf_set_phase_changed_callback(c, phase_changed);
+
+	/* Call the error function when an error occures */
+	wkhtmltopdf_set_error_callback(c, error);
+
+	/* Call the warning function when a warning is issued */
+	wkhtmltopdf_set_warning_callback(c, warning);
+
+	/*
+	 * Add the the settings object describing the qstring documentation page
+	 * to the list of pages to convert. Objects are converted in the order in which
+	 * they are added
+	 */
+	wkhtmltopdf_add_object(c, os, NULL);
+
+	/* Perform the actual convertion */
+	if (!wkhtmltopdf_convert(c))
+		fprintf(stderr, "Convertion failed!");
+
+	/* Output possible http error code encountered */
+	printf("httpErrorCode: %d\n", wkhtmltopdf_http_error_code(c));
+
+	/* Destroy the converter object since we are done with it */
+	wkhtmltopdf_destroy_converter(c);
+
+	/* We will no longer be needing wkhtmltopdf funcionality */
+	wkhtmltopdf_deinit();
+	std::cout << "Export Pdf ended" << std::endl;
 }
 #endif /* HASPDF */
