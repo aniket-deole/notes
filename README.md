@@ -8,6 +8,14 @@ A Note taking application for Linux build in Gtk that aims to be an Evernote cli
 
 This will not work in elementaryOS Luna anymore because of the GTK+3.10 requirement. It will work in any distro having GTK+3.10 and above.
 
+[Ghatage 29-June-2014]  Update: Added the export to PDF feature!
+This is the all new immersive mode
+<img src="http://i60.tinypic.com/2mblvo.jpg" title="Immersive mode" alt="Notes" />
+
+And here is the export to PDF feature
+<img src="http://i62.tinypic.com/35kpmj6.jpg" title="Immersive mode" alt="Notes" />
+
+
 [Ghatage 28-June-2014]  Update: Adding the export to PDF feature, to build with it, just set env var WITHPDF to 1.
                                 unset it to build as usual.
                                 Will need wkhtmltopdf (https://github.com/wkhtmltopdf/wkhtmltopdf) installed.
