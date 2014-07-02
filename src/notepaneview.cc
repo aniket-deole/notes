@@ -13,13 +13,111 @@ You should have received a copy of the GNU General Public License along
 with this program.  If not, see <http://www.gnu.org/licenses/>.
 ***/
 #include <iostream>
+#include <fstream>
+#include <assert.h>
+#include <openssl/md5.h>
 #include "notepaneview.hh"
-/*
- * This files contains C Code as I was not able to find a good C++ gtkmm e
- * equivalent wrapper for webkit. Open to suggestions :)
- */
+/* Move this base64 stuff to another file after testing */
 
-NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding) {
+static const std::string base64_chars = 
+             "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+             "abcdefghijklmnopqrstuvwxyz"
+             "0123456789+/";
+
+
+static inline bool is_base64(unsigned char c) {
+  return (isalnum(c) || (c == '+') || (c == '/'));
+}
+
+std::string base64_encode(unsigned char const* bytes_to_encode, unsigned int in_len) {
+  std::string ret;
+  int i = 0;
+  int j = 0;
+  unsigned char char_array_3[3];
+  unsigned char char_array_4[4];
+
+  while (in_len--) {
+    char_array_3[i++] = *(bytes_to_encode++);
+    if (i == 3) {
+      char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
+      char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
+      char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
+      char_array_4[3] = char_array_3[2] & 0x3f;
+
+      for(i = 0; (i <4) ; i++)
+        ret += base64_chars[char_array_4[i]];
+      i = 0;
+    }
+  }
+
+  if (i)
+  {
+    for(j = i; j < 3; j++)
+      char_array_3[j] = '\0';
+
+    char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
+    char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
+    char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
+    char_array_4[3] = char_array_3[2] & 0x3f;
+
+    for (j = 0; (j < i + 1); j++)
+      ret += base64_chars[char_array_4[j]];
+
+    while((i++ < 3))
+      ret += '=';
+
+  }
+
+  return ret;
+
+}
+
+std::string base64_decode(std::string const& encoded_string) {
+  int in_len = encoded_string.size();
+  int i = 0;
+  int j = 0;
+  int in_ = 0;
+  unsigned char char_array_4[4], char_array_3[3];
+  std::string ret;
+
+  while (in_len-- && ( encoded_string[in_] != '=') && is_base64(encoded_string[in_])) {
+    char_array_4[i++] = encoded_string[in_]; in_++;
+    if (i ==4) {
+      for (i = 0; i <4; i++)
+        char_array_4[i] = base64_chars.find(char_array_4[i]);
+
+      char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
+      char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
+      char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
+
+      for (i = 0; (i < 3); i++)
+        ret += char_array_3[i];
+      i = 0;
+    }
+  }
+
+  if (i) {
+    for (j = i; j <4; j++)
+      char_array_4[j] = 0;
+
+    for (j = 0; j <4; j++)
+      char_array_4[j] = base64_chars.find(char_array_4[j]);
+
+    char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
+    char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
+    char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
+
+    for (j = 0; (j < i - 1); j++) ret += char_array_3[j];
+  }
+
+  return ret;
+}
+
+
+NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding, Notify* a, DatabaseManager* d) 
+  : Gtk::Box (Gtk::ORIENTATION_VERTICAL, padding) {
+	dbm = d;
+  app = a;
 	set_orientation (Gtk::ORIENTATION_VERTICAL);
 
 	Gtk::Box* toolbarBox = Gtk::manage (new Gtk::Box ());
@@ -55,7 +153,7 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 #if HASPDF
 	exportPdfButton = Gtk::manage (new Gtk::Button ("Export PDF"));
 	addCss (exportPdfButton, "exportPdfButton", " .exportPdfButton{\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0; padding-right:10px; font: OpenSans light 8; color:#000;}");
-  exportPdfButton->signal_clicked().connect(
+    exportPdfButton->signal_clicked().connect(
     		sigc::mem_fun(*this, &NotePaneView::exportPdfButtonCallback) );
 	toolbarBox->pack_end (*exportPdfButton, false, false , 0);
 #else
@@ -207,6 +305,20 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 	addCss (clistButton, "clistButton", " .clistButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
 	clistButton->set_size_request (30, 30);	
 
+	separatorVertical = Gtk::manage (new Gtk::Separator (Gtk::ORIENTATION_VERTICAL));
+	toolbarBox->pack_start (*separatorVertical, false, false, 0);
+
+	insertImageButton = Gtk::manage (new Gtk::Button ());
+    img = Gtk::manage (new Gtk::Image ("img/clist.png"));
+    insertImageButton->set_image (*img);
+  	insertImageButton->signal_clicked().connect(
+    		sigc::mem_fun(*this, &NotePaneView::insertImageButtonCallback));
+	toolbarBox->pack_start (*insertImageButton, false, false , 0);
+	addCss (insertImageButton, "insertImageButton", " .insertImageButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
+	insertImageButton->set_size_request (30, 30);	
+
+
+
 	Gtk::EventBox* eventBoxBot = Gtk::manage (new Gtk::EventBox ());
 	eventBoxBot->add (*toolbarBox);
 	
@@ -285,11 +397,73 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 NotePaneView::~NotePaneView () {}
 
 
-void NotePaneView::setDatabaseManager (DatabaseManager* d) {
-    dbm = d;
+
+int NotePaneView::getImageCallback (void* npv, int argc, char **argv, char **azColName) {
+	NotePaneView* p = (NotePaneView*) npv;
+  std::string encoded = base64_encode(reinterpret_cast<const unsigned char*>(argv[0]), atoi (argv[1]));
+  std::string data = "data:image/png;base64,";
+  data.append (encoded);
+  encoded.clear ();
+      char *rootNode = p->gDoc->allocate_string(data.c_str ()); 
+	rapidxml::xml_attribute<> *attr = p->gDoc->allocate_attribute("src", rootNode);
+	p->gRoot->append_attribute(attr);
+	std::cout << "Callback" << std::endl;
+	return 0;
+}
+
+void NotePaneView::getImageDataForNote (rapidxml::xml_node<>* root, rapidxml::xml_document<>* doc) {
+    char* rootNodeName = root->name ();
+    if (!strcmp (rootNodeName, "img")) {
+        for (rapidxml::xml_attribute<> *attr = root->first_attribute(); attr; 
+            attr = attr->next_attribute ()) {
+            char* attrName= attr->name ();
+            if (!strcmp (attrName, "hash")) {
+            	/*
+            	 Fetch Resource From DB 
+            	 */
+            	 gRoot = root;
+            	 gDoc = doc;
+            	 std::string query = "select body, size from resources where hash = '";
+
+            	 query.append (attr->value ());
+            	 query.append ("' limit 1");
+            	 std::cout << query << std::endl;
+        	 	 dbm->exec (query, &getImageCallback, this);
+            }
+        }
+    }
+
+    for (rapidxml::xml_node<> *child = root->first_node (); child;
+            child = child->next_sibling ()) {
+        getImageDataForNote (child,doc);
+    }
 }
 
 void NotePaneView::setNote (NoteData n) {
+	/*
+	 Get Resources from the db.
+	 Check if html is appended or no. 
+	 */
+	std::string htmlTag = "<html>";
+	if (n.getBodyPointer ()->substr (0, htmlTag.size ()) != htmlTag) {
+		n.getBodyPointer ()->insert (0, htmlTag);
+		n.getBodyPointer ()->append ("</html>");
+	}
+
+	rapidxml::xml_document<> doc;
+    char *cstr = new char[n.getBody ().length() + 1];
+    strcpy(cstr, n.getBody ().c_str());
+    doc.parse<0> (cstr);
+    char *rootNode = doc.allocate_string("html");        // Allocate string and copy name into it
+    doc.first_node ()->name (rootNode);
+
+
+    getImageDataForNote
+     (doc.first_node (), &doc);
+
+    std::string bodyContent = "";
+    rapidxml::print(std::back_inserter(bodyContent), doc);
+    n.setBody (bodyContent);
 	setWebViewContent (n.getBody ());
 	setNoteTitleEntryText (n.getTitle ());
 	notebookName->set_text (n.getNotebookName ());
@@ -356,12 +530,32 @@ std::string NumberToString(T pNumber)
  return oOStrStream.str();
 }
 
+
+void removeImageDataFromNotes (rapidxml::xml_node<>* root) {
+    char* rootNodeName = root->name ();
+    if (!strcmp (rootNodeName, "img")) {
+        for (rapidxml::xml_attribute<> *attr = root->first_attribute(); attr; 
+            attr = attr->next_attribute ()) {
+            char* attrName= attr->name ();
+            if (!strcmp (attrName, "src")) {
+            	root->remove_attribute (attr);
+            	std::cout << attrName << std::cout;
+            }
+        }
+    }
+
+    for (rapidxml::xml_node<> *child = root->first_node (); child;
+            child = child->next_sibling ()) {
+        removeImageDataFromNotes (child);
+    }
+}
+
+
 void NotePaneView::saveNote () {
 
 	std::string body = "";
 	webkit_web_view_execute_script (webview, "document.title=document.documentElement.innerHTML;");
 	body.append (webkit_web_frame_get_title ((webkit_web_view_get_main_frame (webview))));
-	body = replaceSingleQuote (body);
 
 #if 0
 	// Create temporary file for saving to PDF
@@ -372,9 +566,30 @@ void NotePaneView::saveNote () {
 	temp_html_file.close();
 #endif /* HASPDF */
 	std::string title = replaceSingleQuote (noteTitle->get_text ());
-	std::cout << "saved: " << "update notes set title = '" + title + "', body = '" + body + "' where guid = '" << nd.getGuid () << "'" << std::endl;
-  	dbm->exec ("update notes set title = '" + title + "', body = '" + body + "', modified_time = strftime('%s','now') where guid = '" + (nd.getGuid ()) + "'", NULL, this);
+	std::string htmlTag = "<html>";
+	if (body.substr (0, htmlTag.size ()) != htmlTag) {
+		body.insert (0, htmlTag);
+		body.append ("</html>");
+	}
+	// remove the base64 hashed out images.
 
+	rapidxml::xml_document<> doc;
+    char *cstr = new char[body.length() + 1];
+    strcpy(cstr, body.c_str());
+    doc.parse<0> (cstr);
+    char *rootNode = doc.allocate_string("html");        // Allocate string and copy name into it
+    doc.first_node ()->name (rootNode);
+
+
+    removeImageDataFromNotes (doc.first_node ());
+
+    body.clear ();
+
+    rapidxml::print(std::back_inserter(body), doc);
+
+	body = replaceSingleQuote (body);
+
+  	dbm->exec ("update notes set title = '" + title + "', body = '" + body + "', modified_time = strftime('%s','now') where guid = '" + (nd.getGuid ()) + "'", NULL, this);
   	app->nlpv->fetchNotesForNotebooks (app->lpv->selectedNotebookGuids);
 }
 
@@ -450,6 +665,109 @@ void NotePaneView::clistButtonCallback() {
     WebKitDOMDocument* dom = webkit_web_view_get_dom_document (webview);
     webkit_dom_document_exec_command (dom, "insertHTML", false, "<input type='checkbox'></input>");
     gtk_widget_grab_focus (GTK_WIDGET (webview));
+}
+
+void convert_md5_sum(unsigned char* md, std::string* md5Result) {
+    int i;
+    char buf[32];
+    for(i=0; i <MD5_DIGEST_LENGTH; i++) {
+	    sprintf(buf, "%02x", md[i]);
+	    md5Result->append( buf );
+    }
+}
+
+void NotePaneView::insertImageButtonCallback () {
+	Gtk::FileChooserDialog dialog("Please choose an image",
+		Gtk::FILE_CHOOSER_ACTION_OPEN);
+	dialog.set_transient_for(*app);  
+	//Add response buttons the the dialog:
+  dialog.add_button("_Cancel", Gtk::RESPONSE_CANCEL);
+  dialog.add_button("_Open", Gtk::RESPONSE_OK);
+
+  int result = dialog.run();
+  Glib::RefPtr<Gtk::FileFilter> filter_any = Gtk::FileFilter::create();
+  filter_any->set_name("Any files");
+  filter_any->add_pattern("*");
+  dialog.add_filter(filter_any);
+  //Handle the response:
+  switch(result)
+  {
+    case(Gtk::RESPONSE_OK):
+    {
+      std::cout << "Open clicked." << std::endl;
+		//Notice that this is a std::string, not a Glib::ustring.
+		std::string filename = dialog.get_filename();
+		std::cout << "File selected: " <<  filename << std::endl;
+
+		std::ifstream file(filename.c_str (), std::ios::in | std::ios::binary);
+		if (!file) {
+		    std::cerr << "An error occurred opening the file\n";
+		}
+		file.seekg(0, std::ifstream::end);
+		std::streampos size = file.tellg();
+		file.seekg(0);
+
+		char* buffer = new char[size];
+		file.read(buffer, size);
+
+
+  		sqlite3_stmt *pStmt;
+  		const char *zSql = "INSERT INTO resources (noteguid, hash, size, body, mime) VALUES(?, ?, ?, ?, ?)";
+ 		int rc = sqlite3_prepare_v2(dbm->db, zSql, -1, &pStmt, 0);
+
+		// Calculate md5
+        unsigned char result[MD5_DIGEST_LENGTH];
+        std::string* md5Result = new std::string ("");
+		MD5(reinterpret_cast<const unsigned char*>(buffer), size, result);
+     	convert_md5_sum(result, md5Result);
+     	std::cout << *md5Result << std::endl;
+
+		sqlite3_bind_text(pStmt, 1, nd.getGuid ().c_str (), -1, SQLITE_STATIC);
+		sqlite3_bind_text(pStmt, 2, md5Result->c_str (), -1, SQLITE_STATIC);
+		sqlite3_bind_int(pStmt, 3, size);
+		sqlite3_bind_blob(pStmt, 4, buffer, size, SQLITE_STATIC);
+		sqlite3_bind_text(pStmt, 5, "image/png", -1, SQLITE_STATIC);
+
+		/* Call sqlite3_step() to run the virtual machine. Since the SQL being
+		** executed is not a SELECT statement, we assume no data will be returned.
+		*/
+		rc = sqlite3_step(pStmt);
+		assert( rc!=SQLITE_ROW );
+
+		/* Finalize the virtual machine. This releases all memory and other
+		** resources allocated by the sqlite3_prepare() call above.
+		*/
+		rc = sqlite3_finalize(pStmt);
+
+		// Encode to base64
+		std::string encoded = base64_encode(reinterpret_cast<const unsigned char*>(buffer), size);
+
+     	// Insert the new image in the note body.
+		std::string insertImageHtml;
+		insertImageHtml.append ("<img alt=\"Hello!\" hash=\"");
+		insertImageHtml.append (*md5Result);
+		insertImageHtml.append ("\" src=\"data:image/jpeg;base64,");
+		insertImageHtml.append (encoded);
+		insertImageHtml.append ("\"></img>");
+
+	    WebKitDOMDocument* dom = webkit_web_view_get_dom_document (webview);
+	    webkit_dom_document_exec_command (dom, "insertHTML", false, insertImageHtml.c_str ());
+	    gtk_widget_grab_focus (GTK_WIDGET (webview));
+
+
+      break;
+    }
+    case(Gtk::RESPONSE_CANCEL):
+    {
+      std::cout << "Cancel clicked." << std::endl;
+      break;
+    }
+    default:
+    {
+      std::cout << "Unexpected button clicked." << std::endl;
+      break;
+    }
+  } 
 }
 #if HASPDF
 /* Print out loading progress information */

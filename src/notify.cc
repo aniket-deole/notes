@@ -18,6 +18,11 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "notify.hh"
 
 Notify::Notify() {
+
+
+    dbm = new DatabaseManager (this);
+
+    windowBody = Gtk::manage (new WindowBody (false, 0, Gtk::PACK_SHRINK, 0, this, dbm));
 	/** Window Related Properties **/
 	set_default_size (960, 540);
     mainToolbar = new MainToolbar ();
@@ -25,18 +30,11 @@ Notify::Notify() {
 
     set_titlebar(*mainToolbar);
 
-    windowBody = Gtk::manage (new WindowBody (false, 0, Gtk::PACK_SHRINK));
-
 	set_title("Notes For Linux");
 
 	add(*windowBody);
 	show_all ();
 //	gdk_window_set_decorations (gtk_widget_get_window ((GtkWidget*) gobj ()), GDK_DECOR_BORDER);
-
-    dbm = new DatabaseManager (this);
-
-    windowBody->setApp (this);
-    windowBody->setDatabaseManager (dbm);
 }
 
 Notify::~Notify () {}

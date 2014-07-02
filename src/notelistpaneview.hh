@@ -41,7 +41,7 @@ private:
   NoteData selectedNote;
 
 public:
-    NoteListPaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding = 0);
+    NoteListPaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding = 0, Notify* a = NULL, DatabaseManager* d = NULL);
     ~NoteListPaneView ();
 
 

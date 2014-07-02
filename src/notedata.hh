@@ -51,6 +51,8 @@ public:
    int getPrimaryKey () { return primary_key; }
   std::string getSummary () { return summary; }
   std::string getBody () { return body; }
+  std::string* getBodyPointer () {return &body;}
+  void setBody (std::string b) { this->body.clear (); this->body = b; }
   int getCreateTime () { return create_unix_time; }
 
   int getModifiedTime () { return modified_unix_time; }

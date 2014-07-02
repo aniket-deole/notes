@@ -85,7 +85,7 @@ private:
   std::vector<std::string> stacks;
 
 public:
-    LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding = 0);
+    LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding = 0, Notify* a = NULL, DatabaseManager* d= NULL);
     ~LeftPaneView ();
 
   NotebookData* notebookBeingDragged;

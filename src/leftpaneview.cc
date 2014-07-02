@@ -202,8 +202,11 @@ static Gtk::TreeViewColumn* create_column (Gtk::TreeModelColumn<int> tmc, Gtk::T
   return c;
 }
 
-LeftPaneView::LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding) {
-  dbInitialized = false;
+LeftPaneView::LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding,Notify* a, DatabaseManager* d) 
+  : Gtk::Box (Gtk::ORIENTATION_VERTICAL, padding){
+
+    app = a;
+    dbm = d;
   notebookBeingDragged = NULL;
   set_orientation (Gtk::ORIENTATION_VERTICAL);
 
@@ -275,6 +278,7 @@ LeftPaneView::LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
   m_Menu_Popup.show_all(); //Show all menu items when the menu pops up
   
   show_all ();
+  refreshLeftPaneView ();
 }
 
 void LeftPaneView::on_treeview_row_expanded (const Gtk::TreeModel::iterator& iter, Gtk::TreeModel::Path path){
@@ -286,8 +290,6 @@ void LeftPaneView::on_treeview_row_activated (const Gtk::TreePath& tp, Gtk::Tree
 }
 
 void LeftPaneView::on_treeview_row_changed () {
-  if (!dbInitialized)
-    return;
 
   Glib::RefPtr<Gtk::TreeSelection> ts = m_TreeView_Notebooks.get_selection ();
   Gtk::TreeModel::iterator iter = ts->get_selected ();

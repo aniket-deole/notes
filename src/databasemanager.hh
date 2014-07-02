@@ -26,10 +26,10 @@ class DatabaseManager {
 private:
   Notify* app;
 
-  sqlite3 *db;
 public:
   DatabaseManager (Notify*);
   ~DatabaseManager ();
+  sqlite3 *db;
 
   int exec (std::string, int (*callback)(void*,int,char**,char**), void *);
 };

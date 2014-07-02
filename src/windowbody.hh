@@ -42,7 +42,7 @@ private:
 
     DatabaseManager* dbm;
 public:
-    WindowBody (bool homogeneous, int spacing, Gtk::PackOptions options, int padding = 0);
+    WindowBody (bool homogeneous, int spacing, Gtk::PackOptions options, int padding = 0, Notify* a = NULL, DatabaseManager* d= NULL);
     ~WindowBody ();
 
     void setApp (Notify* a);

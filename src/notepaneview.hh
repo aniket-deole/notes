@@ -18,6 +18,9 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <gtkmm.h>
 #include <webkit/webkit.h>
+#include "rapidxml_print.hpp"
+#include "rapidxml.hpp"
+
 #include "notedata.hh"
 #include "databasemanager.hh"
 #if HASPDF
@@ -56,14 +59,19 @@ private:
 	Gtk::Button* olistButton;
 	Gtk::Button* ulistButton;
 	Gtk::Button* clistButton;
+	Gtk::Button* insertImageButton;
 #if HASPDF
 	Gtk::Button* exportPdfButton;
 #endif /* HASPDF */
 	Gtk::Button* notebookButton;
 	Gtk::Entry* notebookName;
 
+	/* Declarations necessary for callbacks. */
+	rapidxml::xml_node<>* gRoot;
+	rapidxml::xml_document<>* gDoc;
+
 public:
-	NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding = 0);
+	NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding = 0, Notify* a = NULL, DatabaseManager* d = NULL);
 	~NotePaneView ();
 
 	void setDatabaseManager (DatabaseManager* d);
@@ -91,6 +99,10 @@ public:
 	void olistButtonCallback();
 	void ulistButtonCallback();
 	void clistButtonCallback();
+	void insertImageButtonCallback ();
+
+	void getImageDataForNote (rapidxml::xml_node<>* , rapidxml::xml_document<>* );
+	static int getImageCallback (void* nlpv, int argc, char **argv, char **azColName);
 #if HASPDF
 	void exportPdfButtonCallback();
 #endif /* HASPDF */

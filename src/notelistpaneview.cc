@@ -172,7 +172,11 @@ static Gtk::TreeViewColumn* create_column (Gtk::TreeModelColumn<int> tmc, Gtk::T
 }
 
 
-NoteListPaneView::NoteListPaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding) {
+NoteListPaneView::NoteListPaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding, Notify* a, DatabaseManager* d) 
+  : Gtk::Box (Gtk::ORIENTATION_VERTICAL, padding) {
+
+    app = a;
+    dbm = d;
 
   set_orientation (Gtk::ORIENTATION_VERTICAL);
 
@@ -221,6 +225,9 @@ NoteListPaneView::NoteListPaneView (bool homogeneous, int spacing, Gtk::PackOpti
   m_Menu_Popup.show_all(); //Show all menu items when the menu pops up
  
   show_all ();
+
+  dbm->exec ("select a.id, a.title, a.body, a.created_time, a.modified_time, a.guid, a.notebook_guid, a.usn, a.dirty, b.title from notes a, notebooks b where a.notebook_guid = b.guid order by a.modified_time desc, a.id", &fillNotesCallback,this);
+
 }
 void NoteListPaneView::treeviewcolumn_validated_on_cell_data(
   Gtk::CellRenderer* ,
@@ -231,13 +238,6 @@ void NoteListPaneView::treeviewcolumn_validated_on_cell_data(
 NoteListPaneView::~NoteListPaneView () {
 
 }
-
-void NoteListPaneView::setDatabaseManager (DatabaseManager* d) {
-  dbm = d;
-  dbm->exec ("select a.id, a.title, a.body, a.created_time, a.modified_time, a.guid, a.notebook_guid, a.usn, a.dirty, b.title from notes a, notebooks b where a.notebook_guid = b.guid order by a.modified_time desc, a.id", &fillNotesCallback,this);
-  m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0"));
-}
-
 
 int NoteListPaneView::fillNotesCallback (void* nlpv, int argc, char **argv, char **azColName) {
   NoteListPaneView* p = (NoteListPaneView*) nlpv;
@@ -251,7 +251,8 @@ int NoteListPaneView::fillNotesCallback (void* nlpv, int argc, char **argv, char
   row[p->m_Columns.m_note_data] = n1;
   
 //  std::cout << "NoteListPaneView::fillNotesCallback PKey: " << atoi(argv[0]) << std::endl;
-  
+    p->m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0"));
+    std::cout << "fileNoto" << std::endl;
   return 0;
 }
 
