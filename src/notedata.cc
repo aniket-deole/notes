@@ -60,7 +60,7 @@ NoteData::NoteData (int p_key, std::string t, std::string b,int create_time, int
     notebookName = n_name;
 
     /* Create summary to display in the note list pane view. */
-
+//    std::cout << b << std::endl;
 	
 	    /* Removing HTML Tags */
     std::string strippedSummary = "";
@@ -83,7 +83,8 @@ NoteData::NoteData (int p_key, std::string t, std::string b,int create_time, int
         if(0 != startpos)
         {
             text.push_back(b.substr(0, startpos));
-            b = b.substr(startpos, b.size() - startpos);
+            if ((b.size () - startpos) < b.size ())
+               b = b.substr(startpos, b.size() - startpos);
             startpos = 0;
         }
 
@@ -108,14 +109,18 @@ NoteData::NoteData (int p_key, std::string t, std::string b,int create_time, int
         //  Handle text and end of html that has beginning of tag but not the end
         if(endpos == b.size())
         {
-            b = b.substr(endpos, b.size() - endpos);
+           b = b.substr(endpos, b.size() - endpos);
             break;
         }
         else
         {
             //  handle the entire tag
             endpos++;
+            if ((endpos - startpos) > b.size ())
+                break;
             tags.push_back(b.substr(startpos, endpos - startpos));
+            if ((b.size () - endpos) > b.size ()) 
+                break;
             b = b.substr(endpos, b.size() - endpos);
         }
     }
@@ -125,12 +130,12 @@ NoteData::NoteData (int p_key, std::string t, std::string b,int create_time, int
     // this makes it a bit easier to read.    
     for(size_t i = 0; i < tags.size(); i++)
     {
- //       std::cout << tags[i] << std::endl;
+ //       
     }
 
     for(size_t i = 0; i < text.size(); i++)
     {
- //       std::cout << text[i] << std::endl;
+ //       
         strippedSummary.append (text[i]);
     }
 
@@ -142,4 +147,5 @@ NoteData::NoteData (int p_key, std::string t, std::string b,int create_time, int
     strippedSummary = ReplaceString (strippedSummary, "&", "&amp;");
 
     summary = trim (strippedSummary);
+//    std::cout << strippedSummary << std::endl;
 }

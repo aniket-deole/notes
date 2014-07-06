@@ -407,7 +407,7 @@ int NotePaneView::getImageCallback (void* npv, int argc, char **argv, char **azC
       char *rootNode = p->gDoc->allocate_string(data.c_str ()); 
 	rapidxml::xml_attribute<> *attr = p->gDoc->allocate_attribute("src", rootNode);
 	p->gRoot->append_attribute(attr);
-	std::cout << "Callback" << std::endl;
+	
 	return 0;
 }
 
@@ -427,7 +427,7 @@ void NotePaneView::getImageDataForNote (rapidxml::xml_node<>* root, rapidxml::xm
 
             	 query.append (attr->value ());
             	 query.append ("' limit 1");
-            	 std::cout << query << std::endl;
+            	 
         	 	 dbm->exec (query, &getImageCallback, this);
             }
         }
@@ -439,8 +439,23 @@ void NotePaneView::getImageDataForNote (rapidxml::xml_node<>* root, rapidxml::xm
     }
 }
 
+int NotePaneView::getBodyCallback (void* npv, int argc, char **argv, char **azColName) {
+  NotePaneView* p = (NotePaneView*) npv;
+  p->noteBody = argv[0];
+  return 0;
+}
+
 void NotePaneView::setNote (NoteData n) {
 	/*
+   * Get Note from the db
+   */
+  std::string query = "select body from notes where guid = '";
+  query.append (n.getGuid ());
+  query.append ("'");
+  dbm->exec (query, &getBodyCallback, this);
+  n.setBody (noteBody);
+
+  /*
 	 Get Resources from the db.
 	 Check if html is appended or no. 
 	 */
@@ -539,7 +554,7 @@ void removeImageDataFromNotes (rapidxml::xml_node<>* root) {
             char* attrName= attr->name ();
             if (!strcmp (attrName, "src")) {
             	root->remove_attribute (attr);
-            	std::cout << attrName << std::cout;
+            	
             }
         }
     }
@@ -694,10 +709,10 @@ void NotePaneView::insertImageButtonCallback () {
   {
     case(Gtk::RESPONSE_OK):
     {
-      std::cout << "Open clicked." << std::endl;
+      
 		//Notice that this is a std::string, not a Glib::ustring.
 		std::string filename = dialog.get_filename();
-		std::cout << "File selected: " <<  filename << std::endl;
+		
 
 		std::ifstream file(filename.c_str (), std::ios::in | std::ios::binary);
 		if (!file) {
@@ -720,7 +735,7 @@ void NotePaneView::insertImageButtonCallback () {
         std::string* md5Result = new std::string ("");
 		MD5(reinterpret_cast<const unsigned char*>(buffer), size, result);
      	convert_md5_sum(result, md5Result);
-     	std::cout << *md5Result << std::endl;
+     	
 
 		sqlite3_bind_text(pStmt, 1, nd.getGuid ().c_str (), -1, SQLITE_STATIC);
 		sqlite3_bind_text(pStmt, 2, md5Result->c_str (), -1, SQLITE_STATIC);
@@ -759,12 +774,12 @@ void NotePaneView::insertImageButtonCallback () {
     }
     case(Gtk::RESPONSE_CANCEL):
     {
-      std::cout << "Cancel clicked." << std::endl;
+      
       break;
     }
     default:
     {
-      std::cout << "Unexpected button clicked." << std::endl;
+      
       break;
     }
   } 
@@ -797,8 +812,8 @@ void NotePaneView::exportPdfButtonCallback() {
 //    webkit_dom_document_exec_command (dom, "insertHTML", false, "<input type='checkbox'></input>");
 //    gtk_widget_grab_focus (GTK_WIDGET (webview));
 
-	std::cout << "Export Pdf Button clicked!" << std::endl;
-	std::cout << "Current node guid: "<< nd.getGuid() << std::endl;
+	
+	
 	wkhtmltopdf_global_settings * gs;
 	wkhtmltopdf_object_settings * os;
 	wkhtmltopdf_converter * c;
@@ -871,6 +886,6 @@ void NotePaneView::exportPdfButtonCallback() {
 
 	/* We will no longer be needing wkhtmltopdf funcionality */
 	wkhtmltopdf_deinit();
-	std::cout << "Export Pdf ended" << std::endl;
+	
 }
 #endif /* HASPDF */

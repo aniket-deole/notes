@@ -43,6 +43,8 @@ private:
 	Gtk::Button* saveButton;
 	NoteData nd;
 
+	std::string noteBody;
+
 	Notify* app;
 
 	Gtk::Button* boldButton;
@@ -103,6 +105,7 @@ public:
 
 	void getImageDataForNote (rapidxml::xml_node<>* , rapidxml::xml_document<>* );
 	static int getImageCallback (void* nlpv, int argc, char **argv, char **azColName);
+	static int getBodyCallback (void* npv, int argc, char **argv, char **azColName);
 #if HASPDF
 	void exportPdfButtonCallback();
 #endif /* HASPDF */

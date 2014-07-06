@@ -40,6 +40,5 @@ Notify::Notify() {
 Notify::~Notify () {}
 
 void Notify::on_button_clicked () {
-	std::cout << "HelloWorld!" << std::endl;
 }
 

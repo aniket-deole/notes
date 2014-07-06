@@ -62,7 +62,7 @@ NotebookTreeStore::row_draggable_vfunc(const Gtk::TreeModel::Path& path) const
   {
     Row row = *iter;
     bool is_draggable = row[m_Columns.m_col_draggable];
-    std::cout << "NotebookTreeStore::row_draggable_vfunc" << std::endl;
+    
     lpv->notebookBeingDragged = new NotebookData (row[m_Columns.m_notebook_data]);
     return is_draggable;
   }
@@ -115,7 +115,7 @@ NotebookTreeStore::row_drop_possible_vfunc(const Gtk::TreeModel::Path& dest,
         Row sourceRow = *iter;
         NotebookData nbd = row[m_Columns.m_notebook_data];
         NotebookData sNbd = sourceRow[m_Columns.m_notebook_data];
-        std::cout << nbd.getGuid () << ":" << sNbd.getGuid () << std::endl;
+        
         if (nbd.getGuid () == sNbd.getGuid ()) {
           return false;
         }
@@ -282,11 +282,11 @@ LeftPaneView::LeftPaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 }
 
 void LeftPaneView::on_treeview_row_expanded (const Gtk::TreeModel::iterator& iter, Gtk::TreeModel::Path path){
-  std::cout << "TreeView Row Expanded" << std::endl;
+  
 }
 
 void LeftPaneView::on_treeview_row_activated (const Gtk::TreePath& tp, Gtk::TreeViewColumn* const& tvc){
-  std::cout << "TreeView Row Activated" << std::endl;
+  
 }
 
 void LeftPaneView::on_treeview_row_changed () {
@@ -310,11 +310,11 @@ void LeftPaneView::on_treeview_row_changed () {
         m_TreeView_Notebooks.expand_all ();
         ts->select (Gtk::TreeModel::Path (selectedPath));
       }
-      std::cout << "Tree Header Clicked." << std::endl;
+      
     } else {
 
       Gtk::TreeModel::Path path = tm->get_path (iter);
-      std::cout << "Tree Child Clicked." << std::endl;
+      
       selectedPath = tm->get_string (iter);
 
       /* Callback to fill up the notelistpane. */
@@ -349,7 +349,7 @@ void LeftPaneView::on_treeview_row_changed () {
         selectedNotebookGuids.clear ();
         selectedNotebookGuids.push_back (selectedNotebook.getGuid ());
         app->nlpv->fetchNotesForNotebook (selectedNotebook.getGuid ());
-        std::cout << "LeftPaneView::on_treeview_row_changed Name: " << row[m_refTreeModel->m_Columns.m_col_id] << ", PKey: " << row[m_refTreeModel->m_Columns.m_col_name] << std::endl;
+        
       }
     }
   }
@@ -365,7 +365,7 @@ void LeftPaneView::setDatabaseManager (DatabaseManager* d) {
 }
 
 int LeftPaneView::fillNotebooksCallback (void* lpv, int argc, char **argv, char **azColName) {
-  std::cout << "LeftPaneView::fillNotebooksCallback" << std::endl;
+  
   LeftPaneView* p = (LeftPaneView*) lpv;
 
   std::string notebookName = "";
@@ -388,9 +388,9 @@ int LeftPaneView::fillNotebooksCallback (void* lpv, int argc, char **argv, char 
       Gtk::TreeModel::Children children = p->notebooksRow.children ();
       /* Get Row and add a child row. */
       for (unsigned int i = 0; i < children.size (); i++) {
-        std::cout << children[i] << std::endl;
+        
         Gtk::TreeModel::Row cr = children[i];
-        std::cout << cr[p->m_refTreeModel->m_Columns.m_col_name] << std::endl;
+        
         NotebookData notebookDataItem = cr[p->m_refTreeModel->m_Columns.m_notebook_data];
         if (notebookDataItem.getTitle () == stack) {
             Gtk::TreeModel::Row ccr = *(p->m_refTreeModel->append(cr.children ()));
@@ -424,7 +424,7 @@ int LeftPaneView::fillNotebooksCallback (void* lpv, int argc, char **argv, char 
 
       p->stacks.push_back (stack);
 
-      std::cout << "NotebooksRow Size: " << p->notebooksRow.children ().size () << std::endl;
+      
     }
   } else {  
     Gtk::TreeModel::Row childrow = *(p->m_refTreeModel->append(p->notebooksRow.children()));
@@ -434,7 +434,7 @@ int LeftPaneView::fillNotebooksCallback (void* lpv, int argc, char **argv, char 
     childrow[p->m_refTreeModel->m_Columns.m_col_draggable] = true;
     childrow[p->m_refTreeModel->m_Columns.m_col_receivesdrags] = true;
     childrow[p->m_refTreeModel->m_Columns.m_col_is_stack] = false;
-    std::cout << "NotebooksRow Size: " << p->notebooksRow.children ().size () << std::endl;
+    
   }
   return 0;
 }
@@ -443,8 +443,8 @@ void LeftPaneView::nnDragFinished(  const Glib::RefPtr< Gdk::DragContext >&   co
   if (dragEnded)
     return;
 
-  std::cout << "Drag Finished." << &context << std::endl;
-  std::cout << notebookBeingDragged->getGuid () << ":" << notebookDestination->getGuid() << ":" << std::endl;
+  
+  
 
   if (!notebookDestination->getStack ().empty ()) {
     updateParentGuid (notebookBeingDragged->getGuid (), notebookDestination->getGuid (), notebookDestination->getStack ());
@@ -459,7 +459,7 @@ void LeftPaneView::nnDragFinished(  const Glib::RefPtr< Gdk::DragContext >&   co
   }
 
   if (notebookDestination->getGuid().empty ()) {
-    std::cout << "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX: Removed Stack from notebook." << std::endl;
+    
     updateParentGuid (notebookBeingDragged->getGuid (), notebookDestination->getGuid (), "");
     dragEnded = true;
     return;  
@@ -479,18 +479,18 @@ void LeftPaneView::nnDragFinished(  const Glib::RefPtr< Gdk::DragContext >&   co
   int reply = popup->run ();
   popupW = -1; popupH = -1;
   if (reply == Gtk::RESPONSE_OK) {
-    std::cout << "Resonse ok." << std::endl;
+    
     popup->hide ();
     /* Update stacks */
     if (!notebookName->get_text().empty ()) {
       updateParentGuid (notebookBeingDragged->getGuid (), notebookDestination->getGuid (), notebookName->get_text ());
     }
   } else if (reply == Gtk::RESPONSE_CANCEL) {
-    std::cout << "Resonse cancel." << std::endl;
+    
     popup->hide ();
     refreshLeftPaneView ();
   } else {
-    std::cout << "Resonse else." << std::endl;
+    
     popup->hide ();
     refreshLeftPaneView ();
   }
@@ -503,7 +503,7 @@ void LeftPaneView::nnDragStarted(  const Glib::RefPtr< Gdk::DragContext >&   con
 }
 
 int LeftPaneView::fillTagsCallback (void* lpv, int argc, char **argv, char **azColName) {
-  std::cout << "LeftPaneView::fillTagsCallback" << std::endl;
+  
   LeftPaneView* p = (LeftPaneView*) lpv;
 
   int tagId = atoi (argv[0]);
@@ -545,14 +545,14 @@ void LeftPaneView::newNotebook () {
   int reply = popup->run ();
   popupW = -1; popupH = -1;
   if (reply == Gtk::RESPONSE_OK) {
-    std::cout << "Resonse ok." << std::endl;
+    
     newNotebookOk ();
     popup->hide ();
   } else if (reply == Gtk::RESPONSE_CANCEL) {
-    std::cout << "Resonse cancel." << std::endl;
+    
     popup->hide ();
   } else {
-    std::cout << "Resonse else." << std::endl;
+    
     popup->hide ();
   }
 
@@ -583,7 +583,7 @@ void LeftPaneView::on_treeview_button_release_event (GdkEventButton* event) {
       /* single click with the right mouse button? */
     if (event->button == 3)
     {
-      std::cout << "Single right click on the tree view." << std::endl;
+      
 
 
   Glib::RefPtr<Gtk::TreeSelection> ts = m_TreeView_Notebooks.get_selection ();
@@ -608,7 +608,7 @@ void LeftPaneView::on_treeview_button_release_event (GdkEventButton* event) {
         notebookName = new Gtk::Entry ();
         notebookName->set_text (row[m_refTreeModel->m_Columns.m_col_name]);
          
-        std::cout << "LeftPaneView::on_treeview_button_release_event Name: " << row[m_refTreeModel->m_Columns.m_col_id] << ", PKey: " << selectedNotebook.getTitle () << std::endl;
+        
         m_Menu_Popup.popup(event->button, event->time);
 
         if (row [m_refTreeModel->m_Columns.m_col_is_stack]) {
@@ -634,8 +634,8 @@ void LeftPaneView::on_treeview_button_release_event (GdkEventButton* event) {
       Gtk::TreeModel::Path path;
       m_TreeView_Notebooks.get_path_at_pos ((gint) event->x, (gint) event->y, path);
 
-      std::cout << "Event Button: " << event->button << std::endl;
-      std::cout << "Path: " << path << std::endl;
+      
+      
       if (path.size () < 2) {
         return;
       }
@@ -693,14 +693,14 @@ void LeftPaneView::on_menu_file_popup_edit_notebook_name() {
   int reply = popup->run ();
   
   if (reply == Gtk::RESPONSE_OK) {
-    std::cout << "Resonse ok." << std::endl;
+    
     notebookEdit ();
     popup->hide ();
   } else if (reply == Gtk::RESPONSE_CANCEL) {
-    std::cout << "Resonse cancel." << std::endl;
+    
     popup->hide ();
   } else {
-    std::cout << "Resonse else." << std::endl;
+    
     popup->hide ();
   }
 
@@ -716,15 +716,15 @@ void LeftPaneView::on_menu_file_popup_delete_notebook () {
   int reply = popup->run ();
   
   if (reply == Gtk::RESPONSE_OK) {
-    std::cout << "Resonse ok." << std::endl;
+    
     notebookDelete ();
     popup->hide ();
   } else if (reply == Gtk::RESPONSE_CANCEL) {
-    std::cout << "Resonse cancel." << std::endl;
+    
     notebookDeleteCancel ();
     popup->hide ();
   } else {
-    std::cout << "Resonse else." << std::endl;
+    
     popup->hide ();
   }
 }

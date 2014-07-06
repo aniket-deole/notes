@@ -177,6 +177,7 @@ NoteListPaneView::NoteListPaneView (bool homogeneous, int spacing, Gtk::PackOpti
 
     app = a;
     dbm = d;
+    firstRowOfResultset = false;
 
   set_orientation (Gtk::ORIENTATION_VERTICAL);
 
@@ -225,15 +226,15 @@ NoteListPaneView::NoteListPaneView (bool homogeneous, int spacing, Gtk::PackOpti
   m_Menu_Popup.show_all(); //Show all menu items when the menu pops up
  
   show_all ();
-
-  dbm->exec ("select a.id, a.title, a.body, a.created_time, a.modified_time, a.guid, a.notebook_guid, a.usn, a.dirty, b.title from notes a, notebooks b where a.notebook_guid = b.guid order by a.modified_time desc, a.id", &fillNotesCallback,this);
+  firstRowOfResultset = true;
+  dbm->exec ("select a.id, a.title, substr (a.body, 0, 300), a.created_time, a.modified_time, a.guid, a.notebook_guid, a.usn, a.dirty, b.title from notes a, notebooks b where a.notebook_guid = b.guid order by a.modified_time desc, a.id", &fillNotesCallback,this);
 
 }
 void NoteListPaneView::treeviewcolumn_validated_on_cell_data(
   Gtk::CellRenderer* ,
   const Gtk::TreeModel::iterator& iter)
 {
-  std::cout << "render" << std::endl;
+  
 }
 NoteListPaneView::~NoteListPaneView () {
 
@@ -247,32 +248,18 @@ int NoteListPaneView::fillNotesCallback (void* nlpv, int argc, char **argv, char
   row[p->m_Columns.m_col_name] = "id";
   /*id integer primary key, title text, body text, created_time datetime, modified_time datetime, guid text, notebook_guid text*/
   /* a.id, a.title, a.body, a.created_time, a.modified_time, a.guid, a.notebook_guid, a.usn, a.dirty, b.title */
-  NoteData n1 (atoi(argv[0]), argv[1], argv[2], atoi(argv[3]), atoi (argv[4]), argv[5], argv[6], argv[9]);
-  row[p->m_Columns.m_note_data] = n1;
-  
-//  std::cout << "NoteListPaneView::fillNotesCallback PKey: " << atoi(argv[0]) << std::endl;
+    NoteData n1 (atoi(argv[0]), argv[1], argv[2], atoi(argv[3]), atoi (argv[4]), argv[5], argv[6], argv[9]);
+    row[p->m_Columns.m_note_data] = n1;
+    //  
     p->m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0"));
-    std::cout << "fileNoto" << std::endl;
   return 0;
 }
 
 void NoteListPaneView::on_treeview_row_activated (const Gtk::TreePath& tp, Gtk::TreeViewColumn* const& tvc){
-  std::cout << "TreeView Row Activated" << std::endl;
+  
 }
 
 void NoteListPaneView::on_treeview_row_changed () {
-  Glib::RefPtr<Gtk::TreeSelection> ts = m_TreeView.get_selection ();
-  Gtk::TreeModel::iterator iter = ts->get_selected ();
-  Glib::RefPtr<Gtk::TreeModel> tm = ts->get_model ();
-
-  if (iter) {
-    Gtk::TreeModel::Path path = tm->get_path (iter);
-    Gtk::TreeModel::Row row = *iter;
-    NoteData n = row[m_Columns.m_note_data];
-    std::cout << "NoteListPaneView::on_treeview_row_changed, Note, Title: " << n.getTitle () << ", Guid: " << n.getGuid () << std::endl;
-    app->npv->setNote (n);
-    app->npv->enableButtons ();
-  }
 }
 
 void NoteListPaneView::fetchNotesForNotebook (std::string n_guid) {
@@ -280,12 +267,14 @@ void NoteListPaneView::fetchNotesForNotebook (std::string n_guid) {
  
   std::string query;
   if (n_guid.empty () || n_guid == "_")
-    query = "select a.id, a.title, a.body, a.created_time, a.modified_time, a.guid, a.notebook_guid, a.usn, a.dirty, b.title from notes a, notebooks b where a.notebook_guid = b.guid order by a.modified_time desc, a.id";
+    query = "select a.id, a.title, substr (a.body, 0, 300), a.created_time, a.modified_time, a.guid, a.notebook_guid, a.usn, a.dirty, b.title from notes a, notebooks b where a.notebook_guid = b.guid order by a.modified_time desc, a.id";
   else
-    query = "select a.id, a.title, a.body, a.created_time, a.modified_time, a.guid, a.notebook_guid, a.usn, a.dirty, b.title from notes a, notebooks b where a.notebook_guid = b.guid and a.notebook_guid = '" + n_guid + "' order by a.modified_time desc, a.id";
-  std::cout << query << std::endl;
-  if (dbm)
+    query = "select a.id, a.title, substr (a.body, 0, 300), a.created_time, a.modified_time, a.guid, a.notebook_guid, a.usn, a.dirty, b.title from notes a, notebooks b where a.notebook_guid = b.guid and a.notebook_guid = '" + n_guid + "' order by a.modified_time desc, a.id";
+  
+  if (dbm) {
+    firstRowOfResultset = true;
     dbm->exec (query, & fillNotesCallback, this);
+  }
   
   m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0"));
   Glib::RefPtr<Gtk::TreeSelection> ts = m_TreeView.get_selection ();
@@ -316,9 +305,9 @@ void NoteListPaneView::fetchNotesForNotebooks (std::vector<std::string> guids) {
  
   std::string query;
   if (guids.empty () || (guids.size () == 1 && guids[0] == "_")) {
-    query = "select a.id, a.title, a.body, a.created_time, a.modified_time, a.guid, a.notebook_guid, a.usn, a.dirty, b.title from notes a, notebooks b where a.notebook_guid = b.guid ";
+    query = "select a.id, a.title, substr (a.body, 0, 300), a.created_time, a.modified_time, a.guid, a.notebook_guid, a.usn, a.dirty, b.title from notes a, notebooks b where a.notebook_guid = b.guid ";
   } else {
-    query = "select a.id, a.title, a.body, a.created_time, a.modified_time, a.guid, a.notebook_guid, a.usn, a.dirty, b.title from notes a, notebooks b where a.notebook_guid = b.guid and a.notebook_guid = ";
+    query = "select a.id, a.title, substr (a.body, 0, 300), a.created_time, a.modified_time, a.guid, a.notebook_guid, a.usn, a.dirty, b.title from notes a, notebooks b where a.notebook_guid = b.guid and a.notebook_guid = ";
     for (unsigned int i = 0; i < guids.size (); i++) {
       query += "'";
       query += guids[i];
@@ -330,9 +319,11 @@ void NoteListPaneView::fetchNotesForNotebooks (std::vector<std::string> guids) {
   }
   query += " order by a.modified_time desc, a.id";
 
-  std::cout << query << std::endl;
-  if (dbm)
+  
+  if (dbm){
+    firstRowOfResultset = true;
     dbm->exec (query, & fillNotesCallback, this);
+  }
   
   m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0"));
   Glib::RefPtr<Gtk::TreeSelection> ts = m_TreeView.get_selection ();
@@ -408,23 +399,23 @@ void NoteListPaneView::newNote () {
   int reply = popup->run ();
   
   if (reply == Gtk::RESPONSE_OK) {
-    std::cout << "Resonse ok." << std::endl;
+    
     newNoteOk ();
     popup->hide ();
     m_Combo.unparent ();
   } else if (reply == Gtk::RESPONSE_CANCEL) {
-    std::cout << "Resonse cancel." << std::endl;
+    
     popup->hide ();
     m_Combo.unparent ();
   } else {
-    std::cout << "Resonse else." << std::endl;
+    
     popup->hide ();
     m_Combo.unparent ();
   }
 }
 
 int NoteListPaneView::fillNotebooksCallback (void* lpv, int argc, char **argv, char **azColName) {
-  std::cout << "NoteListPaneView::fillNotebooksCallback" << std::endl;
+  
   NoteListPaneView* p = (NoteListPaneView*) lpv;
 
   std::string notebookName = "";
@@ -469,7 +460,7 @@ void NoteListPaneView::newNoteOk () {
     app->lpv->selectNotebookInPane (path[0]);
     app->npv->newNote ();
   } else {
-    std::cout << "Invalid Selection" << std::endl;
+    
   }
 
 }
@@ -478,9 +469,10 @@ void NoteListPaneView::newNoteOk () {
 
 void NoteListPaneView::on_treeview_button_release_event (GdkEventButton* event) {
       /* single click with the right mouse button? */
+  std::cout << event->button << std::endl;
     if (event->button == 3)
     {
-      std::cout << "Single right click on the tree view." << std::endl;
+      
 
 
   Glib::RefPtr<Gtk::TreeSelection> ts = m_TreeView.get_selection ();
@@ -494,9 +486,23 @@ void NoteListPaneView::on_treeview_button_release_event (GdkEventButton* event) 
         Gtk::TreeModel::Row row = *(tm->get_iter (path));
         selectedNote = row[m_Columns.m_note_data];
          
-        std::cout << "NoteListPaneView::on_treeview_button_release_event Name: " << row[m_Columns.m_col_id] << ", PKey: " << selectedNote.getTitle () << std::endl;
+        
         m_Menu_Popup.popup(event->button, event->time);
     }
+    } else {  Glib::RefPtr<Gtk::TreeSelection> ts = m_TreeView.get_selection ();
+  Gtk::TreeModel::iterator iter = ts->get_selected ();
+  Glib::RefPtr<Gtk::TreeModel> tm = ts->get_model ();
+
+  if (iter) {
+  Gtk::TreeModel::Path path;
+  m_TreeView.get_path_at_pos ((gint) event->x, (gint) event->y, path);
+
+    Gtk::TreeModel::Row row = *(tm->get_iter (path));
+    NoteData n = row[m_Columns.m_note_data];
+    
+    app->npv->setNote (n);
+    app->npv->enableButtons ();
+  }
     }
 
 }
@@ -511,11 +517,11 @@ void NoteListPaneView::on_menu_file_popup_delete_note () {
   int reply = popup->run ();
   
   if (reply == Gtk::RESPONSE_OK) {
-    std::cout << "Resonse ok." << std::endl;
+    
     noteDelete ();
     popup->hide ();
   } else {
-    std::cout << "Resonse cancel/else." << std::endl;
+    
     popup->hide ();
   }
 }
@@ -531,12 +537,14 @@ void NoteListPaneView::noteSearch (std::string str) {
     m_refTreeModel->clear ();
  
   std::string query;
-  query = "select a.id, a.title, a.body, a.created_time, a.modified_time, a.guid, a.notebook_guid, a.usn, a.dirty, b.title from notes a, notebooks b where a.notebook_guid = b.guid ";
+  query = "select a.id, a.title, substr (a.body, 0, 300), a.created_time, a.modified_time, a.guid, a.notebook_guid, a.usn, a.dirty, b.title from notes a, notebooks b where a.notebook_guid = b.guid ";
   query += "and (a.title like '%" + str + "%' or a.body like '%" + str + "%') order by a.modified_time desc, a.id";
 
-  std::cout << query << std::endl;
-  if (dbm)
+  
+  if (dbm) {
+    firstRowOfResultset = true;
     dbm->exec (query, & fillNotesCallback, this);
+  }
   
   m_TreeView.get_selection ()->select (Gtk::TreeModel::Path ("0"));
   Glib::RefPtr<Gtk::TreeSelection> ts = m_TreeView.get_selection ();

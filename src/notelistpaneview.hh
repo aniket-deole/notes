@@ -44,6 +44,8 @@ public:
     NoteListPaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding = 0, Notify* a = NULL, DatabaseManager* d = NULL);
     ~NoteListPaneView ();
 
+    // Flag to detect first row of select statement.
+    bool firstRowOfResultset;
 
   //Tree model columns:
   class ModelColumns : public Gtk::TreeModel::ColumnRecord
