@@ -25,6 +25,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "notelistpaneview.hh"
 #include "notepaneview.hh"
 #include "databasemanager.hh"
+#include "sync.hh"
 
 class WindowBody;
 class DatabaseManager;
@@ -41,7 +42,7 @@ public:
 	NotePaneView* npv;
 
 	DatabaseManager* dbm;
-	
+	SyncManager* sm;	
 protected:
 	void on_button_clicked();
 	Gtk::Button m_button;

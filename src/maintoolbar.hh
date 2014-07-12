@@ -32,6 +32,7 @@ private:
     Gtk::Button* collapseHeaderBar;
     Gtk::Button* newNoteButton;
     Gtk::Button* newNotebookButton;
+    Gtk::Button* syncButton;
 public:
     MainToolbar ();
     ~MainToolbar ();
@@ -42,6 +43,7 @@ public:
     void searchCallback ();
     void searchEntryClicked ();
     void toggleHeaderBarCallback ();
+    void syncButtonCallback ();
 };
 
 #endif

@@ -35,15 +35,22 @@ MainToolbar::MainToolbar () {
     sigc::mem_fun (*this, &MainToolbar::newNotebook));
   pack_start (*newNotebookButton);
 
+  syncButton = Gtk::manage (new Gtk::Button ());
+  syncButton->set_image_from_icon_name ("address-book-new", Gtk::ICON_SIZE_LARGE_TOOLBAR);
+  syncButton->signal_clicked ().connect (
+    sigc::mem_fun (*this, &MainToolbar::syncButtonCallback));
+  
   collapsedHeaderBar = false;
 
   collapseHeaderBar = Gtk::manage (new Gtk::Button ());
   collapseHeaderBar->set_image_from_icon_name ("zoom-out",  Gtk::ICON_SIZE_SMALL_TOOLBAR);
   collapseHeaderBar->signal_clicked().connect (
       sigc::mem_fun(*this, &MainToolbar::toggleHeaderBarCallback));
-  pack_end (*collapseHeaderBar);
-
   addCss (collapseHeaderBar, "collapseHeaderBar", " .collapseHeaderBar {\n  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px; -unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
+  addCss (syncButton, "syncButton", " .syncButton {\n  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px; -unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
+
+  pack_end (*collapseHeaderBar);
+  pack_end (*syncButton);
 
   searchEntry = Gtk::manage (new Gtk::Entry ());
   searchEntry->set_text ("");
@@ -60,6 +67,7 @@ MainToolbar::MainToolbar () {
 	sc->add_class("primary-toolbar");
 
   set_show_close_button(true);
+  set_subtitle ("Connected To Evernote");
   show_all ();
 }
 
@@ -114,4 +122,16 @@ void MainToolbar::toggleHeaderBarCallback () {
     searchEntry->hide ();
     collapseHeaderBar->set_image_from_icon_name ("zoom-in",  Gtk::ICON_SIZE_SMALL_TOOLBAR);
   }
+}
+
+void MainToolbar::syncButtonCallback () {
+
+  app->sm->sync ();
+  Gtk::MessageDialog* popup = new Gtk::MessageDialog (*app, "Sync Complete", true, Gtk::MESSAGE_INFO, Gtk::BUTTONS_OK, true);
+  Gtk::Box* contentBox = popup->get_content_area ();
+  popup->set_resizable (false);
+  popup->set_modal (true);
+  int reply = popup->run ();
+  popup->hide ();
+  delete popup;
 }

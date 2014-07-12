@@ -16,6 +16,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 
 #include "notify.hh"
+#include "evernoteSyncClient.hh"
 
 Notify::Notify() {
 
@@ -27,13 +28,18 @@ Notify::Notify() {
 	set_default_size (960, 540);
     mainToolbar = new MainToolbar ();
     mainToolbar->setApp (this);
-
+	
     set_titlebar(*mainToolbar);
 
 	set_title("Notes For Linux");
 
 	add(*windowBody);
 	show_all ();
+
+	sm = new SyncManager ();
+	EvernoteSyncClient* esc = new EvernoteSyncClient ();
+	sm->addSyncClient (esc);
+	
 //	gdk_window_set_decorations (gtk_widget_get_window ((GtkWidget*) gobj ()), GDK_DECOR_BORDER);
 }
 
