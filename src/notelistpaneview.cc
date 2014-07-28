@@ -496,12 +496,13 @@ void NoteListPaneView::on_treeview_button_release_event (GdkEventButton* event) 
   if (iter) {
   Gtk::TreeModel::Path path;
   m_TreeView.get_path_at_pos ((gint) event->x, (gint) event->y, path);
-
+if (path) {
     Gtk::TreeModel::Row row = *(tm->get_iter (path));
     NoteData n = row[m_Columns.m_note_data];
     
     app->npv->setNote (n);
     app->npv->enableButtons ();
+}
   }
     }
 

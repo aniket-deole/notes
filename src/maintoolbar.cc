@@ -50,7 +50,7 @@ MainToolbar::MainToolbar () {
   addCss (syncButton, "syncButton", " .syncButton {\n  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px; -unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
 
   pack_end (*collapseHeaderBar);
-  pack_end (*syncButton);
+//  pack_end (*syncButton);
 
   searchEntry = Gtk::manage (new Gtk::Entry ());
   searchEntry->set_text ("");

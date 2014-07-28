@@ -340,7 +340,7 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 	noteTitle->signal_changed ().connect (sigc::mem_fun (*this, &NotePaneView::enableButtons));
 
 	addCss (noteTitle, "noteTitle", ".noteTitle {\n color:#000;\n font: OpenSans light 18; padding-top:10px;padding-bottom:10px; "
-								"padding-left:14px; background-image:none; background-color:white;\n}\n"
+								"padding-left:7px; background-image:none; background-color:white;\n}\n"
 								".noteTitle:selected {    background-color: #34393D; color:white ; }");
 
 	Gtk::EventBox* ev = Gtk::manage (new Gtk::EventBox ());
@@ -386,7 +386,7 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 	g_object_set (G_OBJECT(wkws), "default-font-size", 10, NULL);	
 	g_object_set (G_OBJECT(wkws), "enable-offline-web-application-cache", true, NULL);	
 	g_object_set (G_OBJECT(wkws), "tab-key-cycles-through-elements", false, NULL);	
-
+	
 
 	webviewWrapper->set_policy (Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
 	pack_start (*webviewWrapper);
