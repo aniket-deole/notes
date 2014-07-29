@@ -120,12 +120,12 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
   app = a;
 	set_orientation (Gtk::ORIENTATION_VERTICAL);
 
-	Gtk::Box* toolbarBox = Gtk::manage (new Gtk::Box ());
+	toolbarBoxUpper = Gtk::manage (new Gtk::Box ());
 	
 	notebookButton = Gtk::manage (new Gtk::Button ());
     Gtk::Image* img = Gtk::manage (new Gtk::Image ("img/notebook.png"));
     notebookButton->set_image (*img);
-	toolbarBox->pack_start (*notebookButton, false, false , 0);
+	toolbarBoxUpper->pack_start (*notebookButton, false, false , 0);
 	addCss (notebookButton, "notebookButton", " .notebookButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
 	notebookButton->set_size_request (30, 30);
 
@@ -137,48 +137,48 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 	addCss (notebookName, "notebookName", ".notebookName {\n color:#000;\n font: OpenSans light 8; padding-top:10px;padding-bottom:10px; "
 								" background-image:none; background-color:white;\n}\n"
 								".noteTitle:selected {    background-color: #34393D; color:white ; }");
-	toolbarBox->pack_start (*notebookName, false, false , 0);
+	toolbarBoxUpper->pack_start (*notebookName, false, false , 0);
 	
 	Gtk::Label* label = Gtk::manage (new Gtk::Label ("Delete"));
 	addCss (label, "label", ".label {padding-right:10px; font: OpenSans light 8; color:#000;}");
-	toolbarBox->pack_end (*label, false, false , 0);
+	toolbarBoxUpper->pack_end (*label, false, false , 0);
 	
 	label = Gtk::manage (new Gtk::Label ("Info"));
 	addCss (label, "label", ".label {padding-right:10px; font: OpenSans light 8; color:#000;}");
-	toolbarBox->pack_end (*label, false, false , 0);
+	toolbarBoxUpper->pack_end (*label, false, false , 0);
 	
 	label = Gtk::manage (new Gtk::Label ("Share"));
 	addCss (label, "label", ".label {padding-right:10px; font: OpenSans light 8; color:#000;}");
-	toolbarBox->pack_end (*label, false, false , 0);
+	toolbarBoxUpper->pack_end (*label, false, false , 0);
 #if HASPDF
 	exportPdfButton = Gtk::manage (new Gtk::Button ("Export PDF"));
 	addCss (exportPdfButton, "exportPdfButton", " .exportPdfButton{\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0; padding-right:10px; font: OpenSans light 8; color:#000;}");
     exportPdfButton->signal_clicked().connect(
     		sigc::mem_fun(*this, &NotePaneView::exportPdfButtonCallback) );
-	toolbarBox->pack_end (*exportPdfButton, false, false , 0);
+	toolbarBoxUpper->pack_end (*exportPdfButton, false, false , 0);
 #else
 	label = Gtk::manage (new Gtk::Label ("Reminder"));
 	addCss (label, "label", ".label {padding-right:10px; font: OpenSans light 8; color:#000;}");
-	toolbarBox->pack_end (*label, false, false , 0);
+	toolbarBoxUpper->pack_end (*label, false, false , 0);
 #endif /* HASPDF */
 
 //  ex_label->signal_clicked().connect(
 //  sigc::mem_fun(*this, &NotePaneView::saveNote) );
 
-	toolbarBox->set_size_request (30, -1);	
+	toolbarBoxUpper->set_size_request (30, -1);	
 	Gtk::EventBox* eventBoxTop = Gtk::manage (new Gtk::EventBox ());
-	eventBoxTop->add (*toolbarBox);
+	eventBoxTop->add (*toolbarBoxUpper);
 
 
 	/* Toolbar */
-	toolbarBox = Gtk::manage (new Gtk::Box ());
+	toolbarBoxLower = Gtk::manage (new Gtk::Box ());
 	
 	boldButton = Gtk::manage (new Gtk::Button ());
     img = Gtk::manage (new Gtk::Image ("img/bold.png"));
 	boldButton->set_image (*img);
   	boldButton->signal_clicked().connect(
     		sigc::mem_fun(*this, &NotePaneView::boldButtonCallback) );
-	toolbarBox->pack_start (*boldButton, false, false , 0);
+	toolbarBoxLower->pack_start (*boldButton, false, false , 0);
 	addCss (boldButton, "boldButton", " .boldButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
 	boldButton->set_size_request (30, 30);
 
@@ -187,7 +187,7 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
     italicsButton->set_image (*img);
   	italicsButton->signal_clicked().connect(
     		sigc::mem_fun(*this, &NotePaneView::italicsButtonCallback) );
-	toolbarBox->pack_start (*italicsButton, false, false , 0);
+	toolbarBoxLower->pack_start (*italicsButton, false, false , 0);
 	addCss (italicsButton, "italicsButton", " .italicsButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
 	italicsButton->set_size_request (30, 30);
 
@@ -196,7 +196,7 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
     underlineButton->set_image (*img);
   	underlineButton->signal_clicked().connect(
     		sigc::mem_fun(*this, &NotePaneView::underlineButtonCallback) );
-	toolbarBox->pack_start (*underlineButton, false, false , 0);
+	toolbarBoxLower->pack_start (*underlineButton, false, false , 0);
 	addCss (underlineButton, "underlineButton", " .underlineButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
 	underlineButton->set_size_request (30, 30);
 
@@ -205,7 +205,7 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
     strikeButton->set_image (*img);
   	strikeButton->signal_clicked().connect(
     		sigc::mem_fun(*this, &NotePaneView::strikeButtonCallback) );
-	toolbarBox->pack_start (*strikeButton, false, false , 0);
+	toolbarBoxLower->pack_start (*strikeButton, false, false , 0);
 	addCss (strikeButton, "strikeButton", " .strikeButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
 	strikeButton->set_size_request (30, 30);
 
@@ -214,19 +214,19 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
     clearFormattingButton->set_image (*img);
   	clearFormattingButton->signal_clicked().connect(
     		sigc::mem_fun(*this, &NotePaneView::clearFormattingButtonCallback) );
-	toolbarBox->pack_start (*clearFormattingButton, false, false , 0);
+	toolbarBoxLower->pack_start (*clearFormattingButton, false, false , 0);
 	addCss (clearFormattingButton, "clearFormattingButton", " .clearFormattingButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
 	clearFormattingButton->set_size_request (30, 30);
 
 	Gtk::Separator* separatorVertical = Gtk::manage (new Gtk::Separator (Gtk::ORIENTATION_VERTICAL));
-	toolbarBox->pack_start (*separatorVertical, false, false, 0);
+	toolbarBoxLower->pack_start (*separatorVertical, false, false, 0);
 
 	tabOutButton = Gtk::manage (new Gtk::Button ());
     img = Gtk::manage (new Gtk::Image ("img/tabout.png"));
     tabOutButton->set_image (*img);
   	tabOutButton->signal_clicked().connect(
     		sigc::mem_fun(*this, &NotePaneView::tabOutButtonCallback) );
-	toolbarBox->pack_start (*tabOutButton, false, false , 0);
+	toolbarBoxLower->pack_start (*tabOutButton, false, false , 0);
 	addCss (tabOutButton, "tabOutButton", " .tabOutButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
 	tabOutButton->set_size_request (30, 30);
 
@@ -235,7 +235,7 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
     tabInButton->set_image (*img);
   	tabInButton->signal_clicked().connect(
     		sigc::mem_fun(*this, &NotePaneView::tabInButtonCallback));
-	toolbarBox->pack_start (*tabInButton, false, false , 0);
+	toolbarBoxLower->pack_start (*tabInButton, false, false , 0);
 	addCss (tabInButton, "tabInButton", " .tabInButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
 	tabInButton->set_size_request (30, 30);
 
@@ -244,7 +244,7 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
     justifyButton->set_image (*img);
   	justifyButton->signal_clicked().connect(
     		sigc::mem_fun(*this, &NotePaneView::justifyButtonCallback));
-	toolbarBox->pack_start (*justifyButton, false, false , 0);
+	toolbarBoxLower->pack_start (*justifyButton, false, false , 0);
 	addCss (justifyButton, "justifyButton", " .justifyButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
 	justifyButton->set_size_request (30, 30);	
 
@@ -253,7 +253,7 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
     justifyCenterButton->set_image (*img);
   	justifyCenterButton->signal_clicked().connect(
     		sigc::mem_fun(*this, &NotePaneView::justifyCenterButtonCallback));
-	toolbarBox->pack_start (*justifyCenterButton, false, false , 0);
+	toolbarBoxLower->pack_start (*justifyCenterButton, false, false , 0);
 	addCss (justifyCenterButton, "justifyCenterButton", " .justifyCenterButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
 	justifyCenterButton->set_size_request (30, 30);	
 
@@ -262,7 +262,7 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
     justifyRightButton->set_image (*img);
   	justifyRightButton->signal_clicked().connect(
     		sigc::mem_fun(*this, &NotePaneView::justifyRightButtonCallback));
-	toolbarBox->pack_start (*justifyRightButton, false, false , 0);
+	toolbarBoxLower->pack_start (*justifyRightButton, false, false , 0);
 	addCss (justifyRightButton, "justifyRightButton", " .justifyRightButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
 	justifyRightButton->set_size_request (30, 30);	
 
@@ -271,19 +271,19 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
     justifyFullButton->set_image (*img);
   	justifyFullButton->signal_clicked().connect(
     		sigc::mem_fun(*this, &NotePaneView::justifyFullButtonCallback));
-	toolbarBox->pack_start (*justifyFullButton, false, false , 0);
+	toolbarBoxLower->pack_start (*justifyFullButton, false, false , 0);
 	addCss (justifyFullButton, "justifyFullButton", " .justifyFullButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
 	justifyFullButton->set_size_request (30, 30);	
 
 	separatorVertical = Gtk::manage (new Gtk::Separator (Gtk::ORIENTATION_VERTICAL));
-	toolbarBox->pack_start (*separatorVertical, false, false, 0);
+	toolbarBoxLower->pack_start (*separatorVertical, false, false, 0);
 
 	olistButton = Gtk::manage (new Gtk::Button ());
     img = Gtk::manage (new Gtk::Image ("img/olist.png"));
     olistButton->set_image (*img);
   	olistButton->signal_clicked().connect(
     		sigc::mem_fun(*this, &NotePaneView::olistButtonCallback) );
-	toolbarBox->pack_start (*olistButton, false, false , 0);
+	toolbarBoxLower->pack_start (*olistButton, false, false , 0);
 	addCss (olistButton, "olistButton", " .olistButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
 	olistButton->set_size_request (30, 30);
 
@@ -292,7 +292,7 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
     ulistButton->set_image (*img);
   	ulistButton->signal_clicked().connect(
     		sigc::mem_fun(*this, &NotePaneView::ulistButtonCallback));
-	toolbarBox->pack_start (*ulistButton, false, false , 0);
+	toolbarBoxLower->pack_start (*ulistButton, false, false , 0);
 	addCss (ulistButton, "ulistButton", " .ulistButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
 	ulistButton->set_size_request (30, 30);
 
@@ -301,26 +301,26 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
     clistButton->set_image (*img);
   	clistButton->signal_clicked().connect(
     		sigc::mem_fun(*this, &NotePaneView::clistButtonCallback));
-	toolbarBox->pack_start (*clistButton, false, false , 0);
+	toolbarBoxLower->pack_start (*clistButton, false, false , 0);
 	addCss (clistButton, "clistButton", " .clistButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
 	clistButton->set_size_request (30, 30);	
 
 	separatorVertical = Gtk::manage (new Gtk::Separator (Gtk::ORIENTATION_VERTICAL));
-	toolbarBox->pack_start (*separatorVertical, false, false, 0);
+	toolbarBoxLower->pack_start (*separatorVertical, false, false, 0);
 
 	insertImageButton = Gtk::manage (new Gtk::Button ());
     img = Gtk::manage (new Gtk::Image ("img/clist.png"));
     insertImageButton->set_image (*img);
   	insertImageButton->signal_clicked().connect(
     		sigc::mem_fun(*this, &NotePaneView::insertImageButtonCallback));
-	toolbarBox->pack_start (*insertImageButton, false, false , 0);
+	toolbarBoxLower->pack_start (*insertImageButton, false, false , 0);
 	addCss (insertImageButton, "insertImageButton", " .insertImageButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
 	insertImageButton->set_size_request (30, 30);	
 
 
 
 	Gtk::EventBox* eventBoxBot = Gtk::manage (new Gtk::EventBox ());
-	eventBoxBot->add (*toolbarBox);
+	eventBoxBot->add (*toolbarBoxLower);
 	
 	addCss (eventBoxBot, "eventBoxBot", ".eventBoxBot { background-image:none; background-color:white;\n}\n");
 	addCss (eventBoxTop, "eventBoxTop", ".eventBoxTop { background-image:none; background-color:white;\n}\n");
@@ -571,8 +571,8 @@ void NotePaneView::saveNote () {
 	std::string body = "";
 	webkit_web_view_execute_script (webview, "document.title=document.documentElement.innerHTML;");
 	body.append (webkit_web_frame_get_title ((webkit_web_view_get_main_frame (webview))));
-
-#if 0
+  
+  #if 0
 	// Create temporary file for saving to PDF
 	std::ofstream temp_html_file;
 	std::string temp_file_name = "/tmp/temp_"+nd.getGuid()+".html";

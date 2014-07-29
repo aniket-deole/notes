@@ -68,6 +68,7 @@ private:
 	Gtk::Button* notebookButton;
 	Gtk::Entry* notebookName;
 
+
 	/* Declarations necessary for callbacks. */
 	rapidxml::xml_node<>* gRoot;
 	rapidxml::xml_document<>* gDoc;
@@ -76,6 +77,8 @@ public:
 	NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions options, int padding = 0, Notify* a = NULL, DatabaseManager* d = NULL);
 	~NotePaneView ();
 
+	Gtk::Box* toolbarBoxUpper;
+	Gtk::Box* toolbarBoxLower;
 	void setDatabaseManager (DatabaseManager* d);
 	void setWebViewContent (std::string);
 	void setNoteTitleEntryText (std::string);
