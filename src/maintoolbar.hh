@@ -24,16 +24,21 @@ class Notify;
 class MainToolbar : public Gtk::HeaderBar {
 private:
     int a;
-    Notify* app;
     Gtk::Entry* searchEntry;
 
     bool searchEntryActive;
     bool collapsedHeaderBar;
+    bool syncStarted;
     Gtk::Button* collapseHeaderBar;
     Gtk::Button* newNoteButton;
     Gtk::Button* newNotebookButton;
     Gtk::Button* syncButton;
+    Gtk::ProgressBar* progressBar;
+
 public:
+    Notify* app;
+    bool syncComplete;
+    bool progressBarStarted;
     MainToolbar ();
     ~MainToolbar ();
     void setApp (Notify* a) { app = a; }
@@ -44,6 +49,8 @@ public:
     void searchEntryClicked ();
     void toggleHeaderBarCallback ();
     void syncButtonCallback ();
+    bool on_timeout ();
+    static void* asynchronousSync (void* data);
 };
 
 #endif

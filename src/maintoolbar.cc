@@ -15,7 +15,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <gtkmm/box.h>
 #include <gtkmm/widget.h>
-
+#include <pthread.h>
 #include <iostream>
 
 #include "maintoolbar.hh"
@@ -49,8 +49,12 @@ MainToolbar::MainToolbar () {
   addCss (collapseHeaderBar, "collapseHeaderBar", " .collapseHeaderBar {\n  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px; -unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
   addCss (syncButton, "syncButton", " .syncButton {\n  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px; -unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
 
+
+  progressBar = Gtk::manage (new Gtk::ProgressBar ());
+  progressBar->set_hexpand (true);
+
   pack_end (*collapseHeaderBar);
-//  pack_end (*syncButton);
+  pack_end (*syncButton);
 
   searchEntry = Gtk::manage (new Gtk::Entry ());
   searchEntry->set_text ("");
@@ -126,14 +130,39 @@ void MainToolbar::toggleHeaderBarCallback () {
   }
 }
 
+void* MainToolbar::asynchronousSync (void* data) {
+	MainToolbar* d = static_cast<MainToolbar*>(data);
+	d->app->sm->sync ();
+	d->progressBarStarted = false;
+	return NULL;
+}
 void MainToolbar::syncButtonCallback () {
+	progressBar = Gtk::manage (new Gtk::ProgressBar ());
+	progressBar->set_hexpand (true);
 
-  app->sm->sync ();
-  Gtk::MessageDialog* popup = new Gtk::MessageDialog (*app, "Sync Complete", true, Gtk::MESSAGE_INFO, Gtk::BUTTONS_OK, true);
-  Gtk::Box* contentBox = popup->get_content_area ();
-  popup->set_resizable (false);
-  popup->set_modal (true);
-  int reply = popup->run ();
-  popup->hide ();
-  delete popup;
+	set_custom_title (*progressBar);
+	progressBarStarted = true;
+	syncComplete = false;
+	progressBar->set_text ("Syncing with Evernote!");
+	progressBar->set_show_text (true);
+	progressBar->show_now ();
+	int m_connection_id_timeout = Glib::signal_timeout().connect(sigc::mem_fun(*this,
+	          &MainToolbar::on_timeout), 50 );
+
+	pthread_t thread;
+	int rc = pthread_create (&thread, NULL, MainToolbar::asynchronousSync, (void*) this);
+
+ }
+
+bool MainToolbar::on_timeout()
+{
+	if (progressBarStarted)
+	  progressBar->pulse();
+
+  	if (progressBarStarted)
+  		return true;
+	else {
+		property_custom_title () = 0;
+		return false;
+	}
 }
