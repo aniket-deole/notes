@@ -34,7 +34,7 @@ sudo apt-get install build-essential
 
 sudo ln -s /usr/include/gtkmm-3.0 /usr/include/gtkmm
 
-sudo apt-get install libsqlite3-dev libssl-dev libcrypto++-dev libsigc++-2.0-dev libgtk-3-dev libgtkmm-3.0-dev libwebkitgtk-3.0-dev uuid-dev libuuid1
+sudo apt-get install libsqlite3-dev libssl-dev libcrypto++-dev libsigc++-2.0-dev libgtk-3-dev libgtkmm-3.0-dev libwebkitgtk-3.0-dev uuid-dev libuuid1 libboost-dev
 
 ======
 
