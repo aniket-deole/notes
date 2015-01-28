@@ -129,11 +129,11 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 	addCss (notebookButton, "notebookButton", " .notebookButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
 	notebookButton->set_size_request (30, 30);
 
-	notebookName = Gtk::manage (new Gtk::Entry ());
+	notebookName = Gtk::manage (new Gtk::Label (""));
 	notebookName->set_text ("aniket's notebook");
-	notebookName->set_has_frame (false);
+/*	notebookName->set_has_frame (false);
 	notebookName->set_editable (false);
-	notebookName->set_can_focus (false);
+	notebookName->set_can_focus (false); */
 	addCss (notebookName, "notebookName", ".notebookName {\n color:#000;\n font: OpenSans light 8; padding-top:10px;padding-bottom:10px; "
 								" background-image:none; background-color:white;\n}\n"
 								".noteTitle:selected {    background-color: #34393D; color:white ; }");

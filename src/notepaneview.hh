@@ -66,7 +66,7 @@ private:
 	Gtk::Button* exportPdfButton;
 #endif /* HASPDF */
 	Gtk::Button* notebookButton;
-	Gtk::Entry* notebookName;
+	Gtk::Label* notebookName;
 
 
 	/* Declarations necessary for callbacks. */
