@@ -340,8 +340,8 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 	noteTitle->signal_changed ().connect (sigc::mem_fun (*this, &NotePaneView::enableButtons));
 
 	addCss (noteTitle, "noteTitle", ".noteTitle {\n color:#000;\n font: OpenSans light 18; padding-top:10px;padding-bottom:10px; "
-								"padding-left:7px; background-image:none; background-color:white;\n}\n"
-								".noteTitle:selected {    background-color: #34393D; color:white ; }");
+								"border-color:white; padding-left:7px; background-image:none; background-color:white;\n}\n"
+								".noteTitle:selected {   border-color:white; background-color: #34393D; color:white ; }");
 
 	Gtk::EventBox* ev = Gtk::manage (new Gtk::EventBox ());
 
