@@ -1,0 +1,3 @@
+[submodule "src/libevernote"]
+	path = src/libevernote
+	url = git://github.com/aniket-deole/libevernote
