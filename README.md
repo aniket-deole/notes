@@ -9,7 +9,7 @@ Please clone the repo recursively as compilation is dependant on another submodu
 <img src="http://aniketdeole.in/wp-content/uploads/2013/10/web.png" title="Notes" alt="Notes" />
 
 This will not work in elementaryOS Luna anymore because of the GTK+3.10 requirement. It will work in any distro having GTK+3.10 and above.
-
+<hr/>
 [Ghatage 29-June-2014]  Update: Added the export to PDF feature!
 This is the all new immersive mode
 <img src="http://i60.tinypic.com/2mblvo.jpg" title="Immersive mode" alt="Notes" />
