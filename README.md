@@ -6,7 +6,7 @@ A Note taking application for Linux build in Gtk that aims to be an Evernote cli
 
 Please clone the repo recursively as compilation is dependant on another submodule "libevernote" from https://github.com/aniket-deole/libevernote
 
-<img src="http://goo.gl/dfu6lT" title="Notes" alt="Notes" />
+<img src="http://aniketdeole.in/wp-content/uploads/2013/10/web.png" title="Notes" alt="Notes" />
 
 This will not work in elementaryOS Luna anymore because of the GTK+3.10 requirement. It will work in any distro having GTK+3.10 and above.
 
