@@ -80,6 +80,7 @@ public:
   Gtk::TreeView m_TreeView;
   Glib::RefPtr<Gtk::TreeStore> m_refTreeModel;
   Glib::RefPtr<Gtk::TreeStore> m_refTreeModel_notebooks;
+  int notebookCount;
   void treeviewcolumn_validated_on_cell_data(
         Gtk::CellRenderer* /* renderer */,
         const Gtk::TreeModel::iterator& iter);
