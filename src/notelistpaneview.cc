@@ -361,12 +361,8 @@ void NoteListPaneView::fetchNotesForNotebooks (std::vector<std::string> guids) {
    */
 void NoteListPaneView::newNote () {
 
-  //  db->exec (QueryGenerator::get Query (QueryGenerator::getNotebookCount, ""), 
-  //      &getNotebookCountCallback, this);
-
-
-  popup = new Gtk::MessageDialog (*app, "Select Notebook and Enter Note Title", 
-      true, Gtk::MESSAGE_OTHER, Gtk::BUTTONS_OK_CANCEL, true);
+  popup = new Gtk::Dialog ("Add New Note", *app,
+      1<<2);
   Gtk::Box* contentBox = popup->get_content_area ();
 
   Gtk::Box* firstBox = Gtk::manage (new Gtk::Box ());
@@ -374,8 +370,9 @@ void NoteListPaneView::newNote () {
 
   noteName = new Gtk::Entry ();
   noteName->set_text ("Untitled");
-  firstBox->pack_start (*noteName, true, false, 0);
-  firstBox->set_size_request (400, -1);
+  Gtk::Label* enterNoteNameLabel = Gtk::manage (new Gtk::Label ("Enter Note Name:", false));
+  firstBox->pack_start (*enterNoteNameLabel, false, false, 10);
+  firstBox->pack_start (*noteName, false, false, 10);
 
   m_refTreeModel_notebooks = Gtk::TreeStore::create(m_Columns_notebooks);
   m_Combo.set_model (m_refTreeModel_notebooks);
@@ -402,12 +399,38 @@ void NoteListPaneView::newNote () {
 
     m_Combo.set_active (0);
     contentBox->set_size_request (-1, -1);
-    secondBox->pack_start (m_Combo, true, false, 0);
-    secondBox->set_size_request (400, -1);
 
+    Gtk::Label* selectNotebookLabel = Gtk::manage (new Gtk::Label ("Select notebook  :", false));
+    secondBox->pack_start (*selectNotebookLabel, false, false, 10);
+    secondBox->pack_start (m_Combo, false, false, 10);
+
+    Gtk::Alignment *al = Gtk::manage(new Gtk::Alignment());
+    al->set_size_request(0, 5);
+    contentBox->pack_start(*al, false, true);
     contentBox->add (*secondBox);
+    al = Gtk::manage(new Gtk::Alignment());
+    al->set_size_request(50, 10);
+    contentBox->pack_start(*al, false, true);
     contentBox->add (*firstBox);
+    
+    Gtk::Box* buttonBox = Gtk::manage (new Gtk::Box ());
+    Gtk::Button* okButton = Gtk::manage (new Gtk::Button ("    Ok    ", false));
+    Gtk::Button* cancelButton = Gtk::manage (new Gtk::Button ("Cancel", false));
 
+
+    okButton->signal_clicked ().connect (
+      sigc::mem_fun (*this, &NoteListPaneView::newNoteOkButtonClicked));
+    cancelButton->signal_clicked ().connect (
+      sigc::mem_fun (*this, &NoteListPaneView::newNoteCancelButtonClicked));
+
+
+    buttonBox->pack_start (*okButton, true, false, 10);
+    buttonBox->pack_start (*cancelButton, true, false, 10);
+
+    al = Gtk::manage (new Gtk::Alignment ());
+    al->set_size_request (0, 10);
+    contentBox->add (*al);
+    contentBox->add (*buttonBox);
     contentBox->show_all ();
 
 
@@ -432,6 +455,14 @@ void NoteListPaneView::newNote () {
     popup->hide ();
     m_Combo.unparent ();
   }
+}
+
+void NoteListPaneView::newNoteOkButtonClicked () {
+  popup->response (Gtk::RESPONSE_OK);
+}
+
+void NoteListPaneView::newNoteCancelButtonClicked () {
+  popup->response (Gtk::RESPONSE_CANCEL);
 }
 
 /*

@@ -351,8 +351,9 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 	Gtk::Separator* sepVert = Gtk::manage (new Gtk::Separator (Gtk::ORIENTATION_VERTICAL));
 
 	saveButton = Gtk::manage (new Gtk::Button ("  Save Note  "));
-	addCss (saveButton, "saveButton", ".saveButton { background-image:none; background-color:white;"
-		"border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;\n}\n");
+	addCss (saveButton, "saveButton", ".saveButton {"
+		"border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;"
+    "	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;\n}\n");
 
   	saveButton->signal_clicked().connect(
     sigc::mem_fun(*this, &NotePaneView::saveNote) );

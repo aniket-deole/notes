@@ -103,6 +103,9 @@ public:
   void on_menu_file_popup_delete_note ();
   void noteDelete ();
   void noteSearch (std::string);
+  
+  void newNoteOkButtonClicked ();
+  void newNoteCancelButtonClicked ();
 };
 
 #endif
