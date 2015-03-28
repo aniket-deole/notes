@@ -385,6 +385,9 @@ void NoteListPaneView::newNote () {
     std::cout << "NLPV:newNote: Notebook Count 0. First create notebook." << std::endl;
     m_Combo.set_active (0);
     contentBox->set_size_request (-1, -1);
+    Gtk::Alignment *al = Gtk::manage(new Gtk::Alignment());
+    al->set_size_request(0, 5);
+    contentBox->pack_start(*al, false, true);
     
     Gtk::Box* thirdBox = Gtk::manage (new Gtk::Box ());
     Gtk::Label* label = Gtk::manage (new Gtk::Label ("First create some notebooks.", false));
@@ -412,8 +415,7 @@ void NoteListPaneView::newNote () {
     al->set_size_request(50, 10);
     contentBox->pack_start(*al, false, true);
     contentBox->add (*firstBox);
-    
-    Gtk::Box* buttonBox = Gtk::manage (new Gtk::Box ());
+     Gtk::Box* buttonBox = Gtk::manage (new Gtk::Box ());
     Gtk::Button* okButton = Gtk::manage (new Gtk::Button ("    Ok    ", false));
     Gtk::Button* cancelButton = Gtk::manage (new Gtk::Button ("Cancel", false));
 
@@ -427,7 +429,8 @@ void NoteListPaneView::newNote () {
     buttonBox->pack_start (*okButton, true, false, 10);
     buttonBox->pack_start (*cancelButton, true, false, 10);
 
-    al = Gtk::manage (new Gtk::Alignment ());
+    
+   al = Gtk::manage (new Gtk::Alignment ());
     al->set_size_request (0, 10);
     contentBox->add (*al);
     contentBox->add (*buttonBox);

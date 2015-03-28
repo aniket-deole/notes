@@ -103,7 +103,7 @@ public:
 
   void newNotebook ();
   void newNotebookOk ();
-  Gtk::MessageDialog* popup;
+  Gtk::Dialog* popup;
   Gtk::Entry* notebookName;
   void on_treeview_button_release_event (GdkEventButton* button);
   void on_menu_file_popup_edit_notebook_name();
@@ -121,6 +121,9 @@ public:
   void nnDragStarted(const Glib::RefPtr< Gdk::DragContext >&   context);
 
   void updateParentGuid (std::string, std::string, std::string stack);
+
+  void newNotebookOkButtonClicked ();
+  void newNotebookCancelButtonClicked ();
 };
 
 #endif

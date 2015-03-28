@@ -526,17 +526,45 @@ void LeftPaneView::setApp (Notify* a) {
 
 void LeftPaneView::newNotebook () {
 
-  popup = new Gtk::MessageDialog (*app, "Enter Notebook Name", true, Gtk::MESSAGE_OTHER, Gtk::BUTTONS_OK_CANCEL, false);
+  popup = new Gtk::Dialog ("Add New Notebook", *app, 1 << 2);
   Gtk::Box* contentBox = popup->get_content_area ();
-
 
   Gtk::Box* firstBox = Gtk::manage (new Gtk::Box ());
 
   notebookName = new Gtk::Entry ();
-  firstBox->pack_start (*notebookName, true, false, 0);
-  firstBox->set_size_request (400, -1);
+  Gtk::Label* label = Gtk::manage (new Gtk::Label ("Enter Notebook Name:", false));
+
+  firstBox->pack_start (*label, false, false, 10);
+  firstBox->pack_start (*notebookName, false, false, 10);
+  
+  Gtk::Alignment* al = Gtk::manage (new Gtk::Alignment ());
+  al->set_size_request (0, 10);
+
+  contentBox->pack_start (*al, false, false);
+  
   contentBox->set_size_request (-1, -1);
   contentBox->add (*firstBox);
+
+    Gtk::Box* buttonBox = Gtk::manage (new Gtk::Box ());
+    Gtk::Button* okButton = Gtk::manage (new Gtk::Button ("    Ok    ", false));
+    Gtk::Button* cancelButton = Gtk::manage (new Gtk::Button ("Cancel", false));
+
+
+    okButton->signal_clicked ().connect (
+      sigc::mem_fun (*this, &LeftPaneView::newNotebookOkButtonClicked));
+    cancelButton->signal_clicked ().connect (
+      sigc::mem_fun (*this, &LeftPaneView::newNotebookCancelButtonClicked));
+
+
+    buttonBox->pack_start (*okButton, true, false, 10);
+    buttonBox->pack_start (*cancelButton, true, false, 10);
+
+  al = Gtk::manage (new Gtk::Alignment ());
+  al->set_size_request (0, 10);
+
+  contentBox->pack_start (*al, false, false);
+  contentBox->add (*buttonBox); 
+
 
   contentBox->show_all ();
   popup->set_resizable (false);
@@ -557,6 +585,15 @@ void LeftPaneView::newNotebook () {
   }
 
 }
+
+void LeftPaneView::newNotebookOkButtonClicked () {
+  popup->response (Gtk::RESPONSE_OK);
+}
+
+void LeftPaneView::newNotebookCancelButtonClicked () {
+  popup->response (Gtk::RESPONSE_CANCEL);
+}
+
 
 void LeftPaneView::newNotebookOk () {
   if (notebookName->get_text().empty ()) { return;}
