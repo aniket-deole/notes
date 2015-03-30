@@ -20,9 +20,10 @@
 
 #include "maintoolbar.hh"
 
+std::string MainToolbar::headerBarSubStatus = "Connected to Evernote";
 
 MainToolbar::MainToolbar () {
-
+  connectedToEvernote = false;
   newNoteButton = Gtk::manage (new Gtk::Button ());
   newNoteButton->set_image_from_icon_name ("document-new", Gtk::ICON_SIZE_LARGE_TOOLBAR);
   newNoteButton->signal_clicked ().connect (
@@ -71,7 +72,6 @@ MainToolbar::MainToolbar () {
   sc->add_class("primary-toolbar");
 
   set_show_close_button(true);
-  set_subtitle ("Connected To Evernote");
   show_all ();
 }
 
@@ -145,7 +145,9 @@ void MainToolbar::syncButtonCallback () {
   set_custom_title (*progressBar);
   progressBarStarted = true;
   syncComplete = false;
-  progressBar->set_text ("Syncing with Evernote!");
+  progressBar->set_text (headerBarSubStatus);
+  if (connectedToEvernote)
+    set_subtitle (headerBarSubStatus);
   progressBar->set_show_text (true);
   progressBar->show_now ();
   Glib::signal_timeout().connect(sigc::mem_fun(*this,

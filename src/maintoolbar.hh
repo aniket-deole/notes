@@ -51,6 +51,9 @@ public:
     void syncButtonCallback ();
     bool on_timeout ();
     static void* asynchronousSync (void* data);
+
+    bool connectedToEvernote;
+    static std::string headerBarSubStatus;
 };
 
 #endif
