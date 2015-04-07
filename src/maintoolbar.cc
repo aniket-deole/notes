@@ -19,6 +19,7 @@
 #include <iostream>
 
 #include "maintoolbar.hh"
+#include "webviewpopup.hh"
 
 std::string MainToolbar::headerBarSubStatus = "Connected to Evernote";
 
@@ -139,23 +140,27 @@ void* MainToolbar::asynchronousSync (void* data) {
   return NULL;
 }
 void MainToolbar::syncButtonCallback () {
-  progressBar = Gtk::manage (new Gtk::ProgressBar ());
-  progressBar->set_hexpand (true);
+  if (connectedToEvernote) {
+    progressBar = Gtk::manage (new Gtk::ProgressBar ());
+    progressBar->set_hexpand (true);
 
-  set_custom_title (*progressBar);
-  progressBarStarted = true;
-  syncComplete = false;
-  progressBar->set_text (headerBarSubStatus);
-  if (connectedToEvernote)
+    set_custom_title (*progressBar);
+    progressBarStarted = true;
+    syncComplete = false;
+    progressBar->set_text (headerBarSubStatus);
     set_subtitle (headerBarSubStatus);
-  progressBar->set_show_text (true);
-  progressBar->show_now ();
-  Glib::signal_timeout().connect(sigc::mem_fun(*this,
-        &MainToolbar::on_timeout), 50 );
+    progressBar->set_show_text (true);
+    progressBar->show_now ();
+    Glib::signal_timeout().connect(sigc::mem_fun(*this,
+          &MainToolbar::on_timeout), 50 );
 
-  pthread_t thread;
-  pthread_create (&thread, NULL, MainToolbar::asynchronousSync, (void*) this);
-
+    pthread_t thread;
+    pthread_create (&thread, NULL, MainToolbar::asynchronousSync, (void*) this);
+  } else {
+    // Show webview evernote login.
+    Gtk::Dialog* webViewPopup = Gtk::manage (new WebViewPopup ());
+    webViewPopup->run ();
+  } 
 }
 
 bool MainToolbar::on_timeout()
