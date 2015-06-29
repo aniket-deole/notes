@@ -29,7 +29,7 @@ private:
 	WebKitWebView* webview;
 
 public:
-    WebViewPopup ();
+    WebViewPopup (std::string, Gtk::Window&, bool);
     ~WebViewPopup ();
 };
 

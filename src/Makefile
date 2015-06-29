@@ -25,7 +25,7 @@ clean:
 	rm -rf *.o notes
 
 test: all
-	./notes
+	LD_LIBRARY_PATH=libevernote/ ./notes
 
 install: all
 	cp notes /usr/bin/notes

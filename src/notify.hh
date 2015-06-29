@@ -36,7 +36,8 @@ public:
 	Notify ();
 	virtual ~Notify ();
 
-    MainToolbar* mainToolbar;
+  MainToolbar* mainToolbar;
+  WindowBody* windowBody;
 	LeftPaneView* lpv;
 	NoteListPaneView* nlpv;
 	NotePaneView* npv;
@@ -48,7 +49,6 @@ protected:
 	Gtk::Button m_button;
 
 private:
-    WindowBody* windowBody;
     void setupDatabase ();
 };
 

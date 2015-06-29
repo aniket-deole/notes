@@ -24,7 +24,7 @@
 std::string MainToolbar::headerBarSubStatus = "Connected to Evernote";
 
 MainToolbar::MainToolbar () {
-  connectedToEvernote = false;
+  connectedToEvernote = true;
   newNoteButton = Gtk::manage (new Gtk::Button ());
   newNoteButton->set_image_from_icon_name ("document-new", Gtk::ICON_SIZE_LARGE_TOOLBAR);
   newNoteButton->signal_clicked ().connect (
@@ -158,7 +158,8 @@ void MainToolbar::syncButtonCallback () {
     pthread_create (&thread, NULL, MainToolbar::asynchronousSync, (void*) this);
   } else {
     // Show webview evernote login.
-    Gtk::Dialog* webViewPopup = Gtk::manage (new WebViewPopup ());
+    Gtk::Dialog* webViewPopup = Gtk::manage (new WebViewPopup ("Login To Evernote", (Gtk::Window&)*app, true));
+//		webViewPopup->set_attached_to ((Gtk::Widget&) *app->windowBody);
     webViewPopup->run ();
   } 
 }

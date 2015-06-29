@@ -27,7 +27,8 @@ static void destroyWindowCb (WebKitWebView  *webview,
 
 }
 
-WebViewPopup::WebViewPopup () : Gtk::Dialog ("", true){
+WebViewPopup::WebViewPopup (std::string title, Gtk::Window& parent, bool flag) : 
+	Gtk::Dialog (title, parent, flag){
   webview = WEBKIT_WEB_VIEW (webkit_web_view_new ());
 
   Gtk::Box* contentBox = get_content_area ();
