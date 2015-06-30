@@ -6,6 +6,11 @@
 #include "notify.hh"
 
 class EvernoteSyncClient : public SyncClient {
+	private:
+		std::string authToken;
+		bool authTokenQueryDone;
+
+		static int checkAuthTokenCallback (void* esc, int argc, char** argv, char** azColName);
 
 public:
 	EvernoteSyncClient (Notify* app) {
