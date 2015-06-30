@@ -23,11 +23,13 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "leftpaneview.hh"
 #include "notelistpaneview.hh"
 #include "notepaneview.hh"
+#include "evernotewebviewbox.hh"
 
 class Notify;
 class NoteListPaneView;
 class NotePaneView;
 class MainToolbar;
+class EvernoteWebViewBox;
 
 void addCss (Gtk::Widget* widget, std::string cssClass, std::string css);
 
@@ -36,14 +38,16 @@ private:
     int a;
 
     Notify* app;
-    LeftPaneView* lpv;
-    NoteListPaneView* nlpv;
-    NotePaneView* npv;
-
     DatabaseManager* dbm;
 public:
     WindowBody (bool homogeneous, int spacing, Gtk::PackOptions options, int padding = 0, Notify* a = NULL, DatabaseManager* d= NULL);
     ~WindowBody ();
+
+    LeftPaneView* lpv;
+    NoteListPaneView* nlpv;
+    NotePaneView* npv;
+		
+		EvernoteWebViewBox* ewvb;
 
     void setApp (Notify* a);
     void setDatabaseManager (DatabaseManager* d);

@@ -2,16 +2,19 @@
 #define _SYNC_HH_
 
 #include <vector>
+#include <notify.hh>
 
 class SyncClient {
 public:
+	Notify* app;
 	virtual int sync () = 0;
 };
 
 
 class SyncManager {
 public:
-	SyncManager () {}
+	SyncManager () {
+	}
 	~SyncManager () {}
 	void addSyncClient (SyncClient* sc) {
 		clients.push_back (sc);

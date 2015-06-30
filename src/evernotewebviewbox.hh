@@ -13,44 +13,36 @@ You should have received a copy of the GNU General Public License along
 with this program.  If not, see <http://www.gnu.org/licenses/>.
 ***/
 
-#ifndef _NOTIFY_HH_
-#define _NOTIFY_HH_
+#ifndef _EVERNOTE_WEBVIEW_BOX_HH_
+#define _EVERNOTE_WEBVIEW_BOX_HH_
 
-#include <gtkmm/button.h>
-#include <gtkmm/window.h>
-#include "porting.hh"
-#include "windowbody.hh"
-#include "leftpaneview.hh"
-#include "maintoolbar.hh"
-#include "notelistpaneview.hh"
-#include "notepaneview.hh"
+#include <gtkmm.h>
+#include <webkit/webkit.h>
+#include "rapidxml_print.hpp"
+#include "rapidxml.hpp"
+
+#include "notedata.hh"
 #include "databasemanager.hh"
-#include "sync.hh"
-
-class WindowBody;
+#if HASPDF
+#include <fstream>
+#include <pdf.h>
+#endif /* HASPDF */
 class DatabaseManager;
-class SyncManager;
+class LeftPaneView;
 
-class Notify : public Gtk::Window {
-public:
-	Notify ();
-	virtual ~Notify ();
-
-  MainToolbar* mainToolbar;
-  WindowBody* windowBody;
-	LeftPaneView* lpv;
-	NoteListPaneView* nlpv;
-	NotePaneView* npv;
-
-	DatabaseManager* dbm;
-	SyncManager* sm;	
-protected:
-	void on_button_clicked();
-	Gtk::Button m_button;
-
+class EvernoteWebViewBox : public Gtk::Box {
 private:
-    void setupDatabase ();
+	int a;
+
+	Gtk::ScrolledWindow* webviewWrapper;
+
+	Notify* app;
+
+public:
+	EvernoteWebViewBox (bool homogeneous, int spacing, Gtk::PackOptions options,
+			int padding = 0, Notify* a = NULL);
+	~EvernoteWebViewBox ();
+	
+	WebKitWebView* webview;
 };
-
 #endif
-

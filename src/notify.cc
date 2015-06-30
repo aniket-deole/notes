@@ -37,7 +37,7 @@ Notify::Notify() {
 	show_all ();
 
 	sm = new SyncManager ();
-	SyncClient* esc = new EvernoteSyncClient ();
+	SyncClient* esc = new EvernoteSyncClient (this);
 	sm->addSyncClient (esc);
 
 	//	gdk_window_set_decorations (gtk_widget_get_window ((GtkWidget*) gobj ()), GDK_DECOR_BORDER);

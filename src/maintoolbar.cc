@@ -154,8 +154,9 @@ void MainToolbar::syncButtonCallback () {
     Glib::signal_timeout().connect(sigc::mem_fun(*this,
           &MainToolbar::on_timeout), 50 );
 
-    pthread_t thread;
-    pthread_create (&thread, NULL, MainToolbar::asynchronousSync, (void*) this);
+//    pthread_t thread;
+//    pthread_create (&thread, NULL, MainToolbar::asynchronousSync, (void*) this);
+			asynchronousSync (this);
   } else {
     // Show webview evernote login.
     Gtk::Dialog* webViewPopup = Gtk::manage (new WebViewPopup ("Login To Evernote", (Gtk::Window&)*app, true));
