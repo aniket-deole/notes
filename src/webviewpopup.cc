@@ -15,7 +15,7 @@
 #include <iostream>
 #include <fstream>
 #include <assert.h>
-#include "webviewpopup.hh"
+#include <webviewpopup.hh>
 
 static void destroyWindowCb (WebKitWebView  *webview,
     WebKitWebFrame *web_frame, gpointer user_data) {

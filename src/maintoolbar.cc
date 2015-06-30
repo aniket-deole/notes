@@ -18,8 +18,8 @@
 #include <pthread.h>
 #include <iostream>
 
-#include "maintoolbar.hh"
-#include "webviewpopup.hh"
+#include <maintoolbar.hh>
+#include <webviewpopup.hh>
 
 std::string MainToolbar::headerBarSubStatus = "Connected to Evernote";
 

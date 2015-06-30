@@ -19,10 +19,10 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <gtkmm.h>
 #include <math.h>
 
-#include "leftpaneview.hh"
-#include "windowbody.hh"
+#include <leftpaneview.hh>
+#include <windowbody.hh>
 
-#include "notebookdata.hh"
+#include <notebookdata.hh>
 
 /**
   Context: Stacks Almost Working. Check saveNote. it fails when stack is selected.

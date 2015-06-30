@@ -19,18 +19,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <gtkmm/cssprovider.h>
 #include <gtkmm/styleprovider.h>
 
-#include "windowbody.hh"
-
-void addCss (Gtk::Widget* widget, std::string cssClass, std::string css) {
-	Glib::RefPtr<Gtk::StyleContext> context;
-	context = widget->get_style_context ();
-	widget->set_name (cssClass);
-	Glib::RefPtr<Gtk::CssProvider> provider = Gtk::CssProvider::create ();
-
-	provider->load_from_data (css);
-	context->add_provider (provider, GTK_STYLE_PROVIDER_PRIORITY_SETTINGS);
-	context->add_class (cssClass);
-}
+#include <windowbody.hh>
 
 WindowBody::WindowBody (bool homogeneous, int spacing, Gtk::PackOptions options, int padding, Notify* a, DatabaseManager* d) 
     : Gtk::Box (Gtk::ORIENTATION_VERTICAL, padding) {

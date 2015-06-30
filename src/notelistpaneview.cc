@@ -21,10 +21,10 @@
 #include <cstring>
 #include <vector>
 
-#include "notelistpaneview.hh"
-#include "windowbody.hh"
-#include "notedata.hh"
-#include "querygenerator.hh"
+#include <notelistpaneview.hh>
+#include <windowbody.hh>
+#include <notedata.hh>
+#include <querygenerator.hh>
 
   template <typename T>
 std::string NumberToString(T pNumber)

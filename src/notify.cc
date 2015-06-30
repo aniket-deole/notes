@@ -15,8 +15,8 @@
 
 #include <iostream>
 
-#include "notify.hh"
-#include "evernoteSyncClient.hh"
+#include <notify.hh>
+#include <evernoteSyncClient.hh>
 
 Notify::Notify() {
 

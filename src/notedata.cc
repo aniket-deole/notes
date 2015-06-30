@@ -19,7 +19,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <cctype>
 #include <locale>
 #include <vector>
-#include "notedata.hh"
+#include <notedata.hh>
 
 static std::string ReplaceString(std::string subject, const std::string& search,
                           const std::string& replace) {

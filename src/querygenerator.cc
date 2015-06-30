@@ -17,7 +17,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <cstdlib>
 #include <vector>
 
-#include "querygenerator.hh"
+#include <querygenerator.hh>
 
 QueryGenerator* QueryGenerator::queryGenerator = 0;
 
