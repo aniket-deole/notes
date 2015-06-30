@@ -15,9 +15,9 @@ endif
 
 %.o : %.cc
 ifdef WITHPDF
-	${CPP} ${CFLAGS} -Iwithpdf/ -c $<
+	${CPP} ${CFLAGS} -Iinclude/withpdf/ -c $<
 else
-	${CPP} ${CFLAGS} -Inormal/ -c $<
+	${CPP} ${CFLAGS} -Iinclude/normal/ -c $<
 endif
 
 .PHONY: clean
