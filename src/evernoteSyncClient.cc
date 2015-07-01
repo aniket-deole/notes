@@ -27,7 +27,7 @@ void EvernoteSyncClient::syncNotes () {
 
   evernote::NotesMetadataList* nml = NoteStore_findNotesMetadata_p (noteStore, authToken, nf, 0, 20, nmrs);
   // std::cout << nml->totalNotes << std::endl;
-  for (int i = 0; i < nml->notes.size (); i++) {
+  for (int i = 0; i < (int) nml->notes.size (); i++) {
     // std::cout << nml->notes[i]->title << std::endl;
     // // std::cout << noteStore->getNoteContent (authToken, nml->notes[i]->guid);
     NoteStore_getNote_t* NoteStore_getNote_p = (NoteStore_getNote_t*) dlsym (handle, "NoteStore_getNote");
@@ -42,7 +42,7 @@ void EvernoteSyncClient::syncNotes () {
     std::cout << "\n" << note->contentHtml << std::endl;
     std::cout << "-----------------------------\n";
     std::cout << "-----------------------------\n";
-    for (int j = 0; j < note->resources.size (); j++) {
+    for (int j = 0; j < (int) note->resources.size (); j++) {
       //            std::ofstream myfile;
       //                  myfile.open ("asd");
       //              myfile << note->resources[j]->data->body;
@@ -77,7 +77,7 @@ void EvernoteSyncClient::syncNotebooks () {
   NoteStore_listNotebooks_t* NoteStore_listNotebooks_p = (NoteStore_listNotebooks_t*) dlsym (handle, "NoteStore_listNotebooks");
   std::vector<evernote::Notebook*>* notebookList = NoteStore_listNotebooks_p (noteStore, authToken);
 
-  for (int i = 0; i < notebookList->size (); i++) {
+  for (int i = 0; i < (int) notebookList->size (); i++) {
     std::cout << notebookList->at (i)->stack << ":" << notebookList->at (i)->name << std::endl;
   }
 
@@ -135,7 +135,7 @@ void EvernoteSyncClient::secondStageComplete (WebKitWebView *webView,
 
   std::string uri = webkit_web_view_get_uri (webView);
 
-  if (uri.find ("oauth_verifier") == -1) {
+  if ( (int) uri.find ("oauth_verifier") == -1) {
     return;
   } else {
     std::cout << uri << std::endl;
