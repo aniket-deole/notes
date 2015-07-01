@@ -24,16 +24,13 @@ class Notify;
 class MainToolbar : public Gtk::HeaderBar {
 private:
     int a;
-    Gtk::Entry* searchEntry;
 
     bool searchEntryActive;
     bool collapsedHeaderBar;
     bool syncStarted;
     Gtk::Button* collapseHeaderBar;
-    Gtk::Button* newNoteButton;
-    Gtk::Button* newNotebookButton;
-    Gtk::Button* syncButton;
     Gtk::ProgressBar* progressBar;
+		
 
 public:
     Notify* app;
@@ -54,6 +51,17 @@ public:
 
     bool connectedToEvernote;
     static std::string headerBarSubStatus;
+    
+		bool evernoteConnectionInProgress;
+		Gtk::Entry* searchEntry;
+    Gtk::Button* newNoteButton;
+    Gtk::Button* newNotebookButton;
+    Gtk::Button* syncButton;
+
+		std::string tempAuthToken;
+		static int checkAuthTokenCallback (void* esc, int argc, char** argv, char** azColName);
+
+	
 };
 
 #endif

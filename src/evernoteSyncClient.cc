@@ -154,7 +154,12 @@ void EvernoteSyncClient::secondStageComplete (WebKitWebView *webView,
 	esc->app->remove ();
 	esc->app->add (*esc->app->windowBody);
 	esc->app->show_all ();
-
+	esc->app->mainToolbar->evernoteConnectionInProgress = false;
+		esc->app->mainToolbar->newNoteButton->show ();
+		esc->app->mainToolbar->newNotebookButton->show ();
+		esc->app->mainToolbar->searchEntry->show ();
+	esc->app->mainToolbar->syncButton->set_label ("Sync with Evernote");
+	esc->app->mainToolbar->connectedToEvernote = true;
 	webkit_web_view_load_uri (webView, fat.c_str ());
 	std::cout << "Second loading:" << fat << std::endl;	
 	return;

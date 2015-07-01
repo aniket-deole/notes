@@ -32,3 +32,6 @@ install: all
 
 debug: all
 	LD_LIBRARY_PATH=libevernote/ gdb --tui ./notes
+
+clean-db:
+	rm ~/.local/notify.db
