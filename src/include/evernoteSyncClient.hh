@@ -10,6 +10,10 @@ class EvernoteSyncClient : public SyncClient {
 		std::string authToken;
 		bool authTokenQueryDone;
 
+    evernote::NoteStore* noteStore;
+
+    evernote::UserStore* userStore;
+
 		static int checkAuthTokenCallback (void* esc, int argc, char** argv, char** azColName);
 
 public:
@@ -31,8 +35,10 @@ public:
                WebKitWebFrame *web_frame,
                gpointer        user_data); 
 
-
-
+  void syncNotes ();
+  void syncNotebooks ();
+  
+  void actualSync (std::string);
 
 	evernote::OAuthManager* oAuthManager;
 
