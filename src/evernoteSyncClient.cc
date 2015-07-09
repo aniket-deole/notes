@@ -43,13 +43,9 @@ void EvernoteSyncClient::syncNotes () {
     std::cout << "-----------------------------\n";
     std::cout << "-----------------------------\n";
     for (int j = 0; j < (int) note->resources.size (); j++) {
-      //            std::ofstream myfile;
-      //                  myfile.open ("asd");
-      //              myfile << note->resources[j]->data->body;
-      //              myfile.close();
-      std::string encoded = base64_encode(reinterpret_cast<const unsigned char*>(note->resources[j]->data->body.c_str ()), note->resources[j]->data->size);
-
-      //std::cout << "encoded: " << encoded << std::endl;                
+      std::string encoded = 
+				base64_encode(reinterpret_cast<const unsigned char*>(note->resources[j]->data->body.c_str ()), 
+						note->resources[j]->data->size);
     }
   }
 
@@ -71,18 +67,18 @@ void EvernoteSyncClient::syncNotebooks () {
   createNoteStore_t* createNoteStore_p = (createNoteStore_t*) dlsym (handle, "createNoteStore");
   noteStore = createNoteStore_p (UserStore_getNoteStoreUrl_p (userStore, authToken));
 
-
-  // std::cout << "*. List all notebooks\n";
-  // std::cout << "----------------------------------------------------------------\n";
   NoteStore_listNotebooks_t* NoteStore_listNotebooks_p = (NoteStore_listNotebooks_t*) dlsym (handle, "NoteStore_listNotebooks");
   std::vector<evernote::Notebook*>* notebookList = NoteStore_listNotebooks_p (noteStore, authToken);
 
   for (int i = 0; i < (int) notebookList->size (); i++) {
     std::cout << notebookList->at (i)->stack << ":" << notebookList->at (i)->name << std::endl;
+		NotebookData* notebook = new NotebookData (0, notebookList->at(i)->name, 
+				notebookList->at (i)->guid->guid, notebookList->at (i)->stack, 
+				0, 0, 0);
+		app->dbm->exec (notebook->getInsertStatement (), NULL, this);
   }
 
-  // std::cout << "----------------------------------------------------------------\n";
-  // std::cout << "----------------------------------------------------------------\n";
+	app->lpv->refreshLeftPaneView ();
 
 }
 
@@ -98,7 +94,7 @@ void EvernoteSyncClient::actualSync (std::string authToken) {
   this->authToken = authToken;
   syncNotebooks ();
 
-  syncNotes ();
+//  syncNotes ();
 }
 
 void EvernoteSyncClient::thirdStageComplete (WebKitWebView* webView,

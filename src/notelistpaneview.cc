@@ -309,7 +309,7 @@ void NoteListPaneView::fetchNotesForNotebooks (std::vector<std::string> guids) {
   if (guids.empty () || (guids.size () == 1 && guids[0] == "_")) {
     query = "select a.id, a.title, substr (a.body, 0, 300), a.created_time, a.modified_time, a.guid, a.notebook_guid, a.usn, a.dirty, b.title from notes a, notebooks b where a.notebook_guid = b.guid ";
   } else {
-    query = "select a.id, a.title, substr (a.body, 0, 300), a.created_time, a.modified_time, a.guid, a.notebook_guid, a.usn, a.dirty, b.title from notes a, notebooks b where a.notebook_guid = b.guid and a.notebook_guid = ";
+    query = "select a.id, a.title, substr (a.body, 0, 300), a.created_time, a.modified_time, a.guid, a.notebook_guid, a.usn, a.dirty, b.title from notes a, notebooks b where a.notebook_guid = b.guid and (a.notebook_guid = ";
     for (unsigned int i = 0; i < guids.size (); i++) {
       query += "'";
       query += guids[i];
@@ -319,7 +319,7 @@ void NoteListPaneView::fetchNotesForNotebooks (std::vector<std::string> guids) {
       }
     }
   }
-  query += " order by a.modified_time desc, a.id";
+  query += ") order by a.modified_time desc, a.id";
 
 
   if (dbm){

@@ -48,6 +48,13 @@ public:
   std::string getStack () { return stack; }
   void setGuid (std::string g) { guid = g; }
   bool getIsStack () { return isStack; }
+	std::string getInsertStatement () {
+		std::string query = "INSERT INTO notebooks values (NULL, '" + title + "','";
+			query += guid;
+			query += "', '" + stack+ "', 0, 0, 0, 0)";
+		return query;
+
+	}
 };
 
 

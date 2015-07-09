@@ -191,8 +191,8 @@ void MainToolbar::syncButtonCallback () {
     set_custom_title (*progressBar);
     progressBarStarted = true;
     syncComplete = false;
-    progressBar->set_text (headerBarSubStatus);
-    set_subtitle (headerBarSubStatus);
+//    progressBar->set_text (headerBarSubStatus);
+//    set_subtitle (headerBarSubStatus);
     progressBar->set_show_text (true);
     progressBar->show_now ();
     Glib::signal_timeout().connect(sigc::mem_fun(*this,
