@@ -24,12 +24,6 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <notebookdata.hh>
 
-/**
-  Context: Stacks Almost Working. Check saveNote. it fails when stack is selected.
-  May be we will have to create a new ds for stacks.
-**/
-
-
 NotebookTreeStore::NotebookTreeStore()
 {
   //We can't just call Gtk::TreeModel(m_Columns) in the initializer list
