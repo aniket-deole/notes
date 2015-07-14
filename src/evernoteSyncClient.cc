@@ -14,6 +14,9 @@ std::string requestTokenQueryArgs = "oauth_callback=sandbox.evernote.com";
 std::string authorizeUrl 					= "https://sandbox.evernote.com/OAuth.action";
 std::string accessTokenUrl 				= "https://sandbox.evernote.com/oauth";
 
+void EvernoteSyncClient::getNoteDataObject (evernote::Note* note) {
+
+}
 
 void EvernoteSyncClient::syncNotes () {
   NoteStore_createNoteFilter_t* NoteStore_createNoteFilter_p = (NoteStore_createNoteFilter_t*) dlsym (handle, "NoteStore_createNoteFilter");
@@ -34,19 +37,45 @@ void EvernoteSyncClient::syncNotes () {
 
     evernote::Note* note = NoteStore_getNote_p (noteStore, authToken, nml->notes[i]->guid, true, true, false, false);
 
-    Note_enmlToHtml_t* Note_enmlToHtml_p = (Note_enmlToHtml_t*) dlsym (handle, "Note_enmlToHtml");
+    sqlite3_stmt *pStmt;
+      const char *zSql = "INSERT INTO notes (title, body, created_time, modified_time, guid, notebook_guid,usn, dirty) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
+    int rc = sqlite3_prepare_v2(app->dbm->db, zSql, -1, &pStmt, 0);
+
+    sqlite3_bind_text(pStmt, 1, replaceSingleQuote (note->title).c_str (), -1, SQLITE_STATIC);
+    sqlite3_bind_text(pStmt, 2, replaceSingleQuote (note->content).c_str (), -1, SQLITE_STATIC);
+    sqlite3_bind_int(pStmt, 3, 0);
+    sqlite3_bind_int(pStmt, 4, 0);
+    sqlite3_bind_text(pStmt, 5, note->guid->guid.c_str (), -1, SQLITE_STATIC);
+    sqlite3_bind_text(pStmt, 6, note->notebookGuid.c_str (), -1, SQLITE_STATIC);
+    sqlite3_bind_int(pStmt, 7, 0);
+    sqlite3_bind_int(pStmt, 8, 0);
+
+    /* Call sqlite3_step() to run the virtual machine. Since the SQL being
+    ** executed is not a SELECT statement, we assume no data will be returned.
+    */
+    rc = sqlite3_step(pStmt);
+    assert( rc!=SQLITE_ROW );
+
+    /* Finalize the virtual machine. This releases all memory and other
+    ** resources allocated by the sqlite3_prepare() call above.
+    */
+    rc = sqlite3_finalize(pStmt);
+
+
+        Note_enmlToHtml_t* Note_enmlToHtml_p = (Note_enmlToHtml_t*) dlsym (handle, "Note_enmlToHtml");
     Note_enmlToHtml_p (note);
 
-    std::cout << note->contentEnml << std::endl;
+/*    std::cout << note->contentEnml << std::endl;
     std::cout << "-----------------------------";
     std::cout << "\n" << note->contentHtml << std::endl;
     std::cout << "-----------------------------\n";
     std::cout << "-----------------------------\n";
-    for (int j = 0; j < (int) note->resources.size (); j++) {
+*/    for (int j = 0; j < (int) note->resources.size (); j++) {
       std::string encoded = 
 				base64_encode(reinterpret_cast<const unsigned char*>(note->resources[j]->data->body.c_str ()), 
 						note->resources[j]->data->size);
     }
+    delete note;
   }
 
   // Create a Note.
@@ -59,6 +88,7 @@ void EvernoteSyncClient::syncNotes () {
 
   NoteStore_createNote2_p (noteStore, authToken, note);
 
+  app->nlpv->fetchNotesForNotebook ("");
 
 }
 
@@ -94,7 +124,7 @@ void EvernoteSyncClient::actualSync (std::string authToken) {
   this->authToken = authToken;
   syncNotebooks ();
 
-//  syncNotes ();
+  syncNotes ();
 }
 
 void EvernoteSyncClient::thirdStageComplete (WebKitWebView* webView,

@@ -45,6 +45,7 @@ public:
 	void* handle; // handle to the dll file.
 	EvernoteWebViewBox* ewvb;
 	int signalHandlerId;	
+	void getNoteDataObject (evernote::Note* note);
 };
 
 #endif
