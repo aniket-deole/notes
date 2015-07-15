@@ -36,13 +36,18 @@ void EvernoteSyncClient::syncNotes () {
     NoteStore_getNote_t* NoteStore_getNote_p = (NoteStore_getNote_t*) dlsym (handle, "NoteStore_getNote");
 
     evernote::Note* note = NoteStore_getNote_p (noteStore, authToken, nml->notes[i]->guid, true, true, false, false);
+    
+    Note_enmlToHtml_t* Note_enmlToHtml_p = (Note_enmlToHtml_t*) dlsym (handle, "Note_enmlToHtml");
+    Note_enmlToHtml_p (note);
+
 
     sqlite3_stmt *pStmt;
       const char *zSql = "INSERT INTO notes (title, body, created_time, modified_time, guid, notebook_guid,usn, dirty) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
     int rc = sqlite3_prepare_v2(app->dbm->db, zSql, -1, &pStmt, 0);
 
     sqlite3_bind_text(pStmt, 1, replaceSingleQuote (note->title).c_str (), -1, SQLITE_STATIC);
-    sqlite3_bind_text(pStmt, 2, replaceSingleQuote (note->content).c_str (), -1, SQLITE_STATIC);
+    std::string contentHtml = replaceSingleQuote (note->contentHtml);
+    sqlite3_bind_text(pStmt, 2, contentHtml.c_str (), -1, SQLITE_STATIC);
     sqlite3_bind_int(pStmt, 3, 0);
     sqlite3_bind_int(pStmt, 4, 0);
     sqlite3_bind_text(pStmt, 5, note->guid->guid.c_str (), -1, SQLITE_STATIC);
@@ -62,10 +67,7 @@ void EvernoteSyncClient::syncNotes () {
     rc = sqlite3_finalize(pStmt);
 
 
-        Note_enmlToHtml_t* Note_enmlToHtml_p = (Note_enmlToHtml_t*) dlsym (handle, "Note_enmlToHtml");
-    Note_enmlToHtml_p (note);
-
-/*    std::cout << note->contentEnml << std::endl;
+ /*    std::cout << note->contentEnml << std::endl;
     std::cout << "-----------------------------";
     std::cout << "\n" << note->contentHtml << std::endl;
     std::cout << "-----------------------------\n";
