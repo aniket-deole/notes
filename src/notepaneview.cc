@@ -86,7 +86,7 @@ NotePaneView::NotePaneView (bool homogeneous, int spacing, Gtk::PackOptions opti
 	toolbarBoxLower->pack_start (*boldButton, false, false , 0);
 	addCss (boldButton, "boldButton", " .boldButton {\n background-color:white; background-image: none;  border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;}");
 	boldButton->set_size_request (30, 30);
-	italicsButton->set_tooltip_text("Bold");
+	boldButton->set_tooltip_text("Bold");
 
 	italicsButton = Gtk::manage (new Gtk::Button ());
     img = Gtk::manage (new Gtk::Image ("img/italics.png"));
