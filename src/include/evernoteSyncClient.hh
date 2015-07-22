@@ -10,12 +10,15 @@ class EvernoteSyncClient : public SyncClient {
 		std::string authToken;
 		bool authTokenQueryDone;
 
+    long updateSequenceNumber;
+    bool updateSequenceNumberQueryDone;
+
     evernote::NoteStore* noteStore;
 
     evernote::UserStore* userStore;
 
 		static int checkAuthTokenCallback (void* esc, int argc, char** argv, char** azColName);
-
+    static int checkUpdateSequenceNumberCallback (void* esc, int argc, char** argv, char** azColName);
 public:
 	EvernoteSyncClient (Notify* app) {
 		this->app = app;
@@ -35,12 +38,16 @@ public:
                WebKitWebFrame *web_frame,
                gpointer        user_data); 
 
-  void syncNotes ();
-  void syncNotebooks ();
-  
-  void actualSync (std::string);
+  void syncNotes (long updateSequenceNumber);
+  void syncNotebooks (long updateSequenceNumber);
 
-	evernote::OAuthManager* oAuthManager;
+  void updateUpdateSequenceNumInDatabase (long);
+
+
+  void actualSync (std::string, long usn);
+  void actualSync (std::string);
+	
+  evernote::OAuthManager* oAuthManager;
 
 	void* handle; // handle to the dll file.
 	EvernoteWebViewBox* ewvb;

@@ -29,7 +29,6 @@ private:
     bool collapsedHeaderBar;
     bool syncStarted;
     Gtk::Button* collapseHeaderBar;
-    Gtk::ProgressBar* progressBar;
 		
 
 public:
@@ -57,6 +56,7 @@ public:
     Gtk::Button* newNoteButton;
     Gtk::Button* newNotebookButton;
     Gtk::Button* syncButton;
+    Gtk::ProgressBar* progressBar;
 
 		std::string tempAuthToken;
 		static int checkAuthTokenCallback (void* esc, int argc, char** argv, char** azColName);

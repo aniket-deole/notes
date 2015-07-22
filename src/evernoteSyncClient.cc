@@ -18,13 +18,36 @@ void EvernoteSyncClient::getNoteDataObject (evernote::Note* note) {
 
 }
 
-void EvernoteSyncClient::syncNotes () {
+void EvernoteSyncClient::updateUpdateSequenceNumInDatabase (long updateSequenceNumber) {
+    sqlite3_stmt *pStmt;
+      const char *zSql = "INSERT or replace INTO system_parameters (parameter, value) VALUES('evernoteUpdateSequenceNumber',?)";
+    int rc = sqlite3_prepare_v2(app->dbm->db, zSql, -1, &pStmt, 0);
+
+    sqlite3_bind_int (pStmt, 1, updateSequenceNumber);
+
+    /* Call sqlite3_step() to run the virtual machine. Since the SQL being
+    ** executed is not a SELECT statement, we assume no data will be returned.
+    */
+    rc = sqlite3_step(pStmt);
+    assert( rc!=SQLITE_ROW );
+
+    /* Finalize the virtual machine. This releases all memory and other
+    ** resources allocated by the sqlite3_prepare() call above.
+    */
+    rc = sqlite3_finalize(pStmt);
+
+    std::cout << "USN:" << updateSequenceNumber << std::endl;
+
+}
+
+void EvernoteSyncClient::syncNotes (long updateSequenceNumber) {
   NoteStore_createNoteFilter_t* NoteStore_createNoteFilter_p = (NoteStore_createNoteFilter_t*) dlsym (handle, "NoteStore_createNoteFilter");
   evernote::NoteFilter* nf = NoteStore_createNoteFilter_p ();
   NoteStore_createNotesMetadataResultSpec_t* NoteStore_createNotesMetadataResultSpec_p = 
     (NoteStore_createNotesMetadataResultSpec_t*) dlsym (handle, "NoteStore_createNotesMetadataResultSpec");
   evernote::NotesMetadataResultSpec* nmrs = NoteStore_createNotesMetadataResultSpec_p ();
   nmrs->includeTitle = true;
+  nmrs->includeUpdateSequenceNum = true;
 
   NoteStore_findNotesMetadata_t* NoteStore_findNotesMetadata_p = (NoteStore_findNotesMetadata_t*) dlsym (handle, "NoteStore_findNotesMetadata");
 
@@ -60,6 +83,8 @@ void EvernoteSyncClient::syncNotes () {
     */
     rc = sqlite3_step(pStmt);
     assert( rc!=SQLITE_ROW );
+    
+    updateUpdateSequenceNumInDatabase (nml->notes[i]->updateSequenceNum);
 
     /* Finalize the virtual machine. This releases all memory and other
     ** resources allocated by the sqlite3_prepare() call above.
@@ -79,7 +104,7 @@ void EvernoteSyncClient::syncNotes () {
     }
     delete note;
   }
-
+/*
   // Create a Note.
   NoteStore_createNote_t* NoteStore_createNote_p = (NoteStore_createNote_t*) dlsym (handle, "NoteStore_createNote");
   evernote::Note* note = NoteStore_createNote_p ();
@@ -89,16 +114,17 @@ void EvernoteSyncClient::syncNotes () {
   NoteStore_createNote2_t* NoteStore_createNote2_p = (NoteStore_createNote2_t*) dlsym (handle, "NoteStore_createNote2");
 
   NoteStore_createNote2_p (noteStore, authToken, note);
-
+*/
   app->nlpv->fetchNotesForNotebook ("");
 
 }
 
-void EvernoteSyncClient::syncNotebooks () {
-  UserStore_getNoteStoreUrl_t* UserStore_getNoteStoreUrl_p = (UserStore_getNoteStoreUrl_t*) dlsym (handle,"UserStore_getNoteStoreUrl");
-  createNoteStore_t* createNoteStore_p = (createNoteStore_t*) dlsym (handle, "createNoteStore");
-  noteStore = createNoteStore_p (UserStore_getNoteStoreUrl_p (userStore, authToken));
-
+void EvernoteSyncClient::syncNotebooks (long updateSequenceNumber) {
+  if (noteStore == NULL) {
+    UserStore_getNoteStoreUrl_t* UserStore_getNoteStoreUrl_p = (UserStore_getNoteStoreUrl_t*) dlsym (handle,"UserStore_getNoteStoreUrl");
+    createNoteStore_t* createNoteStore_p = (createNoteStore_t*) dlsym (handle, "createNoteStore");
+    noteStore = createNoteStore_p (UserStore_getNoteStoreUrl_p (userStore, authToken));
+  }
   NoteStore_listNotebooks_t* NoteStore_listNotebooks_p = (NoteStore_listNotebooks_t*) dlsym (handle, "NoteStore_listNotebooks");
   std::vector<evernote::Notebook*>* notebookList = NoteStore_listNotebooks_p (noteStore, authToken);
 
@@ -108,25 +134,35 @@ void EvernoteSyncClient::syncNotebooks () {
 				notebookList->at (i)->guid->guid, notebookList->at (i)->stack, 
 				0, 0, 0);
 		app->dbm->exec (notebook->getInsertStatement (), NULL, this);
+    updateUpdateSequenceNumInDatabase (notebookList->at (i)->updateSequenceNum);
   }
 
 	app->lpv->refreshLeftPaneView ();
 
 }
 
-void EvernoteSyncClient::actualSync (std::string authToken) {
+void EvernoteSyncClient::actualSync (std::string authToken, long updateSequenceNumber) {
   // load the symbols.
-  createUserStore_t* createUserStore_p = (createUserStore_t*) dlsym(handle, "createUserStore");
-  const char* dlsym_error = dlerror();
-  if (dlsym_error) {
-    std::cerr << "Cannot load symbol create: " << dlsym_error << '\n';
+  if (userStore == NULL) {
+    createUserStore_t* createUserStore_p = (createUserStore_t*) dlsym(handle, "createUserStore");
+    const char* dlsym_error = dlerror();
+    if (dlsym_error) {
+      std::cerr << "Cannot load symbol create: " << dlsym_error << '\n';
+    }
+    userStore = createUserStore_p ("sandbox.evernote.com", 80, "/edam/user", authToken);
   }
-  userStore = createUserStore_p ("sandbox.evernote.com", 80, "/edam/user", authToken);
-
   this->authToken = authToken;
-  syncNotebooks ();
+  syncNotebooks (updateSequenceNumber);
 
-  syncNotes ();
+  syncNotes (updateSequenceNumber);
+
+  app->mainToolbar->progressBar->hide ();
+  app->mainToolbar->progressBarStarted = false;
+  app->mainToolbar->set_subtitle ("Connected to Evernote");
+}
+
+void EvernoteSyncClient::actualSync (std::string authToken) {
+  actualSync (authToken, -1);
 }
 
 void EvernoteSyncClient::thirdStageComplete (WebKitWebView* webView,
@@ -240,6 +276,16 @@ void EvernoteSyncClient::firstStageComplete (WebKitWebView  *webView,
   return;
 }
 
+int EvernoteSyncClient::checkUpdateSequenceNumberCallback (void* p, int argc, char** argv, char** azColName) {
+  EvernoteSyncClient* esc = (EvernoteSyncClient*) p;
+
+  if (argc == 1) {
+    esc->updateSequenceNumber = atol (argv[0]);
+  }
+
+  esc->updateSequenceNumberQueryDone = true;
+  return 0;
+}
 
 int EvernoteSyncClient::checkAuthTokenCallback (void* p, int argc, char** argv, char** azColName) {
   EvernoteSyncClient* esc = (EvernoteSyncClient*) p;
@@ -262,6 +308,9 @@ int EvernoteSyncClient::sync () {
     return 1;
   }
 
+  userStore = NULL;
+  noteStore = NULL;
+
   /* Check if we already have the access Token. */
   authTokenQueryDone = false;
   authToken = "";
@@ -269,33 +318,75 @@ int EvernoteSyncClient::sync () {
       &checkAuthTokenCallback, (void*) this);
 
   if (authToken.length () != 0) {
+    updateSequenceNumber = -1;
+    app->dbm->exec ("select value from system_parameters where parameter='evernoteUpdateSequenceNumber';",
+        &checkUpdateSequenceNumberCallback, (void*) this);
+
+    if (updateSequenceNumber != -1) {
+      createUserStore_t* createUserStore_p = (createUserStore_t*) dlsym(handle, "createUserStore");
+      const char* dlsym_error = dlerror();
+      if (dlsym_error) {
+        std::cerr << "Cannot load symbol create: " << dlsym_error << '\n';
+      }
+      userStore = createUserStore_p ("sandbox.evernote.com", 80, "/edam/user", authToken);
+
+
+      
+      UserStore_getNoteStoreUrl_t* UserStore_getNoteStoreUrl_p = (UserStore_getNoteStoreUrl_t*) dlsym (handle,"UserStore_getNoteStoreUrl");
+        createNoteStore_t* createNoteStore_p = (createNoteStore_t*) dlsym (handle, "createNoteStore");
+        noteStore = createNoteStore_p (UserStore_getNoteStoreUrl_p (userStore, authToken));
+      
+      
+      NoteStore_getSyncState_t* NoteStore_getSyncState_p = (NoteStore_getSyncState_t*) dlsym (handle, "NoteStore_getSyncState");
+
+      evernote::SyncState* syncState = NoteStore_getSyncState_p (noteStore, authToken);
+
+      if (syncState->updateCount > updateSequenceNumber) {
+        actualSync (authToken, updateSequenceNumber);
+      } else {
+        std::cout << "Everything upto date.!" << std::endl;
+        app->mainToolbar->progressBar->hide ();
+        app->mainToolbar->progressBarStarted = false;
+        app->mainToolbar->set_subtitle ("Connected to Evernote");
+        app->mainToolbar->evernoteConnectionInProgress = false;
+        app->mainToolbar->newNoteButton->show ();
+        app->mainToolbar->newNotebookButton->show ();
+        app->mainToolbar->searchEntry->show ();
+        app->mainToolbar->syncButton->set_label ("Sync with Evernote");
+        app->mainToolbar->connectedToEvernote = true;
+      }
+
+    } else {
+      actualSync (authToken);
+    }
     std::cout << "We have the authToken:" << authToken << std::endl;
     return 0;
+  } else {
+     createOAuthManager_t* createOAuthManager_p = (createOAuthManager_t*) dlsym (handle, 
+        "createOAuthManager");
+
+    oAuthManager = createOAuthManager_p (consumerKey,
+        consumerSecret, requestTokenUrl, requestTokenQueryArgs, authorizeUrl,
+        accessTokenUrl);
+
+    OAuthManager_generateRequestTokenUrl_t* OAuthManager_generateRequestTokenUrl_p =
+      (OAuthManager_generateRequestTokenUrl_t*) dlsym (handle, "OAuthManager_generateRequestTokenUrl");
+
+    std::string rqu = OAuthManager_generateRequestTokenUrl_p (oAuthManager);
+
+    std::cout << rqu << std::endl;
+
+    // Hide the normal ui and get permissions from evernote.
+    app->remove ();
+    ewvb = Gtk::manage (new EvernoteWebViewBox (false, 0, Gtk::PACK_SHRINK, 0, app));
+    ewvb->hide ();
+    app->add (*ewvb);		
+
+    webkit_web_view_load_uri (ewvb->webview, rqu.c_str ());
+    signalHandlerId = g_signal_connect (ewvb->webview, "document-load-finished", 
+        G_CALLBACK (&EvernoteSyncClient::firstStageComplete), this);
+
   }
-
-  createOAuthManager_t* createOAuthManager_p = (createOAuthManager_t*) dlsym (handle, 
-      "createOAuthManager");
-
-  oAuthManager = createOAuthManager_p (consumerKey,
-      consumerSecret, requestTokenUrl, requestTokenQueryArgs, authorizeUrl,
-      accessTokenUrl);
-
-  OAuthManager_generateRequestTokenUrl_t* OAuthManager_generateRequestTokenUrl_p =
-    (OAuthManager_generateRequestTokenUrl_t*) dlsym (handle, "OAuthManager_generateRequestTokenUrl");
-
-  std::string rqu = OAuthManager_generateRequestTokenUrl_p (oAuthManager);
-
-  std::cout << rqu << std::endl;
-
-  // Hide the normal ui and get permissions from evernote.
-  app->remove ();
-  ewvb = Gtk::manage (new EvernoteWebViewBox (false, 0, Gtk::PACK_SHRINK, 0, app));
-  ewvb->hide ();
-  app->add (*ewvb);		
-
-  webkit_web_view_load_uri (ewvb->webview, rqu.c_str ());
-  signalHandlerId = g_signal_connect (ewvb->webview, "document-load-finished", 
-      G_CALLBACK (&EvernoteSyncClient::firstStageComplete), this);
 
   return 0;
 }

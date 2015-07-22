@@ -137,7 +137,6 @@ void MainToolbar::toggleHeaderBarCallback () {
 void* MainToolbar::asynchronousSync (void* data) {
   MainToolbar* d = static_cast<MainToolbar*>(data);
   d->app->sm->sync ();
-  d->progressBarStarted = false;
   return NULL;
 }
 
@@ -159,7 +158,6 @@ void MainToolbar::syncButtonCallback () {
 			&checkAuthTokenCallback, (void*) this);
 
 	if (tempAuthToken.length () != 0) {
-		connectedToEvernote = true;
 		std::cout << "We already have a token." << std::endl;
 	}
 	
@@ -191,8 +189,7 @@ void MainToolbar::syncButtonCallback () {
     set_custom_title (*progressBar);
     progressBarStarted = true;
     syncComplete = false;
-//    progressBar->set_text (headerBarSubStatus);
-//    set_subtitle (headerBarSubStatus);
+    progressBar->set_text ("Connecting to Evernote!");
     progressBar->set_show_text (true);
     progressBar->show_now ();
     Glib::signal_timeout().connect(sigc::mem_fun(*this,
