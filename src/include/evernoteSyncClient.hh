@@ -44,10 +44,13 @@ public:
   int getNoteStore ();
   int getUserStore ();
 
+  evernote::SyncState* getSyncState ();
+  evernote::SyncChunk* getFilteredSyncChunk (int afterUSN,
+      int maxEntries, evernote::SyncChunkFilter* filter);
   void updateUpdateSequenceNumInDatabase (long);
 
 
-  void actualSync (std::string, long usn);
+  void actualSync (std::string, long usn, int syncStateUSN);
   void actualSync (std::string);
 	
   evernote::OAuthManager* oAuthManager;
