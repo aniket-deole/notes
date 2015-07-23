@@ -13,6 +13,7 @@ std::string requestTokenUrl 			= "https://sandbox.evernote.com/oauth";
 std::string requestTokenQueryArgs = "oauth_callback=sandbox.evernote.com";
 std::string authorizeUrl 					= "https://sandbox.evernote.com/OAuth.action";
 std::string accessTokenUrl 				= "https://sandbox.evernote.com/oauth";
+std::string evernoteServer        = "https://sandbox.evernote.com";
 
 void EvernoteSyncClient::getNoteDataObject (evernote::Note* note) {
 
@@ -120,11 +121,9 @@ void EvernoteSyncClient::syncNotes (long updateSequenceNumber) {
 }
 
 void EvernoteSyncClient::syncNotebooks (long updateSequenceNumber) {
-  if (noteStore == NULL) {
-    UserStore_getNoteStoreUrl_t* UserStore_getNoteStoreUrl_p = (UserStore_getNoteStoreUrl_t*) dlsym (handle,"UserStore_getNoteStoreUrl");
-    createNoteStore_t* createNoteStore_p = (createNoteStore_t*) dlsym (handle, "createNoteStore");
-    noteStore = createNoteStore_p (UserStore_getNoteStoreUrl_p (userStore, authToken));
-  }
+  
+  getNoteStore ();
+
   NoteStore_listNotebooks_t* NoteStore_listNotebooks_p = (NoteStore_listNotebooks_t*) dlsym (handle, "NoteStore_listNotebooks");
   std::vector<evernote::Notebook*>* notebookList = NoteStore_listNotebooks_p (noteStore, authToken);
 
@@ -141,15 +140,31 @@ void EvernoteSyncClient::syncNotebooks (long updateSequenceNumber) {
 
 }
 
-void EvernoteSyncClient::actualSync (std::string authToken, long updateSequenceNumber) {
-  // load the symbols.
-  if (userStore == NULL) {
+int EvernoteSyncClient::getUserStore () {
     createUserStore_t* createUserStore_p = (createUserStore_t*) dlsym(handle, "createUserStore");
     const char* dlsym_error = dlerror();
     if (dlsym_error) {
       std::cerr << "Cannot load symbol create: " << dlsym_error << '\n';
+      return -1;
     }
-    userStore = createUserStore_p ("sandbox.evernote.com", 80, "/edam/user", authToken);
+    userStore = createUserStore_p (evernoteServer, 80, "/edam/user", authToken);
+    return 0;
+}
+
+int EvernoteSyncClient::getNoteStore () {
+if (noteStore == NULL) {
+    UserStore_getNoteStoreUrl_t* UserStore_getNoteStoreUrl_p = (UserStore_getNoteStoreUrl_t*) 
+      dlsym (handle,"UserStore_getNoteStoreUrl");
+    createNoteStore_t* createNoteStore_p = (createNoteStore_t*) dlsym (handle, "createNoteStore");
+    noteStore = createNoteStore_p (UserStore_getNoteStoreUrl_p (userStore, authToken));
+  }
+  return 0; 
+}
+
+void EvernoteSyncClient::actualSync (std::string authToken, long updateSequenceNumber) {
+  // load the symbols.
+  if (!getUserStore ()) {
+    return;
   }
   this->authToken = authToken;
   syncNotebooks (updateSequenceNumber);
@@ -323,19 +338,8 @@ int EvernoteSyncClient::sync () {
         &checkUpdateSequenceNumberCallback, (void*) this);
 
     if (updateSequenceNumber != -1) {
-      createUserStore_t* createUserStore_p = (createUserStore_t*) dlsym(handle, "createUserStore");
-      const char* dlsym_error = dlerror();
-      if (dlsym_error) {
-        std::cerr << "Cannot load symbol create: " << dlsym_error << '\n';
-      }
-      userStore = createUserStore_p ("sandbox.evernote.com", 80, "/edam/user", authToken);
-
-
-      
-      UserStore_getNoteStoreUrl_t* UserStore_getNoteStoreUrl_p = (UserStore_getNoteStoreUrl_t*) dlsym (handle,"UserStore_getNoteStoreUrl");
-        createNoteStore_t* createNoteStore_p = (createNoteStore_t*) dlsym (handle, "createNoteStore");
-        noteStore = createNoteStore_p (UserStore_getNoteStoreUrl_p (userStore, authToken));
-      
+      getUserStore ();
+      getNoteStore (); 
       
       NoteStore_getSyncState_t* NoteStore_getSyncState_p = (NoteStore_getSyncState_t*) dlsym (handle, "NoteStore_getSyncState");
 

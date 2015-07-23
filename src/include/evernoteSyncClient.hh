@@ -41,6 +41,9 @@ public:
   void syncNotes (long updateSequenceNumber);
   void syncNotebooks (long updateSequenceNumber);
 
+  int getNoteStore ();
+  int getUserStore ();
+
   void updateUpdateSequenceNumInDatabase (long);
 
 
