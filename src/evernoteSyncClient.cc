@@ -253,7 +253,7 @@ void EvernoteSyncClient::actualSync (std::string authToken, long updateSequenceN
   
   app->mainToolbar->progressBar->hide ();
   app->mainToolbar->progressBarStarted = false;
-  app->mainToolbar->syncButton->set_label ("Sync with Evernote");
+  app->mainToolbar->syncButton->set_label ("Sync");
   app->mainToolbar->set_subtitle ("Connected to Evernote");
 }
 
@@ -287,7 +287,7 @@ void EvernoteSyncClient::thirdStageComplete (WebKitWebView* webView,
   esc->app->dbm->exec ("insert into system_parameters values ('evernoteAuthToken', '" + authToken +"')",
       NULL, NULL);
 
-  esc->actualSync (authToken, 0, 0);
+  esc->actualSync (authToken, 0, -1);
 }
 
 void EvernoteSyncClient::secondStageComplete (WebKitWebView *webView,
@@ -333,7 +333,7 @@ void EvernoteSyncClient::secondStageComplete (WebKitWebView *webView,
   esc->app->mainToolbar->newNoteButton->show ();
   esc->app->mainToolbar->newNotebookButton->show ();
   esc->app->mainToolbar->searchEntry->show ();
-  esc->app->mainToolbar->syncButton->set_label ("Sync with Evernote");
+  esc->app->mainToolbar->syncButton->set_label ("Sync");
   esc->app->mainToolbar->connectedToEvernote = true;
   webkit_web_view_load_uri (webView, fat.c_str ());
   std::cout << "Second loading:" << fat << std::endl;	
@@ -453,7 +453,7 @@ int EvernoteSyncClient::sync () {
         app->mainToolbar->newNoteButton->show ();
         app->mainToolbar->newNotebookButton->show ();
         app->mainToolbar->searchEntry->show ();
-        app->mainToolbar->syncButton->set_label ("Sync with Evernote");
+        app->mainToolbar->syncButton->set_label ("Sync");
         app->mainToolbar->connectedToEvernote = true;
       }
 

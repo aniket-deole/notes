@@ -37,7 +37,7 @@ MainToolbar::MainToolbar () {
       sigc::mem_fun (*this, &MainToolbar::newNotebook));
   pack_start (*newNotebookButton);
 
-  syncButton = Gtk::manage (new Gtk::Button ("Sync With Evernote"));
+  syncButton = Gtk::manage (new Gtk::Button ("Sync"));
   syncButton->signal_clicked ().connect (
       sigc::mem_fun (*this, &MainToolbar::syncButtonCallback));
 
@@ -170,7 +170,7 @@ void MainToolbar::syncButtonCallback () {
 		app->add (*app->windowBody);
 		app->show_all ();
 
-		syncButton->set_label ("Sync With Evernote");
+		syncButton->set_label ("Sync");
 		return;
 	} else {
 		if (!connectedToEvernote) {
