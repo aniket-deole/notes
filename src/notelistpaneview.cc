@@ -269,9 +269,9 @@ void NoteListPaneView::fetchNotesForNotebook (std::string n_guid) {
 
   std::string query;
   if (n_guid.empty () || n_guid == "_")
-    query = "select a.id, a.title, substr (a.body, 0, 300), a.created_time, a.modified_time, a.guid, a.notebook_guid, a.usn, a.dirty, b.title from notes a, notebooks b where a.notebook_guid = b.guid order by a.modified_time desc, a.id";
+    query = "select a.id, a.title, substr (a.body, 0, 300), a.created_time, a.modified_time, a.guid, a.notebook_guid, a.usn, a.dirty, b.title from notes a, notebooks b where a.notebook_guid = b.guid order by a.modified_time desc, a.id desc";
   else
-    query = "select a.id, a.title, substr (a.body, 0, 300), a.created_time, a.modified_time, a.guid, a.notebook_guid, a.usn, a.dirty, b.title from notes a, notebooks b where a.notebook_guid = b.guid and a.notebook_guid = '" + n_guid + "' order by a.modified_time desc, a.id";
+    query = "select a.id, a.title, substr (a.body, 0, 300), a.created_time, a.modified_time, a.guid, a.notebook_guid, a.usn, a.dirty, b.title from notes a, notebooks b where a.notebook_guid = b.guid and a.notebook_guid = '" + n_guid + "' order by a.modified_time desc, a.id desc";
 
   if (dbm) {
     firstRowOfResultset = true;
@@ -319,7 +319,7 @@ void NoteListPaneView::fetchNotesForNotebooks (std::vector<std::string> guids) {
       }
     }
   }
-  query += ") order by a.modified_time desc, a.id";
+  query += ") order by a.modified_time desc, a.id desc";
 
 
   if (dbm){
@@ -604,7 +604,7 @@ void NoteListPaneView::noteSearch (std::string str) {
 
   std::string query;
   query = "select a.id, a.title, substr (a.body, 0, 300), a.created_time, a.modified_time, a.guid, a.notebook_guid, a.usn, a.dirty, b.title from notes a, notebooks b where a.notebook_guid = b.guid ";
-  query += "and (a.title like '%" + str + "%' or a.body like '%" + str + "%') order by a.modified_time desc, a.id";
+  query += "and (a.title like '%" + str + "%' or a.body like '%" + str + "%') order by a.modified_time desc, a.id desc";
 
 
   if (dbm) {
