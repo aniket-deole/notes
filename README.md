@@ -45,7 +45,11 @@ sudo apt-get install libsqlite3-dev libssl-dev libcrypto++-dev libsigc++-2.0-dev
 
 git clone -recursive https://github.com/aniket-deole/notes.git
 
-cd notes/src
+cd notes/src/libevernote
+
+make
+
+cd ..
 
 make test
 ```
