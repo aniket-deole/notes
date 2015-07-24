@@ -30,7 +30,7 @@ MainToolbar::MainToolbar () {
   newNoteButton->signal_clicked ().connect (
       sigc::mem_fun (*this, &MainToolbar::newNote));
   pack_start (*newNoteButton);
-
+  
   newNotebookButton = Gtk::manage (new Gtk::Button ());
   newNotebookButton->set_image_from_icon_name ("address-book-new", Gtk::ICON_SIZE_LARGE_TOOLBAR);
   newNotebookButton->signal_clicked ().connect (
@@ -160,7 +160,10 @@ void MainToolbar::syncButtonCallback () {
 	if (tempAuthToken.length () != 0) {
 		std::cout << "We already have a token." << std::endl;
 	}
-	
+
+  // Show the cancel sync button that was hidden during the welcome screen
+  syncButton->show ();
+
 	if (evernoteConnectionInProgress) {
 		evernoteConnectionInProgress = false;
 		newNoteButton->show ();
@@ -169,7 +172,7 @@ void MainToolbar::syncButtonCallback () {
 		app->remove ();
 		app->add (*app->windowBody);
 		app->show_all ();
-
+    progressBar->hide ();    
 		syncButton->set_label ("Sync");
 		return;
 	} else {

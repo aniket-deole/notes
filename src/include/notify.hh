@@ -26,10 +26,12 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "notepaneview.hh"
 #include "databasemanager.hh"
 #include "sync.hh"
+#include <welcomewindow.hh>
 
 class WindowBody;
 class DatabaseManager;
 class SyncManager;
+class WelcomeWindow;
 
 class Notify : public Gtk::Window {
 public:
@@ -41,6 +43,7 @@ public:
 	LeftPaneView* lpv;
 	NoteListPaneView* nlpv;
 	NotePaneView* npv;
+  WelcomeWindow* ww;
 
 	DatabaseManager* dbm;
 	SyncManager* sm;	

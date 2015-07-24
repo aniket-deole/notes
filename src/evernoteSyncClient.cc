@@ -37,8 +37,6 @@ void EvernoteSyncClient::updateUpdateSequenceNumInDatabase (long updateSequenceN
     */
     rc = sqlite3_finalize(pStmt);
 
-    std::cout << "USN:" << updateSequenceNumber << std::endl;
-
 }
 
 void EvernoteSyncClient::syncNotes (long updateSequenceNumber) {
@@ -53,10 +51,7 @@ void EvernoteSyncClient::syncNotes (long updateSequenceNumber) {
   NoteStore_findNotesMetadata_t* NoteStore_findNotesMetadata_p = (NoteStore_findNotesMetadata_t*) dlsym (handle, "NoteStore_findNotesMetadata");
 
   evernote::NotesMetadataList* nml = NoteStore_findNotesMetadata_p (noteStore, authToken, nf, 0, 20, nmrs);
-  // std::cout << nml->totalNotes << std::endl;
   for (int i = 0; i < (int) nml->notes.size (); i++) {
-    // std::cout << nml->notes[i]->title << std::endl;
-    // // std::cout << noteStore->getNoteContent (authToken, nml->notes[i]->guid);
     NoteStore_getNote_t* NoteStore_getNote_p = (NoteStore_getNote_t*) dlsym (handle, "NoteStore_getNote");
 
     evernote::Note* note = NoteStore_getNote_p (noteStore, authToken, nml->notes[i]->guid, true, true, false, false);
@@ -69,7 +64,6 @@ void EvernoteSyncClient::syncNotes (long updateSequenceNumber) {
       const char *zSql = "INSERT INTO notes (title, body, created_time, modified_time, guid, notebook_guid,usn, dirty) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
     int rc = sqlite3_prepare_v2(app->dbm->db, zSql, -1, &pStmt, 0);
 
-    std::cout << "TITLE:" << note->title << std::endl;
 
     sqlite3_bind_text(pStmt, 1, replaceSingleQuote (note->title).c_str (), -1, SQLITE_STATIC);
     std::string contentHtml = replaceSingleQuote (note->contentHtml);
@@ -130,7 +124,6 @@ void EvernoteSyncClient::syncNotebooks (long updateSequenceNumber) {
   std::vector<evernote::Notebook*>* notebookList = NoteStore_listNotebooks_p (noteStore, authToken);
 
   for (int i = 0; i < (int) notebookList->size (); i++) {
-    std::cout << notebookList->at (i)->stack << ":" << notebookList->at (i)->name << std::endl;
 		NotebookData* notebook = new NotebookData (0, notebookList->at(i)->name, 
 				notebookList->at (i)->guid->guid, notebookList->at (i)->stack, 
 				0, 0, 0);
@@ -194,8 +187,6 @@ void EvernoteSyncClient::actualSync (std::string authToken, long updateSequenceN
         20, filter);
 
     for (int i = 0; i < (int) syncChunk->notebooks.size (); i++) {
-      std::cout << syncChunk->notebooks.at (i)->stack << ":" << 
-        syncChunk->notebooks.at (i)->name << std::endl;
       NotebookData* notebook = new NotebookData (0, syncChunk->notebooks.at(i)->name, 
           syncChunk->notebooks.at (i)->guid->guid, syncChunk->notebooks.at (i)->stack, 
           0, 0, 0);
@@ -205,7 +196,6 @@ void EvernoteSyncClient::actualSync (std::string authToken, long updateSequenceN
 
     for (int i = 0; i < (int) syncChunk->notes.size (); i++) {
       evernote::Note* note = syncChunk->notes.at (i);
-      std::cout << note->guid->guid << std::endl; 
       NoteStore_getNote_t* NoteStore_getNote_p = (NoteStore_getNote_t*) dlsym (handle, "NoteStore_getNote");
 
       evernote::Note* noteWithContent = NoteStore_getNote_p (noteStore, authToken, 
@@ -218,7 +208,6 @@ void EvernoteSyncClient::actualSync (std::string authToken, long updateSequenceN
         const char *zSql = "INSERT INTO notes (title, body, created_time, modified_time, guid, notebook_guid,usn, dirty) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
       int rc = sqlite3_prepare_v2(app->dbm->db, zSql, -1, &pStmt, 0);
 
-      std::cout << "TITLE: " << note->title << ":" << noteWithContent->title << std::endl;
       std::string title = replaceSingleQuote (noteWithContent->title).c_str ();
       sqlite3_bind_text(pStmt, 1, title.c_str (), -1, SQLITE_STATIC);
       std::string contentHtml = replaceSingleQuote (noteWithContent->contentHtml);
@@ -243,7 +232,6 @@ void EvernoteSyncClient::actualSync (std::string authToken, long updateSequenceN
       delete noteWithContent;
       delete note;
     }
-
 
     updateUpdateSequenceNumInDatabase (syncChunk->chunkHighUSN);
     if (syncChunk->chunkHighUSN == syncChunk->updateCount)
@@ -280,7 +268,6 @@ void EvernoteSyncClient::thirdStageComplete (WebKitWebView* webView,
   tokenData = tokenData.replace (tokenData.find ("<"), tokenData.length (), "");
 
   tokenData = replaceString (tokenData, "&amp;", "&");
-  std::cout << "Third Loading:" << tokenData << std::endl;
 
   EvernoteSyncClient* esc = (EvernoteSyncClient*) userData;
   OAuthManager_generateAccessToken_t* OAuthManager_generateAccessToken_p = 
@@ -302,7 +289,6 @@ void EvernoteSyncClient::secondStageComplete (WebKitWebView *webView,
   if ( (int) uri.find ("oauth_verifier") == -1) {
     return;
   } else {
-    std::cout << uri << std::endl;
   }
 
   EvernoteSyncClient* esc = (EvernoteSyncClient*) userData;
@@ -322,7 +308,6 @@ void EvernoteSyncClient::secondStageComplete (WebKitWebView *webView,
   pin = pin.substr (pin.find ("=") + 1);
   pin = pin.replace (pin.find ("&"), pin.length (), "");
 
-  std::cout << "Pin:" << pin << std::endl;
 
   OAuthManager_generateFinalAccessTokenUrl_t* OAuthManager_generateFinalAccessTokenUrl_p =
     (OAuthManager_generateFinalAccessTokenUrl_t*) dlsym (esc->handle, 
@@ -340,7 +325,6 @@ void EvernoteSyncClient::secondStageComplete (WebKitWebView *webView,
   esc->app->mainToolbar->syncButton->set_label ("Sync");
   esc->app->mainToolbar->connectedToEvernote = true;
   webkit_web_view_load_uri (webView, fat.c_str ());
-  std::cout << "Second loading:" << fat << std::endl;	
   return;
 }
 
@@ -357,7 +341,6 @@ void EvernoteSyncClient::firstStageComplete (WebKitWebView  *webView,
 
   tokenData = tokenData.replace (tokenData.find ("<"), tokenData.length (), "");
 
-  std::cout << tokenData << std::endl;
 
   EvernoteSyncClient* esc = (EvernoteSyncClient*) userData;
 
@@ -421,8 +404,6 @@ int EvernoteSyncClient::sync () {
   handle = dlopen ("libevernote.so", RTLD_LAZY);
   if (!handle) {
     const char* dlsym_error = dlerror();
-    std::cout << "Please Install libevernote.so along with its dependencies.\nError: " << 
-      dlsym_error << std::endl;
     return 1;
   }
 
@@ -449,7 +430,6 @@ int EvernoteSyncClient::sync () {
       if (syncState->updateCount > updateSequenceNumber) {
         actualSync (authToken, updateSequenceNumber, syncState->updateCount);
       } else {
-        std::cout << "Everything upto date.!" << std::endl;
         app->mainToolbar->progressBar->hide ();
         app->mainToolbar->progressBarStarted = false;
         app->mainToolbar->set_subtitle ("Connected to Evernote");
@@ -464,7 +444,6 @@ int EvernoteSyncClient::sync () {
     } else {
       actualSync (authToken);
     }
-    std::cout << "We have the authToken:" << authToken << std::endl;
     return 0;
   } else {
      createOAuthManager_t* createOAuthManager_p = (createOAuthManager_t*) dlsym (handle, 
@@ -479,7 +458,6 @@ int EvernoteSyncClient::sync () {
 
     std::string rqu = OAuthManager_generateRequestTokenUrl_p (oAuthManager);
 
-    std::cout << rqu << std::endl;
 
     // Hide the normal ui and get permissions from evernote.
     app->remove ();

@@ -26,6 +26,8 @@ DatabaseManager::DatabaseManager (Notify* a) {
 	a->dbm = this;
 	db = 0;
 
+  firstRun = false;
+
 	char* path = getenv ("HOME");
 	strcat (path, "/.local/notify.db");
 	
@@ -36,6 +38,7 @@ DatabaseManager::DatabaseManager (Notify* a) {
 	}
 
 	if (sqlite3_exec (db, "select * from notebooks", NULL, 0, NULL) != SQLITE_OK) {
+    firstRun = true;
 	    /* DB is not setup. This is the first run. Or the file 
 	     * has been corrupted. */
 	    sqlite3_exec (db, "CREATE TABLE notebooks (id integer primary key, title text unique, guid text, parent_guid text, created_time datetime, modified_time datetime, usn integer, dirty integer)", NULL, 0, NULL);

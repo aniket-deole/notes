@@ -13,26 +13,32 @@ You should have received a copy of the GNU General Public License along
 with this program.  If not, see <http://www.gnu.org/licenses/>.
 ***/
 
-#ifndef _DATABASEMANAGER_HH_
-#define _DATABASEMANAGER_HH_
+#ifndef _WELCOMEWINDOW_HH_
+#define _WELCOMEWINDOW_HH_
 
 #include <gtkmm.h>
-#include <sqlite3.h>
-#include "notify.hh"
+#include <webkit/webkit.h>
+#include "rapidxml_print.hpp"
+#include "rapidxml.hpp"
 
-class Notify;
+#include "notedata.hh"
+#include "databasemanager.hh"
+#if HASPDF
+#include <fstream>
+#include <pdf.h>
+#endif /* HASPDF */
 
-class DatabaseManager {
+class WelcomeWindow: public Gtk::Box {
 private:
+  Gtk::Button* syncWithEvernoteButton;
+  Gtk::Button* dontSyncButton;
+
+  Gtk::Label* welcomeString;
+  Gtk::Label* evernoteSyncChoiceString;
   Notify* app;
-
 public:
-  DatabaseManager (Notify*);
-  ~DatabaseManager ();
-  sqlite3 *db;
-  bool firstRun;
-
-  int exec (std::string, int (*callback)(void*,int,char**,char**), void *);
+	WelcomeWindow (bool homogeneous, int spacing, Gtk::PackOptions options, int padding = 0, Notify* a = NULL);
+	~WelcomeWindow ();
+  void dontSyncCallback ();
 };
-
 #endif
