@@ -31,6 +31,9 @@ Installation Guide
 These libraries will be required.
 libsqlite3-dev libssl-dev libcrypto++-dev libsigc++-2.0-dev libgtk-3-dev libgtkmm-3.0-dev libwebkitgtk-3.0-dev uuid-dev libuuid1
 
+The application currently connects to the Evernote Sandbox environment which is a testing environment.
+So make sure you open an account on sandbox.evernote.com.
+
 Steps for installing prerequisites on Ubuntu 14.04, 14.10, 15.04 & elementaryOS Freya:
 ---------------------------------------------------
 ```
