@@ -5,7 +5,7 @@ Notes For Linux
 A Note taking application for Linux build in Gtk that aims to be an Evernote client.
 
 Please clone the repo recursively as compilation is dependant on another submodule "libevernote" from https://github.com/aniket-deole/libevernote
-
+<img src="http://i62.tinypic.com/27yocu8.png" title="Notes" alt="Notes" />
 <img src="http://i59.tinypic.com/11gpswo.png" title="Notes" alt="Notes" />
 <img src="http://i60.tinypic.com/6y2s6p.png" title="Notes" alt="Notes" />
 
