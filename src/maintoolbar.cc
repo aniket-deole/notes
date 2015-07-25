@@ -176,16 +176,13 @@ void MainToolbar::syncButtonCallback () {
 		syncButton->set_label ("Sync");
 		return;
 	} else {
-		if (!connectedToEvernote) {
 		syncButton->set_label ("Cancel Sync");
 		newNoteButton->hide ();
 		newNotebookButton->hide ();
 		searchEntry->hide ();
 		evernoteConnectionInProgress = true;
 		connectedToEvernote = false;
-		}
 	}
-  if (!connectedToEvernote) {
     progressBar = Gtk::manage (new Gtk::ProgressBar ());
     progressBar->set_hexpand (true);
 
@@ -199,9 +196,6 @@ void MainToolbar::syncButtonCallback () {
           &MainToolbar::on_timeout), 50 );
 
 			asynchronousSync (this);
-  } else {
-  
-	} 
 }
 
 bool MainToolbar::on_timeout()

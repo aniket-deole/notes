@@ -247,6 +247,7 @@ void EvernoteSyncClient::actualSync (std::string authToken, long updateSequenceN
   app->mainToolbar->progressBarStarted = false;
   app->mainToolbar->syncButton->set_label ("Sync");
   app->mainToolbar->set_subtitle ("Connected to Evernote");
+  app->mainToolbar->evernoteConnectionInProgress = false;
 }
 
 void EvernoteSyncClient::actualSync (std::string authToken) {
