@@ -318,8 +318,9 @@ void NoteListPaneView::fetchNotesForNotebooks (std::vector<std::string> guids) {
         query += " or a.notebook_guid = ";
       }
     }
+    query += ")";
   }
-  query += ") order by a.modified_time desc, a.id desc";
+  query += " order by a.modified_time desc, a.id desc";
 
 
   if (dbm){
