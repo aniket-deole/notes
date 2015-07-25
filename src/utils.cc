@@ -166,4 +166,13 @@ void addCss (Gtk::Widget* widget, std::string cssClass, std::string css) {
 	context->add_class (cssClass);
 }
 
+void convert_md5_sum(unsigned char* md, std::string* md5Result) {
+    int i;
+    char buf[32];
+    for(i=0; i <MD5_DIGEST_LENGTH; i++) {
+	    sprintf(buf, "%02x", md[i]);
+	    md5Result->append( buf );
+    }
+}
+
 

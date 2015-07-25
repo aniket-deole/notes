@@ -335,6 +335,14 @@ int NotePaneView::getImageCallback (void* npv, int argc, char **argv, char **azC
 void NotePaneView::getImageDataForNote (rapidxml::xml_node<>* root, rapidxml::xml_document<>* doc) {
     char* rootNodeName = root->name ();
     if (!strcmp (rootNodeName, "img")) {
+        for (rapidxml::xml_attribute<> *attr = root->first_attribute(); attr;
+            attr = attr->next_attribute()) {
+          char* attrName = attr->name ();
+          if (!strcmp (attrName, "src")) {
+            root->remove_attribute (attr);
+            break;
+          }
+        }
         for (rapidxml::xml_attribute<> *attr = root->first_attribute(); attr; 
             attr = attr->next_attribute ()) {
             char* attrName= attr->name ();
@@ -400,6 +408,7 @@ void NotePaneView::setNote (NoteData n) {
     std::string bodyContent = "";
     rapidxml::print(std::back_inserter(bodyContent), doc);
     n.setBody (bodyContent);
+//    std::cout << bodyContent << std::endl;
 	setWebViewContent (n.getBody ());
 	setNoteTitleEntryText (n.getTitle ());
 	notebookName->set_text (n.getNotebookName ());
@@ -572,15 +581,6 @@ void NotePaneView::clistButtonCallback() {
     WebKitDOMDocument* dom = webkit_web_view_get_dom_document (webview);
     webkit_dom_document_exec_command (dom, "insertHTML", false, "<input type='checkbox'></input>");
     gtk_widget_grab_focus (GTK_WIDGET (webview));
-}
-
-void convert_md5_sum(unsigned char* md, std::string* md5Result) {
-    int i;
-    char buf[32];
-    for(i=0; i <MD5_DIGEST_LENGTH; i++) {
-	    sprintf(buf, "%02x", md[i]);
-	    md5Result->append( buf );
-    }
 }
 
 void NotePaneView::insertImageButtonCallback () {

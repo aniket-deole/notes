@@ -32,5 +32,7 @@ template <typename T> std::string NumberToString (T);
 std:: string replaceSingleQuote (std::string const& original);
 
 void addCss (Gtk::Widget*, std::string cssClass, std::string css);
+void convert_md5_sum(unsigned char* md, std::string* md5Result); 
+
 #endif
 

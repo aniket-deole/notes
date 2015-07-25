@@ -52,7 +52,9 @@ public:
 
   void actualSync (std::string, long usn, int syncStateUSN);
   void actualSync (std::string);
-	
+  void saveResource (evernote::Resource*);
+
+
   evernote::OAuthManager* oAuthManager;
 
 	void* handle; // handle to the dll file.

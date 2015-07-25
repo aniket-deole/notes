@@ -157,6 +157,36 @@ if (noteStore == NULL) {
   return 0; 
 }
 
+void EvernoteSyncClient::saveResource (evernote::Resource* resource) {
+  		sqlite3_stmt *pStmt;
+  		const char *zSql = "INSERT INTO resources (noteguid, hash, size, body, mime) VALUES(?, ?, ?, ?, ?)";
+ 		int rc = sqlite3_prepare_v2(app->dbm->db, zSql, -1, &pStmt, 0);
+    std::string* asciiHash = new std::string ("");
+   	convert_md5_sum((unsigned char*) resource->data->bodyHash.c_str (), asciiHash);
+ 
+		sqlite3_bind_text(pStmt, 1, resource->noteGuid->guid.c_str (), -1, SQLITE_STATIC);
+		sqlite3_bind_text(pStmt, 2, 
+        asciiHash->c_str (), -1, SQLITE_STATIC);
+		sqlite3_bind_int(pStmt, 3, 
+        resource->data->size);
+		sqlite3_bind_blob(pStmt, 4, resource->data->body.c_str (), 
+        resource->data->size, SQLITE_STATIC);
+		sqlite3_bind_text(pStmt, 5, resource->mime.c_str (), -1, SQLITE_STATIC);
+		
+    /* Call sqlite3_step() to run the virtual machine. Since the SQL being
+		** executed is not a SELECT statement, we assume no data will be returned.
+		*/
+		rc = sqlite3_step(pStmt);
+		assert( rc!=SQLITE_ROW );
+
+		/* Finalize the virtual machine. This releases all memory and other
+		** resources allocated by the sqlite3_prepare() call above.
+		*/
+		rc = sqlite3_finalize(pStmt);
+
+
+}
+
 void EvernoteSyncClient::actualSync (std::string authToken, long updateSequenceNumber,
     int syncStateUSN) {
   // load the symbols.
@@ -229,6 +259,14 @@ void EvernoteSyncClient::actualSync (std::string authToken, long updateSequenceN
       ** resources allocated by the sqlite3_prepare() call above.
       */
       rc = sqlite3_finalize(pStmt);
+
+      // Get the resources for this note.
+      if (noteWithContent->resources.size () != 0) {
+        for (int j = 0; j < noteWithContent->resources.size (); j++) {
+          evernote::Resource* resource = noteWithContent->resources[j];
+          saveResource (resource); 
+        }
+      }
       delete noteWithContent;
       delete note;
     }
