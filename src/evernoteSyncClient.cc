@@ -9,11 +9,11 @@
 
 std::string consumerKey 					= "analogx";
 std::string consumerSecret 				= "953b9c5d5f64c09b";
-std::string requestTokenUrl 			= "https://sandbox.evernote.com/oauth";
-std::string requestTokenQueryArgs = "oauth_callback=sandbox.evernote.com";
-std::string authorizeUrl 					= "https://sandbox.evernote.com/OAuth.action";
-std::string accessTokenUrl 				= "https://sandbox.evernote.com/oauth";
-std::string evernoteServer        = "sandbox.evernote.com";
+std::string requestTokenUrl 			= "https://www.evernote.com/oauth";
+std::string requestTokenQueryArgs = "oauth_callback=www.evernote.com";
+std::string authorizeUrl 					= "https://www.evernote.com/OAuth.action";
+std::string accessTokenUrl 				= "https://www.evernote.com/oauth";
+std::string evernoteServer        = "www.evernote.com";
 
 void EvernoteSyncClient::getNoteDataObject (evernote::Note* note) {
 
@@ -152,7 +152,8 @@ if (noteStore == NULL) {
     UserStore_getNoteStoreUrl_t* UserStore_getNoteStoreUrl_p = (UserStore_getNoteStoreUrl_t*) 
       dlsym (handle,"UserStore_getNoteStoreUrl");
     createNoteStore_t* createNoteStore_p = (createNoteStore_t*) dlsym (handle, "createNoteStore");
-    noteStore = createNoteStore_p (UserStore_getNoteStoreUrl_p (userStore, authToken));
+    noteStore = createNoteStore_p (evernoteServer, 
+        UserStore_getNoteStoreUrl_p (userStore, authToken));
   }
   return 0; 
 }
@@ -214,7 +215,7 @@ void EvernoteSyncClient::actualSync (std::string authToken, long updateSequenceN
 
   while (updateSequenceNumber < syncStateUSN) {
     evernote::SyncChunk* syncChunk = getFilteredSyncChunk (updateSequenceNumber, 
-        20, filter);
+        5000, filter);
 
     for (int i = 0; i < (int) syncChunk->notebooks.size (); i++) {
       NotebookData* notebook = new NotebookData (0, syncChunk->notebooks.at(i)->name, 
@@ -226,6 +227,7 @@ void EvernoteSyncClient::actualSync (std::string authToken, long updateSequenceN
 
     for (int i = 0; i < (int) syncChunk->notes.size (); i++) {
       evernote::Note* note = syncChunk->notes.at (i);
+/*
       NoteStore_getNote_t* NoteStore_getNote_p = (NoteStore_getNote_t*) dlsym (handle, "NoteStore_getNote");
 
       evernote::Note* noteWithContent = NoteStore_getNote_p (noteStore, authToken, 
@@ -233,17 +235,22 @@ void EvernoteSyncClient::actualSync (std::string authToken, long updateSequenceN
       
       Note_enmlToHtml_t* Note_enmlToHtml_p = (Note_enmlToHtml_t*) dlsym (handle, "Note_enmlToHtml");
       Note_enmlToHtml_p (noteWithContent);
-     
+  */ 
+      evernote::Note* noteWithContent = note;
       sqlite3_stmt *pStmt;
         const char *zSql = "INSERT INTO notes (title, body, created_time, modified_time, guid, notebook_guid,usn, dirty) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
       int rc = sqlite3_prepare_v2(app->dbm->db, zSql, -1, &pStmt, 0);
 
+      if (note->updated->timestamp == 0) {
+        note->updated->timestamp = note->created->timestamp;
+      }
       std::string title = replaceSingleQuote (noteWithContent->title).c_str ();
+      std::cout << note->updated->timestamp << "|" << title << std::endl;
       sqlite3_bind_text(pStmt, 1, title.c_str (), -1, SQLITE_STATIC);
       std::string contentHtml = replaceSingleQuote (noteWithContent->contentHtml);
       sqlite3_bind_text(pStmt, 2, contentHtml.c_str (), -1, SQLITE_STATIC);
-      sqlite3_bind_int(pStmt, 3, 0);
-      sqlite3_bind_int(pStmt, 4, 0);
+      sqlite3_bind_int64(pStmt, 3, note->created->timestamp);
+      sqlite3_bind_int64(pStmt, 4, note->updated->timestamp);
       sqlite3_bind_text(pStmt, 5, noteWithContent->guid->guid.c_str (), -1, SQLITE_STATIC);
       sqlite3_bind_text(pStmt, 6, noteWithContent->notebookGuid.c_str (), -1, SQLITE_STATIC);
       sqlite3_bind_int(pStmt, 7, 0);
@@ -267,13 +274,10 @@ void EvernoteSyncClient::actualSync (std::string authToken, long updateSequenceN
           saveResource (resource); 
         }
       }
-      delete noteWithContent;
       delete note;
     }
 
     updateUpdateSequenceNumInDatabase (syncChunk->chunkHighUSN);
-    if (syncChunk->chunkHighUSN == syncChunk->updateCount)
-      break;
 
     updateSequenceNumber += syncChunk->chunkHighUSN;
   }
