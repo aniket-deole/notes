@@ -59,7 +59,7 @@ class NoteCellRenderer : public Gtk::CellRenderer {
         const Gdk::Rectangle& cell_area, Pango::Rectangle* pr, int id) {
       Pango::FontDescription font_from;
       font_from.set_size (10 * Pango::SCALE);
-      font_from.set_weight (Pango::WEIGHT_SEMIBOLD);
+      font_from.set_weight (Pango::WEIGHT_NORMAL);
       Glib::RefPtr <Pango::Layout> layout_from = widget.create_pango_layout ("");
       layout_from->set_font_description (font_from);
 

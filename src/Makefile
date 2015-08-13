@@ -27,9 +27,6 @@ clean:
 test: all
 	LD_LIBRARY_PATH=libevernote/ ./notes
 
-install: all
-	cp notes /usr/bin/notes
-
 debug: all
 	LD_LIBRARY_PATH=libevernote/ gdb --tui ./notes
 
