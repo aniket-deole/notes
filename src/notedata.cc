@@ -48,7 +48,7 @@ static inline std::string &trim(std::string &s) {
         return ltrim(rtrim(s));
 }
 
-NoteData::NoteData (int p_key, std::string t, std::string b,int create_time, int modified_time, std::string g, std::string n_guid,
+NoteData::NoteData (int p_key, std::string t, std::string b,long long create_time, long long modified_time, std::string g, std::string n_guid,
         std::string n_name) {
     primary_key = p_key;
     title = t;

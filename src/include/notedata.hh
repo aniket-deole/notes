@@ -29,8 +29,8 @@ private:
   std::string summary;
   std::string notebookName;
 
-  long int create_unix_time;
-  long int modified_unix_time;
+  long long create_unix_time;
+  long long modified_unix_time;
 
   std::string guid;
   std::string notebook_guid;
@@ -38,12 +38,12 @@ private:
 public:
 
   NoteData () {}
-  NoteData (int p_key, std::string t, std::string b, int create_time, int modified_time, std::string g, std::string n_guid, std::string n_name);
+  NoteData (int p_key, std::string t, std::string b, long long create_time, long long modified_time, std::string g, std::string n_guid, std::string n_name);
 
   std::string getTitle () { return title; }
   std::string getRemaining () { 
     char buffer[80];
-    struct tm* timeinfo = localtime (&modified_unix_time);
+    struct tm* timeinfo = localtime ((const time_t*)&modified_unix_time);
     strftime (buffer,80,"%F %R",timeinfo);
     std::string* rem = new std::string (buffer, strnlen(buffer, 80));
     return *rem;
@@ -53,11 +53,11 @@ public:
   std::string getBody () { return body; }
   std::string* getBodyPointer () {return &body;}
   void setBody (std::string b) { this->body.clear (); this->body = b; }
-  int getCreateTime () { return create_unix_time; }
+  long long getCreateTime () { return create_unix_time; }
 
-  int getModifiedTime () { return modified_unix_time; }
+  long long getModifiedTime () { return modified_unix_time; }
 
-  void set_modified_time (int modified_time) {
+  void set_modified_time (long long modified_time) {
     modified_unix_time = modified_time;
   }
 

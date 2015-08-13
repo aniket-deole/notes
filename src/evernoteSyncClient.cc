@@ -245,7 +245,7 @@ void EvernoteSyncClient::actualSync (std::string authToken, long updateSequenceN
   while (updateSequenceNumber < syncStateUSN) {
     std::cout << updateSequenceNumber << ":" << syncStateUSN << std::endl;
     evernote::SyncChunk* syncChunk = getFilteredSyncChunk (updateSequenceNumber, 
-        2000, filter);
+        5000, filter);
 
     for (int i = 0; i < (int) syncChunk->notebooks.size (); i++) {
       NotebookData* notebook = new NotebookData (0, syncChunk->notebooks.at(i)->name, 
@@ -257,6 +257,7 @@ void EvernoteSyncClient::actualSync (std::string authToken, long updateSequenceN
 
     for (int i = 0; i < (int) syncChunk->notes.size (); i++) {
       evernote::Note* note = syncChunk->notes.at (i);
+/*
       NoteStore_getNote_t* NoteStore_getNote_p = (NoteStore_getNote_t*) dlsym (handle, "NoteStore_getNote");
       //
       //      evernote::Note* noteWithContent = NoteStore_getNote_p (noteStore, authToken, 
@@ -265,18 +266,22 @@ void EvernoteSyncClient::actualSync (std::string authToken, long updateSequenceN
       //      Note_enmlToHtml_t* Note_enmlToHtml_p = (Note_enmlToHtml_t*) dlsym (handle, "Note_enmlToHtml");
       //      Note_enmlToHtml_p (noteWithContent);
 
+  */ 
       evernote::Note* noteWithContent = note;
-
       sqlite3_stmt *pStmt;
       const char *zSql = "INSERT INTO notes (title, body, created_time, modified_time, guid, notebook_guid,usn, dirty) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
       int rc = sqlite3_prepare_v2(app->dbm->db, zSql, -1, &pStmt, 0);
 
+      if (note->updated->timestamp == 0) {
+        note->updated->timestamp = note->created->timestamp;
+      }
       std::string title = replaceSingleQuote (noteWithContent->title).c_str ();
+      std::cout << note->updated->timestamp << "|" << title << std::endl;
       sqlite3_bind_text(pStmt, 1, title.c_str (), -1, SQLITE_STATIC);
-      //      std::string contentHtml = replaceSingleQuote (noteWithContent->contentHtml);
-      sqlite3_bind_text(pStmt, 2, "", -1, SQLITE_STATIC);
-      sqlite3_bind_int(pStmt, 3, 0);
-      sqlite3_bind_int(pStmt, 4, 0);
+      std::string contentHtml = replaceSingleQuote (noteWithContent->contentHtml);
+      sqlite3_bind_text(pStmt, 2, contentHtml.c_str (), -1, SQLITE_STATIC);
+      sqlite3_bind_int64(pStmt, 3, note->created->timestamp);
+      sqlite3_bind_int64(pStmt, 4, note->updated->timestamp);
       sqlite3_bind_text(pStmt, 5, noteWithContent->guid->guid.c_str (), -1, SQLITE_STATIC);
       sqlite3_bind_text(pStmt, 6, noteWithContent->notebookGuid.c_str (), -1, SQLITE_STATIC);
       sqlite3_bind_int(pStmt, 7, 0);
@@ -295,18 +300,15 @@ void EvernoteSyncClient::actualSync (std::string authToken, long updateSequenceN
 
       // Get the resources for this note.
       if (noteWithContent->resources.size () != 0) {
-        for (int j = 0; j < noteWithContent->resources.size (); j++) {
+        for (unsigned int j = 0; j < noteWithContent->resources.size (); j++) {
           evernote::Resource* resource = noteWithContent->resources[j];
           saveResource (resource); 
         }
       }
-      //      delete noteWithContent;
       delete note;
     }
 
     updateUpdateSequenceNumInDatabase (syncChunk->chunkHighUSN);
-    if (syncChunk->chunkHighUSN == syncChunk->updateCount)
-      break;
 
     updateSequenceNumber += syncChunk->chunkHighUSN;
   }
@@ -489,7 +491,6 @@ int EvernoteSyncClient::sync (int domain) {
   /* Check if library is loaded. Else ask the user to install it. */
   handle = dlopen ("libevernote.so", RTLD_LAZY);
   if (!handle) {
-    const char* dlsym_error = dlerror();
     return 1;
   }
 

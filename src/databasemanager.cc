@@ -42,7 +42,7 @@ DatabaseManager::DatabaseManager (Notify* a) {
 	    /* DB is not setup. This is the first run. Or the file 
 	     * has been corrupted. */
 	    sqlite3_exec (db, "CREATE TABLE notebooks (id integer primary key, title text unique, guid text, parent_guid text, created_time datetime, modified_time datetime, usn integer, dirty integer)", NULL, 0, NULL);
-	    sqlite3_exec (db, "CREATE TABLE notes (id integer primary key, title text, body text, created_time datetime, modified_time datetime, guid text, notebook_guid text, usn integer, dirty integer);", NULL, 0, NULL);
+	    sqlite3_exec (db, "CREATE TABLE notes (id integer primary key, title text, body text, created_time INT8, modified_time INT8, guid text, notebook_guid text, usn INT8, dirty integer);", NULL, 0, NULL);
 	    sqlite3_exec (db, "CREATE TABLE notes_tags_xref (note_id int, tag_id int);", NULL, 0, NULL);
 	    sqlite3_exec (db, "CREATE TABLE tags (id integer primary key, title text);", NULL, 0, NULL);
 	    sqlite3_exec (db, "create table resources (noteguid string, hash string, size integer, body blob, mime string);", NULL, 0, NULL);
@@ -81,7 +81,7 @@ int DatabaseManager::exec (std::string statement, int (*callback)(void*,int,char
 	    /* DB is not setup. This is the first run. Or the file 
 	     * has been corrupted. */
 	    sqlite3_exec (db, "CREATE TABLE notebooks (id integer primary key, title text unique, guid text, parent_guid text, created_time datetime, modified_time datetime, usn integer, dirty integer)", NULL, 0, NULL);
-	    sqlite3_exec (db, "CREATE TABLE notes (id integer primary key, title text, body text, created_time datetime, modified_time datetime, guid text, notebook_guid text, usn integer, dirty integer);", NULL, 0, NULL);
+	    sqlite3_exec (db, "CREATE TABLE notes (id integer primary key, title text, body text, created_time INT8, modified_time INT8, guid text, notebook_guid text, usn INT8, dirty integer);", NULL, 0, NULL);
 	    sqlite3_exec (db, "CREATE TABLE notes_tags_xref (note_id int, tag_id int);", NULL, 0, NULL);
 	    sqlite3_exec (db, "CREATE TABLE tags (id integer primary key, title text);", NULL, 0, NULL);
 	    sqlite3_exec (db, "create table resources (noteguid string, hash string, size integer, body blob, mime string);", NULL, 0, NULL);
