@@ -9,33 +9,41 @@
 
 std::string consumerKey 					= "analogx";
 std::string consumerSecret 				= "953b9c5d5f64c09b";
-std::string requestTokenUrl 			= "https://sandbox.evernote.com/oauth";
-std::string requestTokenQueryArgs = "oauth_callback=sandbox.evernote.com";
-std::string authorizeUrl 					= "https://sandbox.evernote.com/OAuth.action";
-std::string accessTokenUrl 				= "https://sandbox.evernote.com/oauth";
-std::string evernoteServer        = "sandbox.evernote.com";
+std::string requestTokenUrl 			= "https://www.evernote.com/oauth";
+std::string requestTokenQueryArgs = "oauth_callback=www.evernote.com";
+std::string authorizeUrl 					= "https://www.evernote.com/OAuth.action";
+std::string accessTokenUrl 				= "https://www.evernote.com/oauth";
+std::string evernoteServer        = "www.evernote.com";
+
+std::string consumerKeySandbox 					  = "analogx";
+std::string consumerSecretSandbox 				= "953b9c5d5f64c09b";
+std::string requestTokenUrlSandbox 			  = "https://sandbox.evernote.com/oauth";
+std::string requestTokenQueryArgsSandbox  = "oauth_callback=sandbox.evernote.com";
+std::string authorizeUrlSandbox 					= "https://sandbox.evernote.com/OAuth.action";
+std::string accessTokenUrlSandbox 				= "https://sandbox.evernote.com/oauth";
+std::string evernoteServerSandbox         = "sandbox.evernote.com";
 
 void EvernoteSyncClient::getNoteDataObject (evernote::Note* note) {
 
 }
 
 void EvernoteSyncClient::updateUpdateSequenceNumInDatabase (long updateSequenceNumber) {
-    sqlite3_stmt *pStmt;
-      const char *zSql = "INSERT or replace INTO system_parameters (parameter, value) VALUES('evernoteUpdateSequenceNumber',?)";
-    int rc = sqlite3_prepare_v2(app->dbm->db, zSql, -1, &pStmt, 0);
+  sqlite3_stmt *pStmt;
+  const char *zSql = "INSERT or replace INTO system_parameters (parameter, value) VALUES('evernoteUpdateSequenceNumber',?)";
+  int rc = sqlite3_prepare_v2(app->dbm->db, zSql, -1, &pStmt, 0);
 
-    sqlite3_bind_int (pStmt, 1, updateSequenceNumber);
+  sqlite3_bind_int (pStmt, 1, updateSequenceNumber);
 
-    /* Call sqlite3_step() to run the virtual machine. Since the SQL being
-    ** executed is not a SELECT statement, we assume no data will be returned.
-    */
-    rc = sqlite3_step(pStmt);
-    assert( rc!=SQLITE_ROW );
+  /* Call sqlite3_step() to run the virtual machine. Since the SQL being
+   ** executed is not a SELECT statement, we assume no data will be returned.
+   */
+  rc = sqlite3_step(pStmt);
+  assert( rc!=SQLITE_ROW );
 
-    /* Finalize the virtual machine. This releases all memory and other
-    ** resources allocated by the sqlite3_prepare() call above.
-    */
-    rc = sqlite3_finalize(pStmt);
+  /* Finalize the virtual machine. This releases all memory and other
+   ** resources allocated by the sqlite3_prepare() call above.
+   */
+  rc = sqlite3_finalize(pStmt);
 
 }
 
@@ -55,13 +63,13 @@ void EvernoteSyncClient::syncNotes (long updateSequenceNumber) {
     NoteStore_getNote_t* NoteStore_getNote_p = (NoteStore_getNote_t*) dlsym (handle, "NoteStore_getNote");
 
     evernote::Note* note = NoteStore_getNote_p (noteStore, authToken, nml->notes[i]->guid, true, true, false, false);
-    
+
     Note_enmlToHtml_t* Note_enmlToHtml_p = (Note_enmlToHtml_t*) dlsym (handle, "Note_enmlToHtml");
     Note_enmlToHtml_p (note);
 
 
     sqlite3_stmt *pStmt;
-      const char *zSql = "INSERT INTO notes (title, body, created_time, modified_time, guid, notebook_guid,usn, dirty) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
+    const char *zSql = "INSERT INTO notes (title, body, created_time, modified_time, guid, notebook_guid,usn, dirty) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
     int rc = sqlite3_prepare_v2(app->dbm->db, zSql, -1, &pStmt, 0);
 
 
@@ -76,32 +84,32 @@ void EvernoteSyncClient::syncNotes (long updateSequenceNumber) {
     sqlite3_bind_int(pStmt, 8, 0);
 
     /* Call sqlite3_step() to run the virtual machine. Since the SQL being
-    ** executed is not a SELECT statement, we assume no data will be returned.
-    */
+     ** executed is not a SELECT statement, we assume no data will be returned.
+     */
     rc = sqlite3_step(pStmt);
     assert( rc!=SQLITE_ROW );
-    
+
     updateUpdateSequenceNumInDatabase (nml->notes[i]->updateSequenceNum);
 
     /* Finalize the virtual machine. This releases all memory and other
-    ** resources allocated by the sqlite3_prepare() call above.
-    */
+     ** resources allocated by the sqlite3_prepare() call above.
+     */
     rc = sqlite3_finalize(pStmt);
 
 
- /*    std::cout << note->contentEnml << std::endl;
-    std::cout << "-----------------------------";
-    std::cout << "\n" << note->contentHtml << std::endl;
-    std::cout << "-----------------------------\n";
-    std::cout << "-----------------------------\n";
-*/    for (int j = 0; j < (int) note->resources.size (); j++) {
-      std::string encoded = 
-				base64_encode(reinterpret_cast<const unsigned char*>(note->resources[j]->data->body.c_str ()), 
-						note->resources[j]->data->size);
-    }
-    delete note;
+    /*    std::cout << note->contentEnml << std::endl;
+          std::cout << "-----------------------------";
+          std::cout << "\n" << note->contentHtml << std::endl;
+          std::cout << "-----------------------------\n";
+          std::cout << "-----------------------------\n";
+          */    for (int j = 0; j < (int) note->resources.size (); j++) {
+            std::string encoded = 
+              base64_encode(reinterpret_cast<const unsigned char*>(note->resources[j]->data->body.c_str ()), 
+                  note->resources[j]->data->size);
+          }
+          delete note;
   }
-/*
+  /*
   // Create a Note.
   NoteStore_createNote_t* NoteStore_createNote_p = (NoteStore_createNote_t*) dlsym (handle, "NoteStore_createNote");
   evernote::Note* note = NoteStore_createNote_p ();
@@ -111,91 +119,113 @@ void EvernoteSyncClient::syncNotes (long updateSequenceNumber) {
   NoteStore_createNote2_t* NoteStore_createNote2_p = (NoteStore_createNote2_t*) dlsym (handle, "NoteStore_createNote2");
 
   NoteStore_createNote2_p (noteStore, authToken, note);
-*/
+  */
   app->nlpv->fetchNotesForNotebook ("");
 
 }
 
 void EvernoteSyncClient::syncNotebooks (long updateSequenceNumber) {
-  
+
   getNoteStore ();
 
   NoteStore_listNotebooks_t* NoteStore_listNotebooks_p = (NoteStore_listNotebooks_t*) dlsym (handle, "NoteStore_listNotebooks");
   std::vector<evernote::Notebook*>* notebookList = NoteStore_listNotebooks_p (noteStore, authToken);
 
   for (int i = 0; i < (int) notebookList->size (); i++) {
-		NotebookData* notebook = new NotebookData (0, notebookList->at(i)->name, 
-				notebookList->at (i)->guid->guid, notebookList->at (i)->stack, 
-				0, 0, 0);
-		app->dbm->exec (notebook->getInsertStatement (), NULL, this);
+    NotebookData* notebook = new NotebookData (0, notebookList->at(i)->name, 
+        notebookList->at (i)->guid->guid, notebookList->at (i)->stack, 
+        0, 0, 0);
+    app->dbm->exec (notebook->getInsertStatement (), NULL, this);
     updateUpdateSequenceNumInDatabase (notebookList->at (i)->updateSequenceNum);
     delete notebook;
   }
 
 
-	app->lpv->refreshLeftPaneView ();
+  app->lpv->refreshLeftPaneView ();
 }
 
-int EvernoteSyncClient::getUserStore () {
-    createUserStore_t* createUserStore_p = (createUserStore_t*) dlsym(handle, "createUserStore");
-    const char* dlsym_error = dlerror();
-    if (dlsym_error) {
-      std::cerr << "Cannot load symbol create: " << dlsym_error << '\n';
-      return -1;
-    }
+int EvernoteSyncClient::getUserStore (int domain) {
+  createUserStore_t* createUserStore_p = (createUserStore_t*) dlsym(handle, "createUserStore");
+  const char* dlsym_error = dlerror();
+  if (dlsym_error) {
+    std::cerr << "Cannot load symbol create: " << dlsym_error << '\n';
+    return -1;
+  }
+  if (domain == 2) 
     userStore = createUserStore_p (evernoteServer, 80, "/edam/user", authToken);
-    return 0;
+  else if (domain == 1)
+    userStore = createUserStore_p (evernoteServerSandbox, 80, "/edam/user", authToken);
+
+  return 0;
 }
 
 int EvernoteSyncClient::getNoteStore () {
-if (noteStore == NULL) {
+  if (noteStore == NULL) {
     UserStore_getNoteStoreUrl_t* UserStore_getNoteStoreUrl_p = (UserStore_getNoteStoreUrl_t*) 
       dlsym (handle,"UserStore_getNoteStoreUrl");
     createNoteStore_t* createNoteStore_p = (createNoteStore_t*) dlsym (handle, "createNoteStore");
-    noteStore = createNoteStore_p (UserStore_getNoteStoreUrl_p (userStore, authToken));
+    try {
+      std::string noteStoreUrl = UserStore_getNoteStoreUrl_p (userStore, authToken);
+      noteStore = createNoteStore_p (server, noteStoreUrl);
+    } catch (evernote::edam::EDAMSystemException e) {
+      std::cout << "Exception occrerd."<< std::endl;
+      exit (0);
+    }
+
+    NoteStore_listNotebooks_t* NoteStore_listNotebooks_p = (NoteStore_listNotebooks_t*) dlsym (handle, "NoteStore_listNotebooks");
+    std::vector<evernote::Notebook*>* notebookList = NoteStore_listNotebooks_p (noteStore, authToken);
+    std::cout << notebookList->size () << std::endl;
+
   }
   return 0; 
 }
 
 void EvernoteSyncClient::saveResource (evernote::Resource* resource) {
-  		sqlite3_stmt *pStmt;
-  		const char *zSql = "INSERT INTO resources (noteguid, hash, size, body, mime) VALUES(?, ?, ?, ?, ?)";
- 		int rc = sqlite3_prepare_v2(app->dbm->db, zSql, -1, &pStmt, 0);
-    std::string* asciiHash = new std::string ("");
-   	convert_md5_sum((unsigned char*) resource->data->bodyHash.c_str (), asciiHash);
- 
-		sqlite3_bind_text(pStmt, 1, resource->noteGuid->guid.c_str (), -1, SQLITE_STATIC);
-		sqlite3_bind_text(pStmt, 2, 
-        asciiHash->c_str (), -1, SQLITE_STATIC);
-		sqlite3_bind_int(pStmt, 3, 
-        resource->data->size);
-		sqlite3_bind_blob(pStmt, 4, resource->data->body.c_str (), 
-        resource->data->size, SQLITE_STATIC);
-		sqlite3_bind_text(pStmt, 5, resource->mime.c_str (), -1, SQLITE_STATIC);
-		
-    /* Call sqlite3_step() to run the virtual machine. Since the SQL being
-		** executed is not a SELECT statement, we assume no data will be returned.
-		*/
-		rc = sqlite3_step(pStmt);
-		assert( rc!=SQLITE_ROW );
+  sqlite3_stmt *pStmt;
+  const char *zSql = "INSERT INTO resources (noteguid, hash, size, body, mime) VALUES(?, ?, ?, ?, ?)";
+  int rc = sqlite3_prepare_v2(app->dbm->db, zSql, -1, &pStmt, 0);
+  std::string* asciiHash = new std::string ("");
+  convert_md5_sum((unsigned char*) resource->data->bodyHash.c_str (), asciiHash);
 
-		/* Finalize the virtual machine. This releases all memory and other
-		** resources allocated by the sqlite3_prepare() call above.
-		*/
-		rc = sqlite3_finalize(pStmt);
+  sqlite3_bind_text(pStmt, 1, resource->noteGuid->guid.c_str (), -1, SQLITE_STATIC);
+  sqlite3_bind_text(pStmt, 2, 
+      asciiHash->c_str (), -1, SQLITE_STATIC);
+  sqlite3_bind_int(pStmt, 3, 
+      resource->data->size);
+  sqlite3_bind_blob(pStmt, 4, resource->data->body.c_str (), 
+      resource->data->size, SQLITE_STATIC);
+  sqlite3_bind_text(pStmt, 5, resource->mime.c_str (), -1, SQLITE_STATIC);
+
+  /* Call sqlite3_step() to run the virtual machine. Since the SQL being
+   ** executed is not a SELECT statement, we assume no data will be returned.
+   */
+  rc = sqlite3_step(pStmt);
+  assert( rc!=SQLITE_ROW );
+
+  /* Finalize the virtual machine. This releases all memory and other
+   ** resources allocated by the sqlite3_prepare() call above.
+   */
+  rc = sqlite3_finalize(pStmt);
 
 
 }
 
 void EvernoteSyncClient::actualSync (std::string authToken, long updateSequenceNumber,
     int syncStateUSN) {
-  // load the symbols.
-  if (getUserStore ()) {
+  int domain = 0;
+  if (!server.compare ("www.evernote.com"))
+    domain = 2;
+  else if (!server.compare ("sandbox.evernote.com"))
+    domain = 1;
+  else
+    domain = -1;
+
+  if (getUserStore (domain)) {
     return;
   }
   this->authToken = authToken;
-//  syncNotebooks (updateSequenceNumber);
-//  syncNotes (updateSequenceNumber);
+  //  syncNotebooks (updateSequenceNumber);
+  //  syncNotes (updateSequenceNumber);
 
   if (getNoteStore ()) {
     return;
@@ -213,8 +243,9 @@ void EvernoteSyncClient::actualSync (std::string authToken, long updateSequenceN
   filter->includeNotebooks = true;
 
   while (updateSequenceNumber < syncStateUSN) {
+    std::cout << updateSequenceNumber << ":" << syncStateUSN << std::endl;
     evernote::SyncChunk* syncChunk = getFilteredSyncChunk (updateSequenceNumber, 
-        20, filter);
+        2000, filter);
 
     for (int i = 0; i < (int) syncChunk->notebooks.size (); i++) {
       NotebookData* notebook = new NotebookData (0, syncChunk->notebooks.at(i)->name, 
@@ -227,21 +258,23 @@ void EvernoteSyncClient::actualSync (std::string authToken, long updateSequenceN
     for (int i = 0; i < (int) syncChunk->notes.size (); i++) {
       evernote::Note* note = syncChunk->notes.at (i);
       NoteStore_getNote_t* NoteStore_getNote_p = (NoteStore_getNote_t*) dlsym (handle, "NoteStore_getNote");
+      //
+      //      evernote::Note* noteWithContent = NoteStore_getNote_p (noteStore, authToken, 
+      //          syncChunk->notes[i]->guid, true, true, false, false);
 
-      evernote::Note* noteWithContent = NoteStore_getNote_p (noteStore, authToken, 
-          syncChunk->notes[i]->guid, true, true, false, false);
-      
-      Note_enmlToHtml_t* Note_enmlToHtml_p = (Note_enmlToHtml_t*) dlsym (handle, "Note_enmlToHtml");
-      Note_enmlToHtml_p (noteWithContent);
-     
+      //      Note_enmlToHtml_t* Note_enmlToHtml_p = (Note_enmlToHtml_t*) dlsym (handle, "Note_enmlToHtml");
+      //      Note_enmlToHtml_p (noteWithContent);
+
+      evernote::Note* noteWithContent = note;
+
       sqlite3_stmt *pStmt;
-        const char *zSql = "INSERT INTO notes (title, body, created_time, modified_time, guid, notebook_guid,usn, dirty) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
+      const char *zSql = "INSERT INTO notes (title, body, created_time, modified_time, guid, notebook_guid,usn, dirty) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
       int rc = sqlite3_prepare_v2(app->dbm->db, zSql, -1, &pStmt, 0);
 
       std::string title = replaceSingleQuote (noteWithContent->title).c_str ();
       sqlite3_bind_text(pStmt, 1, title.c_str (), -1, SQLITE_STATIC);
-      std::string contentHtml = replaceSingleQuote (noteWithContent->contentHtml);
-      sqlite3_bind_text(pStmt, 2, contentHtml.c_str (), -1, SQLITE_STATIC);
+      //      std::string contentHtml = replaceSingleQuote (noteWithContent->contentHtml);
+      sqlite3_bind_text(pStmt, 2, "", -1, SQLITE_STATIC);
       sqlite3_bind_int(pStmt, 3, 0);
       sqlite3_bind_int(pStmt, 4, 0);
       sqlite3_bind_text(pStmt, 5, noteWithContent->guid->guid.c_str (), -1, SQLITE_STATIC);
@@ -250,14 +283,14 @@ void EvernoteSyncClient::actualSync (std::string authToken, long updateSequenceN
       sqlite3_bind_int(pStmt, 8, 0);
 
       /* Call sqlite3_step() to run the virtual machine. Since the SQL being
-      ** executed is not a SELECT statement, we assume no data will be returned.
-      */
+       ** executed is not a SELECT statement, we assume no data will be returned.
+       */
       rc = sqlite3_step(pStmt);
       assert( rc!=SQLITE_ROW );
-      
+
       /* Finalize the virtual machine. This releases all memory and other
-      ** resources allocated by the sqlite3_prepare() call above.
-      */
+       ** resources allocated by the sqlite3_prepare() call above.
+       */
       rc = sqlite3_finalize(pStmt);
 
       // Get the resources for this note.
@@ -267,7 +300,7 @@ void EvernoteSyncClient::actualSync (std::string authToken, long updateSequenceN
           saveResource (resource); 
         }
       }
-      delete noteWithContent;
+      //      delete noteWithContent;
       delete note;
     }
 
@@ -278,9 +311,9 @@ void EvernoteSyncClient::actualSync (std::string authToken, long updateSequenceN
     updateSequenceNumber += syncChunk->chunkHighUSN;
   }
 
-	app->lpv->refreshLeftPaneView ();
+  app->lpv->refreshLeftPaneView ();
   app->nlpv->fetchNotesForNotebook ("");
-  
+
   app->mainToolbar->progressBar->hide ();
   app->mainToolbar->progressBarStarted = false;
   app->mainToolbar->syncButton->set_label ("Sync");
@@ -315,6 +348,9 @@ void EvernoteSyncClient::thirdStageComplete (WebKitWebView* webView,
   std::string authToken = OAuthManager_generateAccessToken_p (esc->oAuthManager, tokenData);
 
   esc->app->dbm->exec ("insert into system_parameters values ('evernoteAuthToken', '" + authToken +"')",
+      NULL, NULL);
+
+  esc->app->dbm->exec ("insert into system_parameters values ('evernoteServer', '" + esc->server +"')",
       NULL, NULL);
 
   esc->actualSync (authToken, 0, -1);
@@ -409,6 +445,17 @@ int EvernoteSyncClient::checkUpdateSequenceNumberCallback (void* p, int argc, ch
   return 0;
 }
 
+int EvernoteSyncClient::checkEvernoteServerCallback
+    (void* p, int argc, char** argv, char** azColName) {
+  EvernoteSyncClient* esc = (EvernoteSyncClient*) p;
+
+  if (argc == 1) {
+    esc->server = argv[0];
+  }
+
+  return 0;
+}
+
 int EvernoteSyncClient::checkAuthTokenCallback (void* p, int argc, char** argv, char** azColName) {
   EvernoteSyncClient* esc = (EvernoteSyncClient*) p;
 
@@ -438,7 +485,7 @@ evernote::SyncChunk* EvernoteSyncClient::getFilteredSyncChunk (
   return syncChunk;
 }
 
-int EvernoteSyncClient::sync () {
+int EvernoteSyncClient::sync (int domain) {
   /* Check if library is loaded. Else ask the user to install it. */
   handle = dlopen ("libevernote.so", RTLD_LAZY);
   if (!handle) {
@@ -455,15 +502,28 @@ int EvernoteSyncClient::sync () {
   app->dbm->exec ("select value from system_parameters where parameter='evernoteAuthToken';",
       &checkAuthTokenCallback, (void*) this);
 
+  server = "";
+  /* Check whether we are currently connected to prod or sandbox. */
+  app->dbm->exec ("select value from system_parameters where parameter='evernoteServer';", &checkEvernoteServerCallback, (void*) this);
+
   if (authToken.length () != 0) {
     updateSequenceNumber = -1;
     app->dbm->exec ("select value from system_parameters where parameter='evernoteUpdateSequenceNumber';",
         &checkUpdateSequenceNumberCallback, (void*) this);
+    
+    if (server.length () != 0) {
+      if (!server.compare ("www.evernote.com"))
+        domain = 2;
+      else if (!server.compare ("sandbox.evernote.com"))
+        domain = 1;
+      else
+        domain = -1;
+    }
 
     if (updateSequenceNumber != -1) {
-      getUserStore ();
+      getUserStore (domain);
       getNoteStore (); 
-      
+
       evernote::SyncState* syncState = getSyncState ();
 
       if (syncState->updateCount > updateSequenceNumber) {
@@ -485,12 +545,24 @@ int EvernoteSyncClient::sync () {
     }
     return 0;
   } else {
-     createOAuthManager_t* createOAuthManager_p = (createOAuthManager_t*) dlsym (handle, 
+    if (domain == 2)
+      server = "www.evernote.com";
+    else
+      server = "sandbox.evernote.com";
+
+
+    createOAuthManager_t* createOAuthManager_p = (createOAuthManager_t*) dlsym (handle, 
         "createOAuthManager");
 
-    oAuthManager = createOAuthManager_p (consumerKey,
-        consumerSecret, requestTokenUrl, requestTokenQueryArgs, authorizeUrl,
-        accessTokenUrl);
+    if (domain == 2) 
+      oAuthManager = createOAuthManager_p (consumerKey,
+          consumerSecret, requestTokenUrl, requestTokenQueryArgs, authorizeUrl,
+          accessTokenUrl);
+    else if (domain == 1){ 
+      oAuthManager = createOAuthManager_p (consumerKeySandbox,
+          consumerSecretSandbox, requestTokenUrlSandbox, requestTokenQueryArgsSandbox,
+          authorizeUrlSandbox, accessTokenUrlSandbox);
+    }
 
     OAuthManager_generateRequestTokenUrl_t* OAuthManager_generateRequestTokenUrl_p =
       (OAuthManager_generateRequestTokenUrl_t*) dlsym (handle, "OAuthManager_generateRequestTokenUrl");

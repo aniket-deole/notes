@@ -44,8 +44,10 @@ public:
     void searchEntryClicked ();
     void toggleHeaderBarCallback ();
     void syncButtonCallback ();
+    void syncButtonSandboxCallback ();
+    void syncButtonConsolidatedCallback (int);
     bool on_timeout ();
-    static void* asynchronousSync (void* data);
+    static void* asynchronousSync (void* data, int);
 
     bool connectedToEvernote;
     static std::string headerBarSubStatus;

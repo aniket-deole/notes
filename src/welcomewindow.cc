@@ -35,7 +35,7 @@ WelcomeWindow::WelcomeWindow(bool homogeneous, int spacing, Gtk::PackOptions opt
 								" background-image:none; background-color:white;\n}\n");
 	pack_start (*welcomeString, false, true, 0);
 	
-  evernoteSyncChoiceString = Gtk::manage (new Gtk::Label ("Would you like to connect to Evernote (Sandbox environment)?", false));
+  evernoteSyncChoiceString = Gtk::manage (new Gtk::Label ("Would you like to connect to Evernote ?", false));
  	addCss (evernoteSyncChoiceString, "evernoteSyncChoiceString", ".evernoteSyncChoiceString{\n color:#888;\n font: OpenSans light 14; padding-top:10px;padding-bottom:10px; "
 								" background-image:none; background-color:white;\n}\n");
 	pack_start (*evernoteSyncChoiceString, false, true, 0);
@@ -45,12 +45,19 @@ WelcomeWindow::WelcomeWindow(bool homogeneous, int spacing, Gtk::PackOptions opt
   pack_start(*al, false, true); 
   
  Gtk::Box* buttonBox = Gtk::manage (new Gtk::Box ());
-  syncWithEvernoteButton = Gtk::manage (new Gtk::Button ("Sync With Evernote", false));
+  syncWithEvernoteButton = Gtk::manage (new Gtk::Button ("Sync With Evernote Production", false));
   addCss (syncWithEvernoteButton, "syncWithEvernoteButton", ".syncWithEvernoteButton {"
       "border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;"
       "	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;\n}\n");
 
   buttonBox->pack_start (*syncWithEvernoteButton, true, false, 0);
+ 
+  syncWithEvernoteSandboxButton = Gtk::manage (new Gtk::Button ("Sync With Evernote Sandbox", false));
+  addCss (syncWithEvernoteSandboxButton, "syncWithEvernoteSandboxButton", ".syncWithEvernoteSandboxButton {"
+      "border-radius: 0px; border: 0px solid; -unico-inner-stroke-width: 0px;"
+      "	-unico-outer-stroke-width: 0px;-GtkButton-inner-border: 0;\n}\n");
+
+  buttonBox->pack_start (*syncWithEvernoteSandboxButton, true, false, 0);
  
   dontSyncButton = Gtk::manage (new Gtk::Button ("Don't use Evernote", false));
   addCss (dontSyncButton, "dontSyncButton", ".dontSyncButton{"
@@ -62,6 +69,8 @@ WelcomeWindow::WelcomeWindow(bool homogeneous, int spacing, Gtk::PackOptions opt
   add (*buttonBox);
   syncWithEvernoteButton->signal_clicked()
     .connect(sigc::mem_fun(*app->mainToolbar, &MainToolbar::syncButtonCallback));
+  syncWithEvernoteSandboxButton->signal_clicked ()
+    .connect (sigc::mem_fun (*app->mainToolbar, &MainToolbar::syncButtonSandboxCallback));
   dontSyncButton->signal_clicked()
     .connect(sigc::mem_fun(*this, &WelcomeWindow::dontSyncCallback));
 

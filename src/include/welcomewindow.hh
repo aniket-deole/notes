@@ -31,6 +31,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 class WelcomeWindow: public Gtk::Box {
 private:
   Gtk::Button* syncWithEvernoteButton;
+  Gtk::Button* syncWithEvernoteSandboxButton;
   Gtk::Button* dontSyncButton;
 
   Gtk::Label* welcomeString;

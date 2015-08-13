@@ -7,7 +7,7 @@
 class SyncClient {
 public:
 	Notify* app;
-	virtual int sync () = 0;
+	virtual int sync (int) = 0;
 };
 
 
@@ -22,9 +22,9 @@ public:
 	void removeSyncClient (SyncClient* sc) {
 		
 	}
-	int sync () {
+	int sync (int domain) {
 		for (unsigned int i = 0; i < clients.size (); i++) {
-			clients[i]->sync ();
+			clients[i]->sync (domain);
 		}
 		return 0;
 	}

@@ -8,7 +8,8 @@
 class EvernoteSyncClient : public SyncClient {
 	private:
 		std::string authToken;
-		bool authTokenQueryDone;
+    std::string server;
+    bool authTokenQueryDone;
 
     long updateSequenceNumber;
     bool updateSequenceNumberQueryDone;
@@ -19,11 +20,12 @@ class EvernoteSyncClient : public SyncClient {
 
 		static int checkAuthTokenCallback (void* esc, int argc, char** argv, char** azColName);
     static int checkUpdateSequenceNumberCallback (void* esc, int argc, char** argv, char** azColName);
+    static int checkEvernoteServerCallback (void*, int, char**, char**);
 public:
 	EvernoteSyncClient (Notify* app) {
 		this->app = app;
 	}
-	int sync ();
+	int sync (int);
 	static void firstStageComplete(WebKitWebView  *web_view,
                WebKitWebFrame *web_frame,
                gpointer        user_data); 
@@ -42,7 +44,7 @@ public:
   void syncNotebooks (long updateSequenceNumber);
 
   int getNoteStore ();
-  int getUserStore ();
+  int getUserStore (int);
 
   evernote::SyncState* getSyncState ();
   evernote::SyncChunk* getFilteredSyncChunk (int afterUSN,

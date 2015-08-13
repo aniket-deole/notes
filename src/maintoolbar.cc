@@ -134,9 +134,9 @@ void MainToolbar::toggleHeaderBarCallback () {
   }
 }
 
-void* MainToolbar::asynchronousSync (void* data) {
+void* MainToolbar::asynchronousSync (void* data, int domain) {
   MainToolbar* d = static_cast<MainToolbar*>(data);
-  d->app->sm->sync ();
+  d->app->sm->sync (domain);
   return NULL;
 }
 
@@ -150,9 +150,7 @@ int MainToolbar::checkAuthTokenCallback (void* p, int argc, char** argv, char** 
 	return 0;
 }
 
-
-void MainToolbar::syncButtonCallback () {
-	
+void MainToolbar::syncButtonConsolidatedCallback (int domain) {
 	tempAuthToken = "";
 	app->dbm->exec ("select value from system_parameters where parameter='evernoteAuthToken';",
 			&checkAuthTokenCallback, (void*) this);
@@ -195,7 +193,15 @@ void MainToolbar::syncButtonCallback () {
     Glib::signal_timeout().connect(sigc::mem_fun(*this,
           &MainToolbar::on_timeout), 50 );
 
-			asynchronousSync (this);
+		asynchronousSync (this, domain);
+}
+
+void MainToolbar::syncButtonSandboxCallback () {
+  syncButtonConsolidatedCallback (1);
+}
+
+void MainToolbar::syncButtonCallback () {
+  syncButtonConsolidatedCallback (2);
 }
 
 bool MainToolbar::on_timeout()
