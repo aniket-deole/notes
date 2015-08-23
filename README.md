@@ -53,6 +53,11 @@ cd ..
 
 make test
 ```
+You can invoke 
+```
+make clean-db
+```
+to remove the local db and start over by logging again in the server of your choice (sandbox/prod).
 
 ======
 
