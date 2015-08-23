@@ -356,7 +356,10 @@ void EvernoteSyncClient::thirdStageComplete (WebKitWebView* webView,
       NULL, NULL);
 
   esc->actualSync (authToken, 0, -1);
+  esc->sync (-1);
 }
+
+
 
 void EvernoteSyncClient::secondStageComplete (WebKitWebView *webView,
     WebKitWebFrame* webFrame, gpointer userData) {
