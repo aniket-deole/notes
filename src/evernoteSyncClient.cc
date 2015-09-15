@@ -174,8 +174,6 @@ int EvernoteSyncClient::getNoteStore () {
 
     NoteStore_listNotebooks_t* NoteStore_listNotebooks_p = (NoteStore_listNotebooks_t*) dlsym (handle, "NoteStore_listNotebooks");
     std::vector<evernote::Notebook*>* notebookList = NoteStore_listNotebooks_p (noteStore, authToken);
-    std::cout << notebookList->size () << std::endl;
-
   }
   return 0; 
 }
@@ -243,7 +241,6 @@ void EvernoteSyncClient::actualSync (std::string authToken, long updateSequenceN
   filter->includeNotebooks = true;
 
   while (updateSequenceNumber < syncStateUSN) {
-    std::cout << updateSequenceNumber << ":" << syncStateUSN << std::endl;
     evernote::SyncChunk* syncChunk = getFilteredSyncChunk (updateSequenceNumber, 
         5000, filter);
 
@@ -257,17 +254,16 @@ void EvernoteSyncClient::actualSync (std::string authToken, long updateSequenceN
 
     for (int i = 0; i < (int) syncChunk->notes.size (); i++) {
       evernote::Note* note = syncChunk->notes.at (i);
-/*
+
       NoteStore_getNote_t* NoteStore_getNote_p = (NoteStore_getNote_t*) dlsym (handle, "NoteStore_getNote");
-      //
-      //      evernote::Note* noteWithContent = NoteStore_getNote_p (noteStore, authToken, 
-      //          syncChunk->notes[i]->guid, true, true, false, false);
+      
+      evernote::Note* noteWithContent = NoteStore_getNote_p (noteStore, authToken, 
+      syncChunk->notes[i]->guid, true, true, false, false);
 
-      //      Note_enmlToHtml_t* Note_enmlToHtml_p = (Note_enmlToHtml_t*) dlsym (handle, "Note_enmlToHtml");
-      //      Note_enmlToHtml_p (noteWithContent);
+      Note_enmlToHtml_t* Note_enmlToHtml_p = (Note_enmlToHtml_t*) dlsym (handle, "Note_enmlToHtml");
+      Note_enmlToHtml_p (noteWithContent);
 
-  */ 
-      evernote::Note* noteWithContent = note;
+ 
       sqlite3_stmt *pStmt;
       const char *zSql = "INSERT INTO notes (title, body, created_time, modified_time, guid, notebook_guid,usn, dirty) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
       int rc = sqlite3_prepare_v2(app->dbm->db, zSql, -1, &pStmt, 0);
@@ -276,7 +272,6 @@ void EvernoteSyncClient::actualSync (std::string authToken, long updateSequenceN
         note->updated->timestamp = note->created->timestamp;
       }
       std::string title = replaceSingleQuote (noteWithContent->title).c_str ();
-      std::cout << note->updated->timestamp << "|" << title << std::endl;
       sqlite3_bind_text(pStmt, 1, title.c_str (), -1, SQLITE_STATIC);
       std::string contentHtml = replaceSingleQuote (noteWithContent->contentHtml);
       sqlite3_bind_text(pStmt, 2, contentHtml.c_str (), -1, SQLITE_STATIC);
@@ -305,6 +300,7 @@ void EvernoteSyncClient::actualSync (std::string authToken, long updateSequenceN
           saveResource (resource); 
         }
       }
+      delete noteWithContent;
       delete note;
     }
 
