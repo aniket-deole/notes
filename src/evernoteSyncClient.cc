@@ -275,8 +275,8 @@ void EvernoteSyncClient::actualSync (std::string authToken, long updateSequenceN
       sqlite3_bind_text(pStmt, 1, title.c_str (), -1, SQLITE_STATIC);
       std::string contentHtml = replaceSingleQuote (noteWithContent->contentHtml);
       sqlite3_bind_text(pStmt, 2, contentHtml.c_str (), -1, SQLITE_STATIC);
-      sqlite3_bind_int64(pStmt, 3, note->created->timestamp);
-      sqlite3_bind_int64(pStmt, 4, note->updated->timestamp);
+      sqlite3_bind_int64(pStmt, 3, note->created->timestamp / 1000);
+      sqlite3_bind_int64(pStmt, 4, note->updated->timestamp / 1000);
       sqlite3_bind_text(pStmt, 5, noteWithContent->guid->guid.c_str (), -1, SQLITE_STATIC);
       sqlite3_bind_text(pStmt, 6, noteWithContent->notebookGuid.c_str (), -1, SQLITE_STATIC);
       sqlite3_bind_int(pStmt, 7, 0);
