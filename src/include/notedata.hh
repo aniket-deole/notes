@@ -76,6 +76,8 @@ public:
   std::string getNotebookName () {
     return notebookName;
   }
+
+  std::string generateSummaryFromContent ();
 };
 
 

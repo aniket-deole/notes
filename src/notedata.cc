@@ -48,25 +48,14 @@ static inline std::string &trim(std::string &s) {
         return ltrim(rtrim(s));
 }
 
-NoteData::NoteData (int p_key, std::string t, std::string b,long long create_time, long long modified_time, std::string g, std::string n_guid,
-        std::string n_name) {
-    primary_key = p_key;
-    title = t;
-    body = b;
-    create_unix_time = create_time;
-    modified_unix_time = modified_time;
-    guid = g;
-    notebook_guid = n_guid;
-    notebookName = n_name;
-
-    /* Create summary to display in the note list pane view. */
-//    std::cout << b << std::endl;
-	
-	    /* Removing HTML Tags */
+std::string NoteData::generateSummaryFromContent () {
+    /* Removing HTML Tags */
     std::string strippedSummary = "";
     std::vector<std::string>    tags;
     std::vector<std::string>    text;
-
+    std::string b = body;
+    std::cout << title << std::endl;
+    
     for(;;)
     {
         std::string::size_type  startpos;
@@ -135,7 +124,6 @@ NoteData::NoteData (int p_key, std::string t, std::string b,long long create_tim
 
     for(size_t i = 0; i < text.size(); i++)
     {
- //       
         strippedSummary.append (text[i]);
     }
 
@@ -145,7 +133,26 @@ NoteData::NoteData (int p_key, std::string t, std::string b,long long create_tim
     strippedSummary = ReplaceString (strippedSummary, "&nbsp;", " ");
     strippedSummary = ReplaceString (strippedSummary, "\n", " ");
     strippedSummary = ReplaceString (strippedSummary, "&", "&amp;");
+    strippedSummary = ReplaceString (strippedSummary, "\t", " ");
+    
+    return trim (strippedSummary);
+}
 
-    summary = trim (strippedSummary);
+NoteData::NoteData (int p_key, std::string t, std::string b,long long create_time, long long modified_time, std::string g, std::string n_guid,
+        std::string n_name) {
+    primary_key = p_key;
+    title = t;
+    body = b;
+    create_unix_time = create_time;
+    modified_unix_time = modified_time;
+    guid = g;
+    notebook_guid = n_guid;
+    notebookName = n_name;
+
+    /* Create summary to display in the note list pane view. */
+//    std::cout << b << std::endl;
+    
+
+	  summary = generateSummaryFromContent ();
 //    std::cout << strippedSummary << std::endl;
 }
