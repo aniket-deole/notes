@@ -1,6 +1,6 @@
 Notes
 =======
-Notes For Linux
+Notes For Linux (No longer developed or maintained)
 
 A Note taking application for Linux build in Gtk that aims to be an Evernote client.
 
